@@ -1,0 +1,33 @@
+
+1. showmount 命令找不到
+
+
+    yum install nfs-utils.x86_64
+
+
+2. 查看nfs共享的资料
+
+    showmount  -e 192.168.4.254
+
+    挂在到本地
+    将这个IP地址共享的share目录挂在到本地的mnt目录
+    mount 192.168.4.254:/share /mnt
+
+
+3.  ftp共享
+
+    位置 -->  连接到服务器 --> 服务器: 192.168.4.254  选择连接
+
+4. vim配置工具的使用
+
+    vim_config.tar.bz2
+
+    tar -xjvf vim_config.tar.bz2 
+    cd vim_config
+    #安装vim相关的插件和配置
+    ./install
+
+
+
+
+    

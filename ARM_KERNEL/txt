@@ -1,0 +1,1814 @@
+
+kernel:
+1day:
+    1)架构, 目录结构;
+    2)Makefile 加入代码进内核
+        obj-y   += test.o 
+                ^
+    3)Kconfig  加入配置进内核
+        obj-$(CONFIG_TEST)  += test.o
+    4)module   内核模块开发
+        obj-m   += test.o
+        test.ko
+
+        struct module
+        
+        module_init();
+            1)插入模块时, 内核调用的入口函数名;
+            2)开机自动调用的函数名;
+
+        module_exit();
+            1)拔出模块时, 内核调用的出口函数名;
+        
+        多模块编译
+            test.ko -> func.ko
+        多文件模块编译
+            obj-m += mod.o
+            mod-objs += test.o func.o
+        导出符号
+        模块传参
+        模块工具
+            insmod  插入模块
+            rmmod   拔出模块
+            modprobe    
+                modprobe    test
+                modprobe -r test
+            modinfo test.ko
+            depmod  自动生成依赖信息
+        模块宏
+    5)系统调用
+        app -> api -> kernel -> module
+               ^^^
+        swi #...
+        svc #...
+        calls.S (系统调用函数列表)
+    
+2day:
+    1)字符设备框架
+        字符设备/块设备/网络设备
+        
+        字符设备: 字符为单位访问;
+        块设备  : 高级缓存算法, 块为单位访问;
+        网络设备: eth0 (网卡端口)
+                  socket
+
+    2)设备文件  
+        用户访问设备驱动的接口; /dev/sda /dev/input/event0 
+        字符设备: c
+        块设备  : b
+
+      设备号
+        主设备号: 一类设备;     uart
+        次设备号: 某一个设备;   uart0 uart1 uart2 uart3
+
+        /dev/test    
+        250 0
+
+        MAJOR(dev_t) -> major   12bit
+        MINOR(dev_t) -> minor   20bit
+             
+        MKDEV(major, minor) -> devno
+
+    3)注册字符设备
+        struct cdev *
+
+        register_chrdev
+        unregister_chrdev
+        
+        static inline int register_chrdev(unsigned int major, const char *name,
+                          const struct file_operations *fops)
+            绑定设备号和操作集合;
+        
+        major : 主设备号;
+        name  : 设备名称;
+        fops  : 设备操作集合;
+
+        返回值: 注册设备是否成功;
+                 
+        static inline void unregister_chrdev(unsigned int major, const char *name)
+
+        major : 主设备号; 和注册时一致;
+        name  : 设备名称; 和注册时一致;
+
+        注册了主设备号:248 次设备号:0-255
+        
+    4)增加引用计数:
+        try_module_get  
+        module_put
+        struct module __this_module
+        struct file_operations fops = {
+            .owner = THIS_MODULE,           系统自动加引用计数; 
+            ...
+        };
+
+    5)read和write
+        read: app read kernel -> driver -> board
+              copy to user
+
+        ssize_t test_read(struct file *filp, char __user *buf, size_t size, loff_t *offset)
+
+        struct file* : 一次打开文件描述;
+        buf : 用户空间的地址;
+        size: 需要copy的数据大小;
+        offset: 需要驱动修改偏移;
+
+        write:kernel read app
+              copy from user
+
+        ssize_t test_write(struct file *filp, const char __user *buf, size_t size, loff_t *offset)
+
+    6)copy_to_user/copy_from_user (不能使用memcpy)
+        返回没有拷贝成功的个数;
+        if(测试用户空间地址是否可以访问)
+            memcpy();
+        return len;
+
+    7)lseek
+        struct file
+            f_op        文件操作集合
+            f_mode      文件权限
+            f_pos       文件偏移量;
+
+        read/write 不能直接修改f_pos;
+        lseek  可以直接修改filp->f_pos;
+    
+    8)open/close
+        
+        struct inode
+            i_rdev  <-- dev_t
+            i_mode
+            
+        设备号:
+            32bit
+            12bit + 20bit
+            major   minor
+
+            MAJOR();
+            MINOR();
+            MKDEV();
+
+        container_of();
+        filp->private_data = tdev;
+
+        内核的编程思想:
+            1)分层架构;
+                device_init
+                device_send
+                device_recv
+                device_uninit
+                ----------
+                cdev    file_operations
+                -----------
+                module  
+            2)面向对象;
+                struct test_dev
+                struct cdev
+                struct module
+
+    9)ioctl
+        万能函数; 杂函数; cmd -> 做不同的行为;
+        ioctl-number.txt : ioctl命令设计和使用;
+
+        32bit
+        3       13      8       8
+        dir     size    type    nr
+       
+        _IO(type, nr)
+        _IOR(type, nr, int)
+        _IOW(type, nr, double)
+        _IOWR(type, nr, struct data*)
+
+        LED_TYPE    0x1
+        
+        _IOC_TYPE
+        _IOC_DIR
+        _IOC_NR
+        _IOC_SIZE
+
+    10)gpio
+        1)静态映射; (直接映射) (虚拟地址和物理地址映射)
+            内核开机自动完成;
+            gpio_direction_output();
+            gpio_direction_input();
+            gpio_request();
+            gpio_free();
+
+            EXYNOS4X12_GPM4(0);
+
+        2)动态映射; (临时映射)
+            virt = ioremap(cookie,size); 建立物理的虚拟地址映射;
+            cookie : 物理地址;
+            virt : 虚拟地址;
+            size : 映射大小;
+
+            iounmap(virt);               取消虚拟地址的映射;
+
+3day:
+    1)代码的可移植性;
+        . 头文件使用:
+            linux/xxxx.h
+        错误码:
+            asm-generic/errno-base.h
+            ENOMEM
+            EFAULT
+            ...
+
+            asm-generic/errno.h
+            ...
+
+            arch/arm/include/generated/asm/errno.h
+            ...
+
+            linux/errno.h       <-- 包含这个;
+            ...
+
+        . 函数的调用:
+            register_chrdev();  <-- 调用这个;
+            __register_chrdev();
+
+    2)进程栈空间:
+        用户空间栈: (0G-3G) 10M
+            user_sp         
+
+        内核空间栈: (3G-4G) 8K/16K THREAD_SIZE
+            svc_sp
+
+    3)当前进程task_struct:
+        current -> 指向当前进程;
+
+    4)当前内核线程thread_info: (内核栈底部)
+        current_thread_info(); -> 指向当前线程;
+
+    5)阻塞io/非阻塞io
+        1. 死循环阻塞;
+            内核态死循环; (单核不可抢占内核, 死机)
+                          (单核可抢占内核, 大量占用资源)
+        2. 不可中断睡眠;
+            D (不可被信号打断)
+               kill -9 xxxx 叫不醒 
+            wake_up_process
+        3. 可中断睡眠;      
+            S (可被信号打断)
+               kill -9 xxxx 能叫醒
+            wake_up_process
+
+        注意:
+            内核态不处理信号, 回到用户态才处理信号;
+            signal_pending(); 测试当前进程是否收到信号;
+
+            return -EINTR;
+            return -ERESTARTSYS;    重新系统调用;
+
+            signal(SIGINT, func);   
+
+    6)内核链表:
+        include/linux/list.h 
+
+        LIST_HEAD();
+        INIT_LIST_HEAD();
+        list_add();
+        list_add_tail();
+        list_del();
+        list_del_init();
+        list_is_last();
+        list_empty();
+        list_first_entry();
+        list_entry();
+        ....
+
+    7)阻塞队列:
+        定义:
+        wait_queue_head_t wq;
+
+        初始化:
+        void init_waitqueue_head(wait_queue_head_t *wq);
+
+        定义并初始化:
+        DECLEAR_WAIT_QUEUE_HEAD(name);
+
+        等待事件:
+        void wait_event(wq, condition);              //D
+        int wait_event_interruptible(wq, condition); //S 返回非0, 被信号中断
+        int wait_event_interruptible_exclusive(wq, condition); //返回非0, 被信号中断
+
+        唤醒等待进程:
+        void wake_up(&wq);                           //叫醒全部
+        void wake_up_interruptible(&wq);             //叫醒全部
+        void wake_up_interruptible_nr(&wq, nr);      //叫醒nr个阻塞的进程;
+
+                         无数据
+                直接结束        阻塞等待
+                            /             \
+                        轮询阻塞          睡眠阻塞
+                      大量浪费资源
+
+                    
+                        睡眠阻塞
+                /                       \
+            不可中断睡眠            可中断睡眠
+          (不可被信号打断)       (可以被信号打断)
+                                /                   \
+                              信号叫醒            写数据叫醒
+                        (回到用户态处理信号)    (读出数据结束)
+                        return -EINTR;
+                        return -ERESTARTSYS;
+                        
+
+
+    8)poll/select 
+        unsigned int (*poll)(struct file *filp, struct poll_table_struct *ptable)
+        
+        struct file: 打开文件描述;
+        struct poll_table_struct: 
+
+        poll_wait(filp, &wq, ptable);
+        if(!empty)
+            return POLLIN;
+
+        POLLIN
+        POLLOUT
+
+    9)异步通知:
+        fasync_helper(fd, filp, on, &fapp); //加入或者拔出异步队列;
+        kill_fasync(&fapp, SIGIO, POLL_IN); //给异步队列中的进程发送SIGIO信号;
+
+
+4th:
+. 第二种字符设备注册方式:
+    设备号: 32bit
+            12|20bit
+          4096 1M
+        主设备号 MAJOR
+        次设备号 MINOR  uart0 uart1 uart2 uart3 ... 
+
+        register_chrdev : 注册256个次设备;
+        __register_chrdev: 
+            int __register_chrdev(unsigned int major, unsigned int baseminor,
+                          unsigned int count, const char *name,
+                          const struct file_operations *fops)
+
+            major: 主设备号;
+            baseminor : 第一个次设备号;
+            count: 次设备号个数;
+            name : 设备名;
+            fops : 操作集合;
+        __unregister_chrdev();
+
+          
+        register_chrdev_region();       申请设备号;
+        alloc_chrdev_region();          动态申请设备号;
+        cdev_alloc();                   开辟cdev结构体空间;
+        cdev_init();                    初始化cdev;绑定dev_t 和 fops;
+        cdev_add();                     cdev加入系统中;
+
+        cdev_del(); 
+        unregister_chrdev_region();
+
+
+. 内核容错方式:
+    . 资源泄漏;
+    . 统一容错;
+        goto 
+    . 错误号;
+        ENOMEM
+        EINTR
+        
+        errno
+        include/asm-generic/errno-base.h
+
+    . IS_ERR_VALUE
+    . IS_ERR_OR_NULL
+        NULL 0xfffff000 ~ 0xffffffff 
+        -1 ~ -4095  
+
+---------------------------------------------------------------------
+. 竞争:
+    多任务并发...... 
+    共用资源......
+    
+. 抢占:
+    线程与线程;
+    信号与线程;
+    中断与线程;
+
+    禁止抢占, 解决竞争; (禁止别的进程在内核态占用cpu资源)
+
+. 内核(抢占)分类:
+    可抢占内核;     (在内核态允许抢占)      board 可抢占   (正常)
+    不可抢占内核;   (在内核态不允许抢占)    pc    不可抢占 (死机)
+        单核是不存在竞争;
+
+    preempt_disable: 只适用于单核;
+    preempt_enable : 使能内核态抢占; 
+    
+    注意:
+        单核有效;
+        禁止抢占保护的代码不允许睡眠阻塞;
+        禁止抢占只适用于内核态, 用户态存在抢占;
+
+    preempt_count();
+    struct thread_info
+
+    pc_cpu0 pc_cpu1 pc_cpu2 pc_cpu3
+
+
+. 锁:
+    0: 没有加锁;
+    1: 加锁成功;
+    str
+    ldr
+
+    ldrex   四个核可以同时读, 不能同时写;
+    strex   V   必须先ldrex, 再strex, 否则一定失败;
+    strex   X
+
+    ldrex rd, [rn]
+    strex rd, rm, [rn]
+        rd: 0 (表示成功)
+            1 (表示失败)
+
+    锁解决多核竞争;
+
+. 自旋锁:
+    适用于中断上下文;
+    spinlock_t lock;
+
+    spin_lock_init();
+    spin_lock();        加锁失败, 死循环等待;
+        1)先禁止抢占;
+        2)再加锁;
+    spin_unlock();
+    spin_trylock();     1 表示加锁成功;
+
+    注意:
+        1)spinlock保护的代码必须尽快完成; (期间可能出现死机)
+        2)spinlock保护的代码不能睡眠;
+        3)适用于中断处理;
+
+    0 : 没有加锁;
+    1 : 加锁了;
+        
+. 互斥锁:
+    适用于进程上下文;
+    struct mutex mutex;  
+
+    mutex_init();
+    mutex_lock();       加锁失败, 睡眠阻塞;
+        1)只是加锁; (没有禁止抢占);
+        D
+    mutex_lock_interruptible();   返回-EINTR 被信号打断; 返回0 表示有解锁; 
+        S
+    mutex_trylock();    1表示加锁成功; 0表示加锁失败;
+    mutex_unlock();
+
+    1: 解锁(没有加锁);
+    0: 加锁;
+    -1:阻塞;
+    -1:
+    -1:
+    -1:
+
+    注意:
+        1)mutex保护的代码可以慢慢完成; (没有禁止抢占, 不会出现死机现象)
+        2)mutex保护的代码可以睡眠;
+
+
+                            竞争
+
+                禁止抢占                加锁
+                (单核)                  (多核)
+    不可抢占内核    可抢占内核
+    (不存在竞争)    (preempt_disable)
+
+
+                            加锁
+
+                自旋锁                                  互斥锁
+
+    spin_lock       spin_trylock        mutex_trylock           mutex_lock
+    (加锁失败死循环)(失败直接返回0)     (失败直接返回0)
+                            
+
+                            mutex_lock
+                          (加锁失败睡眠)
+
+                mutex_lock              mutex_lock_interruptible
+                    D                               S
+                                        /                   \
+                                    信号打断                mutex_unlock(叫醒)
+                                    return -EINTR
+
+    注意:
+        1)谁加的锁谁解;     spin_lock();    spin_unlock();
+        2)不能拿着锁, 退出程序; return 0;
+
+------------------------------------------------------------------------------
+. 锁:
+    互斥锁              0   1
+    共享锁(读锁)        0   1 2 3 4 5 6 7 8 9 10
+        10  加锁-1
+                -1
+                -1
+    共享独占锁(读写锁)  0   1 2 3 4 5 6 7 8 9 10
+        10  加读锁-1
+            加写锁-10
+
+    写拷贝锁            0   1 2 3 4 5 6 7 8 9 10
+        10  加读锁-1
+            加写锁-10
+
+        读的人读备份的旧数据;
+        写的人写新数据;
+
+    写区域锁
+        offset start 
+        int count 
+        unsigned long lock
+
+. 原子变量:
+    atomic_t value;
+    
+    atomic_set();
+    atomic_read();
+
+    atomic_add();
+    atomic_add_return();
+    atomic_sub();
+    atomic_sub_return();
+    atomic_xchg(&value, 0);     <--- V
+    atomic_cmpxchg();           <--- V
+    atomic_clear_mask();
+     
+    #define atomic_inc(v)       atomic_add(1, v)
+    #define atomic_dec(v)       atomic_sub(1, v)
+
+    #define atomic_inc_and_test(v)  (atomic_add_return(1, v) == 0)
+    #define atomic_dec_and_test(v)  (atomic_sub_return(1, v) == 0)
+    #define atomic_inc_return(v)    (atomic_add_return(1, v))
+    #define atomic_dec_return(v)    (atomic_sub_return(1, v))
+    #define atomic_sub_and_test(i, v) (atomic_sub_return(i, v) == 0)
+
+    #define atomic_add_negative(i,v) (atomic_add_return(i, v) < 0)
+
+. 完成量    (wait_queue_head_t)
+    生产者消费者模型;
+    struct completion {
+        unsigned int done;
+        wait_queue_head_t wait;
+    };
+
+    struct completion com;  
+    
+    init_completion(&com);  设置成0;
+
+    void wait_for_completion(struct completion *com);
+    wait_for_completion_timeout();
+    int wait_for_completion_interruptible(struct completion *com);
+    wait_for_completion_interruptible_timeout();
+
+    if(done == 0)
+        睡眠
+    else
+        done --;
+
+    void complete(struct completion *com);      叫醒一个等待完成的进程;
+        done ++;
+        wake_up;
+
+    void complete_all(struct completion *com);
+        done += MAX_INT / 2;
+        wake_up;
+
+. 信号量
+    1)实现互斥锁;
+    2)实现完成量;
+
+    struct semaphore {
+        raw_spinlock_t          lock;
+        unsigned int            count;
+        struct list_head        wait_list;
+    };
+    
+    struct semaphore sem;
+
+    void sema_init(struct semaphore *sem, int val);
+
+    #define init_MUTEX(sem) sema_init(sem, 1)
+    #define init_MUTEX_LOCKED(sem) sema_init(sem, 0)
+
+    DECLARE_MUTEX(sem);  //count的初始值为1
+
+    void down(struct semaphore *sem);
+    int down_interruptible(struct semaphore *sem);
+    int down_trylock(struct semaphore *sem);
+    void up(struct semaphore *sem);
+
+. 原子位
+    set_bit             置1
+    clear_bit           清0
+    change_bit          取反
+
+    test_and_set_bit
+    test_and_clear_bit
+    test_and_change_bit
+    test_bit
+
+    _set_bit
+    _clear_bit
+    _change_bit
+
+    注意:
+        以上的位操作函数当前内核没有实现;
+
+    __set_bit(nr, p);       nr : 0~43亿;
+    __clear_bit
+    __change_bit
+
+    __....
+
+. 中断
+    中断抢占进程(内核线程)
+
+    中断向量表;
+    cpsr.F I
+
+    #include <linux/interrupt.h>
+
+    int request_irq(unsigned int irq, irq_handler_t handler, 
+            unsigned long irqflags, const char *devname, void *dev_id)
+
+        irq:
+            中断号 arch/arm/plat-s3c64xx/include/plat/irqs.h
+
+            注意: 不同于gic的中断号;
+            IRQ_EINT();
+
+            arch/arm/mach-exynos/include/mach/irqs.h
+            arch/arm/plat-samsung/include/plat/irqs.h
+            #define IRQ_PPI(x)          (x + 16)
+
+            /* SPI: Shared Peripheral Interrupt */
+
+            #define IRQ_SPI(x)          (x + 32)
+
+            /* COMBINER */
+
+            #define MAX_IRQ_IN_COMBINER     8           
+            #define COMBINER_GROUP(x)       ((x) * MAX_IRQ_IN_COMBINER + IRQ_SPI(128))
+            #define COMBINER_IRQ(x, y)      (COMBINER_GROUP(x) + y)
+
+            #define EXYNOS4_MAX_COMBINER_NR     20 
+            #define EXYNOS5_MAX_COMBINER_NR     32 
+
+            #define MAX_COMBINER_NR         (EXYNOS4_MAX_COMBINER_NR > EXYNOS5_MAX_COMBINER_NR ? \
+                                EXYNOS4_MAX_COMBINER_NR : EXYNOS5_MAX_COMBINER_NR)
+
+
+            #define S5P_EINT_BASE1          COMBINER_IRQ(MAX_COMBINER_NR, 0)
+            #define S5P_EINT_BASE2          (S5P_EINT_BASE1 + 16)
+            #define S5P_GPIOINT_BASE        (S5P_EINT_BASE1 + 32)
+            #define IRQ_GPIO_END            (S5P_GPIOINT_BASE + S5P_GPIOINT_COUNT)
+            #define IRQ_BOARD_START         IRQ_GPIO_END
+            #define IRQ_TIMER_BASE          (IRQ_GPIO_END + 64)
+
+            #define NR_IRQS             (IRQ_TIMER_BASE + IRQ_TIMER_COUNT)
+    
+            SGI     0-15
+            PPI     16-31
+            SPI     32-159
+            COMBINER_IRQ    160-415
+            S5P_EINT_BASE1  416-431         +16
+            S5P_EINT_BASE2  431-447         +16
+            S5P_GPIOINT_BASE    447
+            IRQ_GPIO_END        448-479
+            保留                480-543
+            IRQ_TIMER_BASE      544-549
+
+        handler:
+            中断处理函数 irqreturn_t handler(int irq, void *dev_id);
+            irqreturn_t:
+                See include/linux/irqreturn.h
+
+            enum irqreturn {    
+                IRQ_NONE        = (0 << 0),
+                IRQ_HANDLED     = (1 << 0),
+                IRQ_WAKE_THREAD     = (1 << 1),
+            };
+
+
+        irqflags:
+            See line 21-59 in include/linux/interrupt.h
+            使用IRQF_SHARED共享irq时, irqflags必须相同
+            如:  	request_irq(IRQ_EINT(0), handler1, 
+                    IRQF_TRIGGER_FALLING | IRQF_SHARED, "dev1", &dev1);
+
+                request_irq(IRQ_EINT(0), handler2, 
+                    IRQF_TRIGGER_FALLING | IRQF_SHARED, "dev2", &dev2);
+
+                IRQF_TRIGGER_NONE : 默认;
+
+        devname:
+            设备名, cat /proc/interrupts
+
+        dev_id:
+            发生中断时将dev_id传递给handler函数,
+                irqflags含有IRQF_SHARED时dev_id不能为NULL, 并且要保证唯一
+            dev_id一般采用当前设备的结构体指针
+
+    struct irqaction *action;   kzalloc 加入到desc链表尾部;
+    struct irq_desc *desc;      irq --> desc(next)
+
+
+    void free_irq (	unsigned int irq, void * dev_id);
+        释放匹配irq和dev_id的中断, 如果irq有多个相同的dev_id, 将释放第一个
+        So, 共享中断的dev_id不是唯一时, 可能会释放到其它设备的中断
+
+    注意:
+        1)中断处理函数中不能睡眠;       mutex不能使用;(会睡眠阻塞)
+        2)中断处理代码必须(尽快)立即完成;(否则会丢中断)
+        3)中断处理函数中禁止中断;
+
+. 中断竞争:
+    中断抢占线程;
+    中断与中断间没有竞争; 
+    中断与线程竞争;
+        1)加锁保护(spinlock); 死锁; 
+        2)使用禁止抢占;
+
+    local_irq_enable();     
+    local_irq_disable();    禁止当前cpu中断; cpsr.i
+    local_irq_save();       
+    local_irq_restore();
+
+    spin_lock_irqsave();
+    spin_unlock_irqrestore();
+    spin_lock_irq();
+    spin_unlock_irq();
+
+    kthread1    -> 
+                    data
+    irq_handler -> 
+
+
+    irq_disable
+        irq_save flag 
+        irq_disable
+
+            data
+
+        irq_restore flag
+    irq_enable
+
+
+    高级和低级竞争:  禁止抢占; (直接加锁就死锁)
+    同级别竞争: 加锁;
+
+    
+. 内核线程;
+    创建内核线程:
+        struct task_struct *kthread_create(int (*threadfn)(void *data),
+                void *data, const char namefmt[]);
+        
+    唤醒内核线程(可以唤醒所有进程(线程)):
+        wake_up_process(struct task_struct *k);
+
+    创建并运行内核线程:
+        struct task_struct *kthread_run(int (*threadfn)(void *data),
+                void *data, const char namefmt[]);
+
+    通知内核线程停止:
+        int kthread_stop(struct task_struct *k);
+        返回threadfn函数的返回值, 如果k没有被wake_up_process(k)过将返回-EINTR
+        不是强制停止, 如果内核线程不停止将一直等待
+
+    检查是否收到停止信号:
+        int kthread_should_stop(void);
+
+
+. 中断上下文:
+    上半部: 负责响应中断; (中断模式下) (关掉irq)
+            快速完成; (防止中断丢失)
+
+    下半部: 负责处理中断; (线程模式下) (不关闭irq)
+            工作队列  
+            工作任务
+
+. 工作任务:
+    struct work_struct work;
+    INIT_WORK(struct work_struct *work, void (*func)(struct work_struct *work));
+
+    schedule_work(struct work_struct *work);
+    调度工作任务;
+    
+. 工作队列:
+    struct workqueue_struct *create_workqueue(const char *name);
+    void destroy_workqueue(struct workqueue_struct *wq);
+
+    int queue_work(struct workqueue_struct *wq, struct work_struct *work);
+
+. 中断的下半部工作队列的工作任务和普通线程竞争:
+    spin_lock();
+    mutex_lock();
+    
+    中断没有被立即响应; (同级别互相竞争);
+
+    中断上半部处理任务太慢，会丢失中断;
+
+. tasklet(软中断)
+    kthread              kthread        (sp_svc, lr_svc)
+
+    tasklet              tasklet        (sp_svc, lr_svc)        preempt_count();
+
+    irq                  irq            (sp_irq, lr_irq)
+
+    struct tasklet_struct t;
+    void tasklet_init(struct tasklet_struct *t,
+            void (*func)(unsigned long),unsigned long data);
+
+    void tasklet_schedule(struct tasklet_struct *t);
+
+. tasklet 和 kthread竞争;
+    tasklet抢占kthread;
+    禁止tasklet抢占.
+
+    local_bh_disable();
+    local_bh_enable();
+    spin_lock_bh();
+    spin_unlock_bh();
+
+. 中断下半部:
+    1)工作队列: 慢慢完成;
+    2)tasklet : 尽快完成;
+
+    irq > tasklet > workqueue
+                    kthread
+
+    workqueue: 一个cpu: 工作任务1 工作任务2 工作任务3 工作任务4
+                        kworker1  kworker2  kworker3  kworker4...
+    tasklet  : 一个cpu: 只有一个软中断;
+    irq      : 一个cpu: 只有一个中断;
+
+-------------------------------------------------------------------
+. 内核时钟
+    WDT
+    PWM     TIMER0 1 2 3 4 
+    RTC     1HZ 
+
+    100HZ
+    100MHZ
+
+. jiffies
+    CONFIG_HZ       200     5ms
+                    1000    1ms
+                    
+    time_is_before_jiffies(timeout)             timeout < jiffies
+    time_is_after_jiffies(timeout)              timeout > jiffies
+    time_is_before_eq_jiffies(timeout)          timeout <= jiffies
+    time_is_after_eq_jiffies(timeout)           timeout >= jiffies
+
+. timer
+    struct timer_list timer;
+
+    void setup_timer(struct timer_list *timer,
+        void (*function)(unsigned long data), unsigned long data);
+
+        function: tasklet状态;
+
+    添加定时器:
+        void add_timer(struct timer_list *timer);
+
+    修改定时器节拍数:
+        int mod_timer(struct timer_list *timer, unsigned long expires);
+
+    删除定时器:
+        int del_timer(struct timer_list * timer);
+        返回值0表示timer未添加(不需要删除), 1成功删除
+
+练习:
+. mdelay(3000);
+. msleep(1000);
+    
+. mdelay/udelay/ndelay 
+. msleep/ssleep
+
+. RTC时钟:
+. do_gettimeofday
+    struct timeval;
+. getnstimeofday
+    struct timespec;
+. do_settimeofday
+. time_to_tm
+    struct tm;
+    sec to struct tm
+. mktime
+    struct tm to sec
+
+------------------------------------------------------------------------
+. memory内存管理:
+. kmalloc
+    kmalloc(size, gfp_flag);
+    gfp_flag : include/linux/gfp.h
+               GFP_KERNEL
+               GFP_ATOMIC
+               GFP_NOWAIT
+        
+               __GFP_ZERO
+    注意:
+        1)kmalloc使用的使用内核的高速内存池循环管理内存;
+        2)kmalloc申请的内存最大KMALLOC_MAX_SIZE(当前内核4M), 可以申请小内存;
+        3)kmalloc申请的内存是物理地址连续;  
+
+        CONFIG_FORCE_MAX_ZONEORDER
+
+. kzalloc
+    __GFP_ZERO
+    清空申请的空间;
+
+. kfree
+
+
+. vmalloc
+    vmalloc(size);
+    
+    注意:
+        1)vmalloc没有使用高速内存池;
+        2)vmalloc申请的内存空间可以很大;
+        3)vmalloc申请的内存是物理地址不连续; (碎片)
+     
+. vfree
+    
+. kmem_cache高速内存池:
+    kmem_cache_create("kc", 64, ...);   创建一个高速内存池; 4K一页; 格式化这一页;64B 64B
+                            sizeof(struct xxx), 
+        kmem_cache_open();
+    kmem_cache_destroy();               销毁高速内存池;
+    kmem_cache_alloc();                 向内存池申请一份空间; (64B)
+    kmem_cache_free();                  释放内存池中的一份空间; (64B)
+
+    struct kmem_cache *kmalloc_caches[SLUB_PAGE_SHIFT];
+
+. alloc_page    (4K一页)
+    struct page
+    alloc_page
+    alloc_pages(GFP_KERNEL, get_order(size));
+    __free_page
+    __free_pages
+    free_pages
+
+    __get_free_page();
+    __get_free_pages();
+
+
+    struct kmem_cache 
+    {
+        ...
+        struct kmem_cache_cpu;
+        ...
+        struct kmem_cache_node;
+    }
+
+
+    struct kmem_cache_cpu
+    {
+        void **freelist;            //页中空闲对象;
+        ...
+        struct page * page;         //申请的新的页;
+        struct page * partial;      //申请的部分释放的页;
+        ...
+    }
+
+    struct kmem_cache_node
+    {
+        ....
+        struct list_head partial;   //所有的部分释放的页的链表;
+        ....
+        struct list_head full;      //所有满的页的链表;
+    }
+
+
+    slub:
+    kmalloc -> kmalloc_caches -> kmem_cache -> alloc_pages
+            -> kmalloc_large                -> alloc_pages
+    使用                         管理          申请(开辟)
+                                            -> __get_free_pages;
+
+    vmalloc -> 
+    注意:
+        以上内存管理是无cache的内存管理;
+
+    user:
+    app -> malloc -> libc_slub -> brk -> 向内核申请空间
+           使用      管理         申请(开辟)
+
+
+    cpu -> mmu  -> addr <-> ddr
+
+    cpu -> mmu <-> cache <-> ddr
+---------------------------------------------------------------------------
+. io映射: (无cache)
+. 开机自动映射:
+    kernel需要初始化各种驱动;SOC 数据线/io线... 链接好;
+
+    gpio_request();             占用io接口;
+    gpio_free();                释放......;
+    gpio_direction_output();    设置输出, 并输出xxx
+    gpio_direction_input();     设置输入, 并读取输入
+    int s3c_gpio_cfgpin(gpio, S3C_GPIO_SFN(con));   配置成特殊功能使用;
+                                           con特殊功能;
+    void gpio_set_value(gpio, dat);
+    int gpio_get_value(gpio);
+
+    gpio:
+    EXYNOS4X12_GPM4
+    EXYNOS4X12_GPM3
+    EXYNOS4X12_GPM2
+    EXYNOS4X12_GPM1
+
+    自动映射的虚拟地址:
+        S5P_VA_CHIPID           CHIPID寄存器的虚拟地址;
+        EXYNOS_PA_CHIPID        CHIPID寄存器的物理地址;
+
+    添加开机自动映射:
+    static struct map_desc exynos_iodesc[] __initdata = {
+        {
+            .virtual    = (unsigned long)S5P_VA_CHIPID,
+            .pfn        = __phys_to_pfn(EXYNOS_PA_CHIPID),
+            .length     = SZ_4K,
+            .type       = MT_DEVICE,
+        },
+        {},
+    };
+
+    
+    S3C_VA_WATCHDOG
+    EXYNOS4_PA_WATCHDOG
+    
+    arch/arm/mach-exynos/common.c
+
+. 动态映射
+    struct resource *res;
+    res = request_region(start, n, name);     申请使用的资源;
+    virt *ioremap(phys, size);
+                  ^已知物理地址;
+    iounmap(virt);
+    res = release_region(start, n);           释放申请的资源;
+
+    iowrite8(vaule, address);
+    iowrite16();
+    iowrite32();
+
+    ioread8(address);
+    ioread16();
+    ioread32();
+
+    writeb();
+    writew();
+    writel();
+    ...
+
+    __set_bit();
+    __clear_bit();
+    __change_bit();
+
+    1)映射的物理地址在静态映射时，已经映射成功，使用静态映射的地址;
+    2)建立内存地址映射之前, 必须先申请地址空间;
+    3)操作映射后的虚拟地址使用iowrite32, .../writeb, .../__set_bit, __clear_bit, __change_bit)
+
+    open/read/write/close/ioctl/lseek/....
+
+. dma内存申请
+    申请一段用于dma拷贝的空间, 需要物理地址(dma直接拷贝数据用), 需要虚拟地址(cpu写入rgb数据)
+                                                                /dev/fb0    (write)
+                                            VIDW00ADD0B0
+                                            VIDW00ADD1B0
+    lcd:
+        bmp   -> rgb -> cpu -> ddr 
+                            -> vaddr
+
+        ddr   -> dma -> lcd -> lcd_device 
+        paddr ->
+    
+    virt *dma_alloc_coherent(struct device *, size, &phys, gfp_flags);
+    ^ 出参数(虚拟地址)                              ^ 出参数(物理地址)
+
+    dma_free_coherent(struct device *, size, virt,     phys);
+                                             虚拟地址  物理地址
+
+. 设备模型
+    内核管理设备的方法, 设备结构体对应一个设备实例, 当设备插入时, 设备结构体加入系统并匹配相应的驱动, 设备结构体释放/拔出系统.
+    1)usb/pci总线 (热插拔设备)
+        不需要驱动工程师添加设备结构体;
+        需要添加驱动;
+
+    2)i2c/uart/spi/三总线platform ()
+        驱动工程师添加设备结构体;
+        需要添加驱动;
+
+    加设备信息:
+        arch/arm/plat-samsung/dev*
+        arch/arm/mach-exynos/dev*
+
+    加驱动:
+        drivers/xxxx
+
+    电源管理衍生出来.
+
+. 设备管理:
+        总线: usb/pci (总线结构体)
+              usb_bus (总线驱动实现)
+              pci_bus
+              i2c_adapter
+              spi_bus
+
+        设备: 描述设备信息;(资源)
+              usb_device
+              pci_dev
+              i2c_client
+              spi_device
+              platform_device
+            
+        驱动: 设备的驱动代码实现;(驱动代码)
+              usb_driver
+              pci_driver
+              i2c_driver
+              spi_driver
+              platform_driver
+                
+        类:   设备驱动代码的通用化;
+              framebuffer  显示类设备
+              input_device 输入类设备
+              ...
+              
+        模块: 设备模块化;
+              引用......计数
+              依赖......
+              struct module
+
+        电源管理: ......
+              
+            
+. 虚拟文件系统
+        mount -t sysfs none /sys
+
+        struct kobject; (device/driver/module...)
+        struct kset;    (bus/class/...)
+
+. 设备信息通知到用户:
+        socket();
+        netlink     (内核通知用户广播消息)
+
+. udev/mdev
+     mdev:  ()
+        mdev -s
+        echo "/sbin/mdev" > /proc/sys/kernel/hotplug    (支持热插拔)
+        通过环境变量传递设备信息;
+             
+        mdev.conf : 配置文件;
+        It uses /etc/mdev.conf with lines
+        [-]DEVNAME UID:GID PERM [>|=PATH] [@|$|*PROG]
+
+
+     udev:  (系统资源非常丰富)
+        netlink
+        /sbin/udevd -d      (守护进程)
+        udevmonitor
+        udevcontrol reload_rules
+        /etc/udev/rules.d/
+            test.rules
+            xxxx.rules
+
+        KERNEL=="test-led", NAME="misc-led", OWNER="root", GROUP="root",MODE="0777",RUN+="/app/app"
+
+        man udev
+    
+. struct device
+    描述设备信息; 负责提供当前物理设备的资源信息;
+    device_register();
+    device_unregister();
+
+    注意: 必定属于某一个bus/class.
+
+. struct bus_type
+    描述总线信息; 负责匹配设备和驱动, 并调用probe/remove;
+    bus_register();
+    bus_unregister();
+    总线匹配原则: 
+        1)只有一个驱动, 没有指定匹配规则, 那么所有的设备都匹配该驱动;
+        2)有多个设备, 没有指定匹配规则, 那么所有的设备都匹配第一个驱动;
+        3)指定匹配规则, 那么按照匹配规则匹配, 不能注册同名的设备驱动;
+    
+. struct device_driver
+    .name = DRV_NAME,
+    .bus = &mini,
+    .owner = THIS_MODULE,
+    .probe = test_probe,            设备和驱动匹配时被总线调用;
+    .remove = test_remove,          设备或者驱动拔出, 被总线调用;
+
+    描述设备驱动信息; 负责驱动设备;
+    driver_register();
+    driver_unregister();
+
+. struct class (通用系统调用子系统) (alsa, oss, input, fb, tty, v4l2, wtd)
+    class_register();
+    class_unregister();
+
+    1.提高代码重用性
+    2.上层应用尽可能通用(提高代码移植性)
+
+. struct miscdevice (杂类设备/(没法做到操作集合通用))
+    misc_register();
+    misc_deregister();
+
+. gpio_to_irq
+    gpio转换成irq号;
+    ^^^^
+    静态映射io;
+
+    platform/usb/pci/i2c/spi...
+        struct platform_device 
+        struct usb_device
+        struct pci_device
+        struct i2c_client
+        ...
+
+. platform(平台总线) addr/data/ctrl
+    struct platform_device;
+    struct platform_driver;
+    platform_device_register();
+    platform_device_unregister();
+    platform_driver_register();
+    platform_driver_unregister();
+
+. 启动加载platform设备:
+    arch/arm/mach-exynos/mach-tiny4412.c
+
+    MACHINE_START(TINY4412, "TINY4412")
+    
+    struct machine_desc __mach_desc_TINY4412 
+    __attribute__((__section__(".arch.info.init"))) = {
+        .nr = MACH_TYPE_TINY4412,           //4608
+        .name = "TINY4412", 
+        ...
+        .init_machine   = smdk4x12_machine_init,
+        ...
+    };
+
+    init/main.c 
+        start_kernel()
+            setup_arch(&command_line);
+                mdesc = setup_machine_tags(machine_arch_type);
+                                            MACH_TYPE_TINY4412 (4608)
+
+    arch/arm/mach-exynos/mach-tiny4412.c
+        platform_add_devices(smdk4x12_devices, ARRAY_SIZE(smdk4x12_devices));
+
+
+    static struct platform_device *smdk4x12_devices[] __initdata = {
+        &tdev_led,          加入自己添加的设备;
+
+. 找到platform设备驱动:
+    1)按照名字匹配; 
+        driver = {
+            .name 
+        }
+    2)struct platform_device_id id_table
+            name;
+            driver_data;    (区分不同的设备)
+
+. mdev
+    mdev -s
+    echo "/sbin/mdev" > /proc/sys/kernel/hotplug
+    
+. udev
+    udevstart
+    udevd -d
+    ...
+
+homework:
+1.
+    platform设备找到你感兴趣的驱动;
+
+------------------------------------------------------------
+. usb/pci总线;
+        1)添加设备驱动;
+            
+. platform驱动:
+        1)添加设备信息; (static struct platform_device *smdk4x12_devices[])
+        2)添加设备驱动; (/driver/...) 按照名字添加(probe)
+
+. led
+        miscdevice
+        gpio_direction_output();
+        ...
+        chrdev
+            
+        write -> 1 -> led on
+        write -> 0 -> led off
+        read  <- led
+        ioctl -> set-> led
+
+. button
+        gpio_direction_input();
+        struct timer_list   (防止抖动) 40ms防止抖动;
+        irq_requested();
+        
+. bell
+        freq : 1 (pwm: 1HZ)
+               10(pwm:10HZ)
+        int period_ns = NS_IN_1HZ / freq;       
+        
+        pwm_request(BUZZER_PWM_ID, DEVICE_NAME);
+        pwm_config(pwm4buzzer, period_ns / 2, period_ns);
+        pwm_enable
+        pwm_disable
+        pwm_free
+
+. pwm
+    plat-samsung/pwm.c  (只实现pwm脉冲宽度调制)(没有实现定时器中断)
+    static struct pwm_device *pwm4buzzer;
+        pwm_request
+        pwm_free
+        pwm_config
+        pwm_enable
+        pwm_disable
+    
+    struct clk *pwm_clk;
+        clk_get();
+        clk_enable();
+        clk_put();
+        clk_disable();
+
+    "pwm-tin"
+    "pwm-tdiv"
+        arch/arm/mach-exynos/clock-exynos4.c
+                struct clk exynos4_init_clocks_off[]
+        arch/arm/mach-exynos/clock-exynos4.h
+        arch/arm/plat-samsung/clock.c
+        arch/arm/plat-samsung/pwm-clock.c
+
+    platform_set_drvdata(pdev);
+    platform_get_drvdata(pdev);
+
+. adc
+    模拟到数字转换
+    // struct platform_device s3c_device_adc = {
+    //     .name       = "s3c24xx-adc",
+    struct platform_device s3c_device_adc = {
+        .name       = "samsung-adc",         //设置资源初始时的名字;
+
+    static struct resource s3c_adc_resource[] = {
+        [0] = DEFINE_RES_MEM(SAMSUNG_PA_ADC, SZ_256),
+    #ifdef IRQ_TC
+        [1] = DEFINE_RES_IRQ(IRQ_TC),        //<---  可能没有;
+    #endif
+        [2] = DEFINE_RES_IRQ_NAMED(IRQ_ADC, "samsung-adc"),
+    };
+
+    arch/arm/mach-exynos/mach-tiny4412.c
+        smdk4x12_map_io(void)
+
+    arch/arm/mach-exynos/common.c
+        __init exynos_init_io(struct map_desc *mach_desc, int size)
+            s3c_init_cpu(samsung_cpu_id, cpu_ids, ARRAY_SIZE(cpu_ids));
+
+        struct cpu_table cpu_ids[] __initdata = {
+            {
+                .idcode     = EXYNOS4412_CPU_ID,
+                .idmask     = EXYNOS4_CPU_MASK,
+                .map_io     = exynos4_map_io,           //<--- 
+                .init_clocks    = exynos4_init_clocks,
+                .init_uarts = exynos_init_uarts,
+                .init       = exynos_init,
+                .name       = name_exynos4412,
+            }
+        exynos4_map_io();
+            s3c_adc_setname("samsung-adc-v3");      //第一次修改了adc 设备名称;
+
+        static void __init smdk4x12_machine_init(void)
+            s3c_adc_setname("samsung-adc-v4");      //第二次修改了adc 设备名称;
+                             ^^^^^^^^^^^^^^^
+                             最终的设备名称;
+    驱动:
+        arch/arm/plat-samsung/adc.c
+        
+        struct adc_device *adc;
+        
+        clk_get(NULL, "adcphy");
+        clk_get(dev, "fsys_adc");
+
+        struct s3c_adc_client *client;
+
+    EXPORT_SYMBOL_GPL(s3c_adc_register);
+    EXPORT_SYMBOL_GPL(s3c_adc_release);
+    EXPORT_SYMBOL_GPL(s3c_adc_read);
+    EXPORT_SYMBOL_GPL(s3c_adc_start);
+
+    友善之臂二次开发的adc驱动:
+        static struct platform_device tiny4412_device_adc = {
+            .name           = "tiny4412_adc",
+            .id             = -1,
+            .num_resources  = 0,
+        };  
+
+                    app
+    -----------------------------------
+                    api
+    -----------------------------------
+        driver     driver      driver
+    open close   open close  open close
+        ioctl       ioctl       ioctl
+    -----------------------------------
+                    device
+
+    
+. wdt
+    开门狗子系统:
+    static struct resource s3c_wdt_resource[] = {
+        [0] = DEFINE_RES_MEM(S3C_PA_WDT, SZ_1K),
+        [1] = DEFINE_RES_IRQ(IRQ_WDT),
+    };  
+                
+    struct platform_device s3c_device_wdt = {
+        .name       = "s3c2410-wdt",
+
+    drivers/watchdog/s3c2410_wdt.c
+    static struct platform_driver s3c2410wdt_driver = {
+            .probe      = s3c2410wdt_probe,
+            .remove     = __devexit_p(s3c2410wdt_remove),
+            .shutdown   = s3c2410wdt_shutdown,
+            .suspend    = s3c2410wdt_suspend,
+            .resume     = s3c2410wdt_resume,
+            .driver     = {
+                .owner  = THIS_MODULE,
+                .name   = "s3c2410-wdt",
+                .of_match_table = of_match_ptr(s3c2410_wdt_match),
+            },
+    };
+
+    wdt_clock = clk_get(&pdev->dev, "watchdog");
+    clk_enable();
+
+
+                    app
+    --------------------------------------
+                    api
+    --------------------------------------
+                wdt sub system
+            open read write ioctl close
+    --------------------------------------
+            struct watchdog_device
+                    info
+                    ops
+       driver driver driver driver driver
+       init   init   init   init   init
+                     start
+                     stop
+                     ping
+                     set_timeout
+    --------------------------------------
+                    device
+
+    watchdog/watchdog_core.c
+        watchdog_register_device(&s3c2410_wdd);
+        watchdog_unregister_device();
+    watchdog/watchdog_dev.c
+        watchdog_dev_register(wdd);
+    
+    子系统:
+        统一生成设备文件(/dev/watchdog)
+        设备文件的操作集合统一(open/close/read/write/ioctl)
+
+. lcd
+    显示子系统:
+    static struct resource s5p_fimd0_resource[] = {
+        [0] = DEFINE_RES_MEM(S5P_PA_FIMD0, SZ_32K),
+        [1] = DEFINE_RES_IRQ(IRQ_FIMD0_VSYNC),
+        [2] = DEFINE_RES_IRQ(IRQ_FIMD0_FIFO),
+        [3] = DEFINE_RES_IRQ(IRQ_FIMD0_SYSTEM),
+    };  
+
+    struct platform_device s5p_device_fimd0 = {
+        .name       = "s5p-fb",
+
+    void __init s5p_fimd0_set_platdata(struct s3c_fb_platdata *pd)
+    {
+            s3c_set_platdata(pd, sizeof(struct s3c_fb_platdata),
+                    &s5p_device_fimd0);
+    }
+
+    找设备名:
+    arch/arm/mach-exynos/common.c
+        static void __init exynos4_map_io(void)
+            s5p_fb_setname(0, "exynos4-fb");
+
+    找驱动:
+    drivers/video/s3c-fb.c
+        static struct platform_driver s3c_fb_driver = {
+            .probe      = s3c_fb_probe,
+            .remove     = __devexit_p(s3c_fb_remove),
+
+        static struct s3c_fb_platdata smdk4x12_lcd0_pdata __initdata = {
+            .win[0]     = &smdk4x12_fb_win0,
+            .win[1]     = &smdk4x12_fb_win1,
+            .win[2]     = &smdk4x12_fb_win2,
+            .win[3]     = &smdk4x12_fb_win3,
+            .win[4]     = &smdk4x12_fb_win4,
+            .vtiming    = &smdk4x12_lcd_timing,
+            .vidcon0    = VIDCON0_VIDOUT_RGB | VIDCON0_PNRMODE_RGB,
+            .vidcon1    = VIDCON1_INV_HSYNC | VIDCON1_INV_VSYNC,
+            .setup_gpio = exynos4_fimd0_gpio_setup_24bpp,
+        };
+
+
+    tiny4412_fb_init_pdata(&smdk4x12_lcd0_pdata);   //初始化lcd设备资源;寄存器配置,gpio配置,..
+    s5p_fimd0_set_platdata(&smdk4x12_lcd0_pdata);
+
+    struct s3cfb_lcd *lcd = tiny4412_get_lcd();     //换屏就添加修改这里;
+    struct s3c_fb_platdata *pd;
+    struct s3c_fb_pd_win *win;
+    struct fb_videomode *mode;
+
+    static struct s3c_fb_driverdata s3c_fb_data_exynos4 = {     //通用驱动需要的差异描述;
+
+    kthread_run(kthread_worker_fn,
+    init_kthread_work(&sfb->update_regs_work, s3c_fb_update_regs_handler);
+
+    sfb->bus_clk = clk_get(dev, "lcd");
+
+    sfb->lcd_clk = clk_get(dev, "sclk_fimd");
+
+    ret = devm_request_irq(dev, sfb->irq_no, s3c_fb_irq,
+
+    ret = s3c_fb_probe_win(sfb, win, fbdrv->win[win],
+                   &sfb->windows[win]); 
+        struct s3c_fb_win 
+        struct fb_info *info;
+
+    sfb->vsync_info.thread = kthread_run(s3c_fb_wait_for_vsync_thread,
+                    sfb, "s3c-fb-vsync");
+
+    显示子系统:
+        drivers/video/skeletonfb.c
+
+        struct fb_info *framebuffer_alloc(sizeof(struct xxx_par), device);
+        fb_info_init(); (自己实现)
+        register_framebuffer(info);
+        unregister_framebuffer(info);
+        framebuffer_release(info);
+
+    /dev/fb0 /dev/fb1 /dev/fb2 ......
+        
+                            app
+    ------------------------------------------------------------
+                            api
+                open close write ioctl mmap lseek
+    ------------------------------------------------------------
+                        显示子系统 (/dev/fbx)
+        fb_open fb_close fb_write fb_ioctl fb_mmap fb_lseek
+    ------------------------------------------------------------
+        driver  driver  driver  driver  driver  driver  driver
+                s3c6410 exynos4412
+                reg     reg
+                init    init
+                info    info
+                320*240 480*800
+                16bpp   32bpp
+                fb_addr fb_addr
+    ------------------------------------------------------------
+        device  device  device  device  device  device  device 
+
+. input
+    输入子系统:
+        struct input_event 
+
+                    app
+    -------------------------------------
+                    api
+    -------------------------------------   struct input_event
+                input 子系统
+            read write open close
+    -------------------------------------
+        driver  driver  driver  driver
+                input_event
+                request_irq
+                reg
+                usb_bus
+                ...
+    -------------------------------------
+        device  device  device  device
+
+    struct input_dev *input_allocate_device();
+
+    input_dev_init();
+        set_bit(EV_SYN, dev->evbit);
+        set_bit(KEY_ESC, dev->keybit)
+        input_set_capability(dev, EV_KEY, KEY_ESC)
+
+    input_register_device(dev);
+    input_unregister_device(dev);
+    input_free_device(dev);
+
+    input_report_key();
+    input_report_abs();
+    input_report_rel();
+    input_event();
+
+. ts
+    I2CSDA1
+    I2CSCL1
+    XEINT14
+
+. iic_bus
+    platform_device;
+        &s3c_device_i2c1,
+
+    static struct resource s3c_i2c1_resource[] = {
+        [0] = DEFINE_RES_MEM(S3C_PA_IIC1, SZ_4K),
+        [1] = DEFINE_RES_IRQ(IRQ_IIC1),
+    };
+
+    struct platform_device s3c_device_i2c1 = {
+        .name       = "s3c2410-i2c",
+        .id     = 1,
+        .num_resources  = ARRAY_SIZE(s3c_i2c1_resource),
+        .resource   = s3c_i2c1_resource,
+    };  
+
+
+    ./drivers/i2c/busses/i2c-s3c2410.c  +132
+
+    struct s3c24xx_i2c *i2c;
+
+    struct i2c_adapter  adap;       (适配器)
+        i2c->adap.owner   = THIS_MODULE;
+        i2c->adap.algo    = &s3c24xx_i2c_algorithm;
+        i2c->adap.retries = 2;
+        i2c->adap.class   = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+
+        struct i2c_algorithm {
+            /* If an adapter algorithm can't do I2C-level access, set master_xfer
+               to NULL. If an adapter algorithm can do SMBus access, set
+               smbus_xfer. If set to NULL, the SMBus protocol is simulated
+               using common I2C messages */
+            /* master_xfer should return the number of messages successfully
+               processed, or a negative value on error */
+            int (*master_xfer)(struct i2c_adapter *adap, struct i2c_msg *msgs,
+                    int num);
+            收发函数;
+
+        s3c24xx_i2c_init(iic); iic控制器初始化;
+    
+        i2c_add_numbered_adapter(adap); 
+            i2c_register_adapter(adap);
+
+        of_i2c_register_devices(adap);
+            i2c_new_device(adap, &info);
+
+                    platform_bus
+    platform_device     |       platform_driver -> probe -> i2c_adapter_init -> master_xfer
+      s3c2410-i2c       |           s3c2410-i2c
+                        |
+    platform_device     |
+      s3c2410-i2c       |
+                        |
+      ....              |
+
+
+
+                    adap(i2c_bus)
+xxxx_device             |       xxxx_driver
+struct i2c_board_info   |       struct i2c_driver
+struct i2c_devinfo      |           drivers/input/touchscreen/ft5x06_ts.c
+struct i2c_client       |
+  "ft5x0x_ts"           |
+                        |
+                        |
+
+        
+        s3c_i2c1_set_platdata(&tiny4412_i2c1_data);
+        i2c_register_board_info(1, smdk4x12_i2c_devs1,  (添加i2c设备)i2c-boardinfo.c
+                ARRAY_SIZE(smdk4x12_i2c_devs1));
+
+                struct i2c_devinfo *
+
+                devinfo->busnum = busnum;
+                devinfo->board_info = *info;
+                list_add_tail(&devinfo->list, &__i2c_board_list);
+        
+
+        struct i2c_board_info smdk4x12_i2c_devs1[]      <--- i2c设备数组;
+            #ifdef CONFIG_TOUCHSCREEN_FT5X0X
+                {
+                    I2C_BOARD_INFO("ft5x0x_ts", (0x70 >> 1)),
+                    .platform_data = &ft5x0x_pdata,
+                },
+            #endif
+
+            struct i2c_board_info {
+                char        type[I2C_NAME_SIZE];        <-- 设备名;
+                unsigned short  flags;
+                unsigned short  addr;                   <-- 从设备地址;
+                void        *platform_data;             <-- 设备私有信息;
+                struct dev_archdata *archdata;
+                struct device_node *of_node;
+                int     irq;     
+            };
+
+            #ifdef CONFIG_TOUCHSCREEN_FT5X0X
+            #include <plat/ft5x0x_touch.h>
+            static struct ft5x0x_i2c_platform_data ft5x0x_pdata = {
+                .gpio_irq       = EXYNOS4_GPX1(6),
+                .irq_cfg        = S3C_GPIO_SFN(0xf),
+                .screen_max_x   = 800,                  <-- 初始值 (修改)
+                .screen_max_y   = 1280,                 <-- 初始值 (修改)
+                .pressure_max   = 255,                  <-- 压力;
+            };  
+            #endif
+
+            static void __init smdk4x12_machine_init(void)
+            {
+            #ifdef CONFIG_TOUCHSCREEN_FT5X0X
+                struct s3cfb_lcd *lcd = tiny4412_get_lcd();
+                ft5x0x_pdata.screen_max_x = lcd->width;
+                ft5x0x_pdata.screen_max_y = lcd->height;
+            #endif
+
+        
+            i2c_scan_static_board_info(adapter)
+                list_for_each_entry(devinfo, &__i2c_board_list, list) {
+                    if (devinfo->busnum == adapter->nr
+                            && !i2c_new_device(adapter,
+                                &devinfo->board_info))
+                        dev_err(&adapter->dev,
+                                "Can't create device at 0x%02x\n",
+                                devinfo->board_info.addr);
+                }
+
+                i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+                    struct i2c_client   *client;
+
+                    strlcpy(client->name, info->type, sizeof(client->name));
+                            
+
+        触摸屏驱动:
+            drivers/input/touchscreen/ft5x06_ts.c
+                INIT_WORK(&ts->work, ft5x0x_ts_pen_irq_work);
+
+        static void ft5x0x_ts_pen_irq_work(struct work_struct *work) {
+            struct ft5x0x_ts_data *ts = container_of(work, struct ft5x0x_ts_data, work);
+
+            if (!ft5x0x_read_data(ts)) {        <--- iic读ts的坐标;
+                ft5x0x_ts_report(ts);           <--- 提交iic读到的数据;
+            }
+
+            enable_irq(this_client->irq);
+        }
+
+
+        request_irq(client->irq, ft5x0x_ts_interrupt,       <-- 对方发送数据的中断;
+          IRQ_TYPE_EDGE_FALLING /*IRQF_TRIGGER_FALLING*/, "ft5x0x_ts", ts);
+
+        if (!work_pending(&ts->work)) {
+            queue_work(ts->queue, &ts->work);
+        }
+
+        ft5x0x_read_data()
+            ret = ft5x0x_i2c_rxdata(buf, 31);
+
+        i2c_add_driver(&ft5x0x_ts_driver);
+        i2c_del_driver(&ft5x0x_ts_driver);
+        i2c_transfer(this_client->adapter, msgs, 2);    <-- 实现i2c的收发;
+
+        struct ft5x0x_ts_data {
+            struct input_dev *input_dev;
+            struct ft5x0x_event event;
+
+            uint32_t gpio_irq;
+
+            int screen_max_x;
+            int screen_max_y;
+            int pressure_max;
+
+            struct work_struct work;
+        };
+
+
+. mma7660
+    . iic_bus
+    . input
+
+. alsa
+. oss
+. v4l2
+. tty
+. net
+
+
+
+
+
+
+
+
+
+

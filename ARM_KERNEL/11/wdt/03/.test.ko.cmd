@@ -1,0 +1,1 @@
+cmd_/share/kernel/11/wdt/03/test.ko := arm-linux-ld -EL -r  -T /share/data/linux-3.5-qt/scripts/module-common.lds --build-id  -o /share/kernel/11/wdt/03/test.ko /share/kernel/11/wdt/03/test.o /share/kernel/11/wdt/03/test.mod.o

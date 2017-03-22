@@ -1,0 +1,288 @@
+
+. 汇编实现结构化编程
+    . 顺序结构
+    . 分支结构
+    . 循环结构
+
+    if(i > 10)
+        printf("i > 10\n");
+
+    >
+    <
+    !=
+    ==
+    >=
+    <=
+    
+. 条件执行
+    所有的arm指令都是有条件执行的;
+                              [31] [30][29][28]        [5]  [4~0]
+    subs r0, r0, r1  --> cpsr   N   Z   C   V       ... T   mode
+                                ^
+                                符号位                  ARM  (32bit)
+                                    ^                   THUMB(16bit)
+                                    零位
+    +al : 总是执行;
+    +eq : ==        Z
+    +ne : !=
+    +lt : <
+    +le : <=
+    +gt : >
+    +ge : >=
+
+. cmp
+    cmp rd, rn          
+    cmp rd, #?
+    cmp rd, #(10*23)        
+    
+. 程序执行过程:
+    取指令      翻译指令        执行指令
+                        (条件执行)
+. 分支效率
+    if(val > 10)
+    {
+        sleep(100);
+        getpid();
+        ...
+        printf();
+    }
+    else
+    {
+        ....
+        printf();
+    }
+
+    cmp ...
+    addgt
+    subgt
+    ...     100行
+    xxxgt
+    xxxgt
+
+    xxxle
+    xxxle
+    ....    100行
+    xxxle
+    xxxle
+
+    cmp 
+    bgt     1行
+    ble     1行
+do1:
+    ...     100行
+
+do2:
+    ...     100行
+
+. 循环
+    b   .
+
+loop:
+    b   loop
+
+loop:
+    ...
+    beq out
+    ...
+    b   loop
+out:
+
+loop:
+    ...
+    ....
+    bne loop
+
+
+.练习:
+    汇编实现99乘法表;
+    ...
+    
+. 并且和或者
+    if(i > 5 && i < 10)
+        ...
+
+    if(i < 5 || i > 20)
+        ...
+
+    . cmpne     比较指令后面不能加条件;
+      bgt       X
+
+. for效率
+    for(i = 0; i < 100w; i++)    
+        ...                     100w -> 300w
+    
+. arm 的流水线
+    指令周期
+    取指    译码    执行        
+add                             3
+sub                             1
+mov                             1
+and                             1
+b                   V       打断流水线
+mov         V
+rsc V
+ldr 
+
+    mov
+    add
+    sub 
+    mul
+
+. arm10分支预测
+    动态预测
+    静态预测
+
+. 展开循环体
+    for(i = 0; i < 10w; i++)
+        ...                 
+        ... 10次
+        ...
+
+. cache缓存
+    ICACHE
+    DCACHE
+    []
+    []
+    []
+
+                    soc
+    ddr      |————————————————————
+    []       |       [arm]
+    |        |       [cache]
+    |        |         |
+    |  dramc |—————————
+
+. ldr/str 和 ldm/stm(突发访问)
+    32bit       32bit*16
+
+. if和switch代码效率
+    switch(val)
+    {
+        case 12:
+            ...
+            break;
+        case 23:
+            ...
+            break;
+        case 45:
+            ...
+            break;
+        default:
+            ...
+            break;
+    }
+
+    5   12  45  145 245 345
+    
+    array[]
+    1)二分查找;
+    2)哈希表查找;
+
+=======================================================
+. 内存访问;
+    ldr/str
+
+    ldr rd, [rn]                rd=*rn
+    ldr rd, [rn, #4]            rd=*(rn+4)
+    ldr rd, [rn, rm]            rd=*(rn+rm)
+    ldr rd, [rn, rm, lsl #2]    rd=*(rn+rm<<2)
+    ldr rd, [rn], #4            rd=*(rn)
+                                rn+=4
+    ldr rd, [rn, #4]!           rd=*(rn+4)
+                                rn+=4
+    ldrh rd, [rn]               rd=*((unsigned short*)rn)
+    ldrb rd, [rn]               rd=*((unsigned char*)rn)
+    
+. 定义类型
+.LC1:
+    .word   0x11223344 
+    .long   0x11223344
+    .short  0x1122
+    .byte   0x11    'a' '\0'
+
+.LC0:
+    .string "hello world\n"
+    .ascii  "hello world\n\000"
+    .asciz  "hello world\n"
+
+. str
+    str rd, [rn]                *(rn)=rd
+    str rd, [rn, #4]            *(rn+4)=rd
+    str rd, [rn, rm]            *(rn+rm)=rd
+    str rd, [rn, rm, lsl #2]    *(rn+rm<<2)=rd
+    str rd, [rn], #4            *(rn)=rd
+                                rn+=4
+    str rd, [rn, #4]!           *(rn+4)=rd
+                                rn+=4
+    strh
+    strb
+
+. 内存栈
+    atpcs : 满递减栈 
+
+    fp : 帧指针; (实现栈内数据偏移)
+    sp : 栈指针; (栈底) 开辟空间和释放空间
+    
+    mov fp, sp
+    sub sp, sp, #40 (开辟40B 空间)
+    str r0, [fp, #-4]
+    str r1, [fp, #-8]
+    ...
+    mov sp, fp
+    //add sp, sp, #40 (释放40B 空间)
+
+
+. 伪指令
+1)
+    ldr r0, =.LC0               r0=.LC0     (.LC0标签是可以跨段, 跨文件)
+-->
+    ldr r0, [pc, #?]
+    ...
+.L0:
+    .word   .LC0
+            ^0x00008444
+            ^ 链接阶段, 连接器替换绝对地址;
+            ld 1.o 2.o 3.o 4.o -o a.out
+
+2)
+    ldr r0, .L0                 r0=*(.L0)   (.L0标签不能跨段, 跨文件)
+-->
+    ldr r0, [pc, #?]
+                 ^ 汇编阶段, 汇编器计算得到
+                 -c -> .o
+.L0:
+    .word   0x11223344
+
+3)
+    adr r0, .L0                 r0=.L0      (.L0标签不能跨段, 跨文件)
+-->
+    add r0, pc, #?
+                ^ 汇编器计算得到            
+                  相对偏移访问;
+                -c -> .o
+
+homework:
+汇编实现以下代码;
+1.
+    *
+   ***
+  *****         半径为3的菱形
+   ***
+    *
+    输出半径为10的菱形;
+
+2.
+   int i;
+   int ar[100];
+   int br[100];
+
+   srandom(getpid());
+   for(i = 0; i < 100; i++)
+        ar[i] = random() & 0xff;
+   for(i = 0; i < 100; i++)
+        br[i] = ar[i];
+   qsort(br, 100, sizeof(int), cmp_int);
+   for(i = 0; i < 100; i++)
+        printf("ar[%d] = %d br[%d] = %d\n", i, ar[i], i, br[i]);
+
+

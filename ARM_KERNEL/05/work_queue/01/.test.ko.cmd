@@ -1,0 +1,1 @@
+cmd_/share/kernel/05/work_queue/01/test.ko := arm-linux-ld -EL -r  -T /share/data/linux-3.5-qt/scripts/module-common.lds --build-id  -o /share/kernel/05/work_queue/01/test.ko /share/kernel/05/work_queue/01/test.o /share/kernel/05/work_queue/01/test.mod.o

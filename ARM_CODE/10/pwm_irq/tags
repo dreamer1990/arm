@@ -1,0 +1,141 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ADCCON	include/adc.h	5;"	d	language:C++
+ADCDAT	include/adc.h	6;"	d	language:C++
+ADCMUX	include/adc.h	7;"	d	language:C++
+ADC_CFG	include/adc.h	4;"	d	language:C++
+AUTOMATIC_WDT_RESET_DISABLE	include/pmu.h	5;"	d	language:C++
+CC	Makefile	/^CC = $(CROSS_COMPILE)gcc$/;"	m	language:Make
+CC_FLAGS	Makefile	/^CC_FLAGS = -c -I .\/include$/;"	m	language:Make
+CROSS_COMPILE	Makefile	/^CROSS_COMPILE = arm-linux-$/;"	m	language:Make
+GPD0CON	include/gpio.h	6;"	d	language:C++
+GPD0DAT	include/gpio.h	7;"	d	language:C++
+GPM4CON	include/gpio.h	4;"	d	language:C++
+GPM4DAT	include/gpio.h	5;"	d	language:C++
+GPX3CON	include/gpio.h	8;"	d	language:C++
+GPX3DAT	include/gpio.h	9;"	d	language:C++
+ICCEOIR_CPU	include/gic.h	11;"	d	language:C++
+ICCEOIR_CPUn	include/gic.h	10;"	d	language:C++
+ICCIAR_CPU	include/gic.h	9;"	d	language:C++
+ICCIAR_CPUn	include/gic.h	8;"	d	language:C++
+ICCICR_CPU	include/gic.h	5;"	d	language:C++
+ICCICR_CPUn	include/gic.h	4;"	d	language:C++
+ICCPMR_CPU	include/gic.h	7;"	d	language:C++
+ICCPMR_CPUn	include/gic.h	6;"	d	language:C++
+ICDDCR	include/gic.h	13;"	d	language:C++
+ICDICER_CPU	include/gic.h	17;"	d	language:C++
+ICDICER_CPUn	include/gic.h	16;"	d	language:C++
+ICDIPR_CPU	include/gic.h	19;"	d	language:C++
+ICDIPR_CPUn	include/gic.h	18;"	d	language:C++
+ICDIPTR_CPU	include/gic.h	21;"	d	language:C++
+ICDIPTR_CPUn	include/gic.h	20;"	d	language:C++
+ICDISER_CPU	include/gic.h	15;"	d	language:C++
+ICDISER_CPUn	include/gic.h	14;"	d	language:C++
+ICDSGIR	include/gic.h	22;"	d	language:C++
+LD	Makefile	/^LD = $(CROSS_COMPILE)ld$/;"	m	language:Make
+LD_FLAGS	Makefile	/^LD_FLAGS = -T start.lds$/;"	m	language:Make
+LIBC	Makefile	/^LIBC = libc.a$/;"	m	language:Make
+LIBS	Makefile	/^LIBS = main.o lib.o led.o buzzer.o key.o$/;"	m	language:Make
+MASK_WDT_RESET_REQUEST	include/pmu.h	6;"	d	language:C++
+OBJCOPY	Makefile	/^OBJCOPY = $(CROSS_COMPILE)objcopy$/;"	m	language:Make
+OBJCOPY_FLAGS	Makefile	/^OBJCOPY_FLAGS = -O binary$/;"	m	language:Make
+OBJDUMP	Makefile	/^OBJDUMP = $(CROSS_COMPILE)objdump$/;"	m	language:Make
+OBJDUMP_FLAGS	Makefile	/^OBJDUMP_FLAGS = -D$/;"	m	language:Make
+OBJS	Makefile	/^OBJS = start.o$/;"	m	language:Make
+PWM_BASE	include/pwm.h	4;"	d	language:C++
+SWRESET	include/pmu.h	4;"	d	language:C++
+TAG	Makefile	/^TAG = start$/;"	m	language:Make
+TCFG0	include/pwm.h	5;"	d	language:C++
+TCFG1	include/pwm.h	6;"	d	language:C++
+TCNTB4	include/pwm.h	8;"	d	language:C++
+TCNTO4	include/pwm.h	9;"	d	language:C++
+TCON	include/pwm.h	7;"	d	language:C++
+TINT_CSTAT	include/pwm.h	10;"	d	language:C++
+WTCLRINT	include/wdt.h	7;"	d	language:C++
+WTCNT	include/wdt.h	6;"	d	language:C++
+WTCON	include/wdt.h	4;"	d	language:C++
+WTDAT	include/wdt.h	5;"	d	language:C++
+__ADC_H__	include/adc.h	2;"	d	language:C++
+__CONFIG_H__	include/config.h	2;"	d	language:C++
+__GIC_H__	include/gic.h	2;"	d	language:C++
+__GPIO_H__	include/gpio.h	2;"	d	language:C++
+__PMU_H__	include/pmu.h	2;"	d	language:C++
+__PWM_H__	include/pwm.h	2;"	d	language:C++
+__TYPE_H__	include/type.h	2;"	d	language:C++
+__WDT_H__	include/wdt.h	2;"	d	language:C++
+_dabort	vector.S	/^_dabort:$/;"	l	language:Asm
+_firq	vector.S	/^_firq:$/;"	l	language:Asm
+_irq	vector.S	/^_irq:$/;"	l	language:Asm
+_pabort	vector.S	/^_pabort:$/;"	l	language:Asm
+_reset	vector.S	/^_reset:$/;"	l	language:Asm
+_start	start.s	/^_start:$/;"	l	language:Asm
+_swi	vector.S	/^_swi:$/;"	l	language:Asm
+_undef	vector.S	/^_undef:$/;"	l	language:Asm
+adc_data	adc.c	/^int adc_data(void)$/;"	f	language:C	signature:(void)
+adc_end_flag	adc.c	/^int adc_end_flag(void)$/;"	f	language:C	signature:(void)
+adc_init	adc.c	/^void adc_init(void)$/;"	f	language:C	signature:(void)
+adc_start	adc.c	/^void adc_start(void)$/;"	f	language:C	signature:(void)
+buzzer_init	buzzer.c	/^void buzzer_init(void)$/;"	f	language:C	signature:(void)
+buzzer_off	buzzer.c	/^void buzzer_off(void)$/;"	f	language:C	signature:(void)
+buzzer_on	buzzer.c	/^void buzzer_on(void)$/;"	f	language:C	signature:(void)
+change_ttb	ttb.c	/^void change_ttb(u32 *ttb)$/;"	f	language:C	signature:(u32 *ttb)
+clean_tlb	ttb.c	/^void clean_tlb(void)$/;"	f	language:C	signature:(void)
+dabort	vector.S	/^dabort:$/;"	l	language:Asm
+delay	lib.c	/^void delay(volatile unsigned int val)$/;"	f	language:C	signature:(volatile unsigned int val)
+do_irq	gic.c	/^void do_irq(void)$/;"	f	language:C	signature:(void)
+do_pwm_timer4	pwm.c	/^void do_pwm_timer4(void)$/;"	f	language:C	signature:(void)
+do_reset	reset.c	/^void do_reset(void)$/;"	f	language:C	signature:(void)
+do_wdt	wdt.c	/^void do_wdt(void)$/;"	f	language:C	signature:(void)
+enable_cache	ttb.c	/^void enable_cache(void)$/;"	f	language:C	signature:(void)
+enable_cpu	gic.c	/^void enable_cpu(u32 pmask)$/;"	f	language:C	signature:(u32 pmask)
+enable_irq	gic.c	/^void enable_irq(u32 num, u32 p)$/;"	f	language:C	signature:(u32 num, u32 p)
+firq	vector.S	/^firq:$/;"	l	language:Asm
+get_2bit	include/config.h	24;"	d	language:C++
+get_bit	include/config.h	22;"	d	language:C++
+get_nbit	include/config.h	26;"	d	language:C++
+get_val	include/config.h	28;"	d	language:C++
+irq	vector.S	/^irq:$/;"	l	language:Asm
+key_get	key.c	/^unsigned int key_get(void)$/;"	f	language:C	signature:(void)
+key_init	key.c	/^void key_init(void)$/;"	f	language:C	signature:(void)
+led_alloff	led.c	/^void led_alloff(void)$/;"	f	language:C	signature:(void)
+led_allon	led.c	/^void led_allon(void)$/;"	f	language:C	signature:(void)
+led_get	led.c	/^v32 led_get(void)$/;"	f	language:C	signature:(void)
+led_init	led.c	/^void led_init(void)$/;"	f	language:C	signature:(void)
+led_off	led.c	/^void led_off(v32 val)$/;"	f	language:C	signature:(v32 val)
+led_on	led.c	/^void led_on(v32 val)$/;"	f	language:C	signature:(v32 val)
+led_set	led.c	/^void led_set(v32 val)$/;"	f	language:C	signature:(v32 val)
+main	main.c	/^int main(void)$/;"	f	language:C	signature:(void)
+mmu_enable	ttb.c	/^void mmu_enable(u32 *ttb, u32 domain)$/;"	f	language:C	signature:(u32 *ttb, u32 domain)
+pabort	vector.S	/^pabort:$/;"	l	language:Asm
+printf	include/config.h	7;"	d	language:C++
+pwm_timer4_irq_init	pwm.c	/^void pwm_timer4_irq_init(u32 s)$/;"	f	language:C	signature:(u32 s)
+reset	vector.S	/^reset:$/;"	l	language:Asm
+send_sgi	gic.c	/^void send_sgi(u32 num)$/;"	f	language:C	signature:(u32 num)
+set_2bit	include/config.h	15;"	d	language:C++
+set_bit	include/config.h	13;"	d	language:C++
+set_nbit	include/config.h	17;"	d	language:C++
+set_one	include/config.h	9;"	d	language:C++
+set_val	include/config.h	19;"	d	language:C++
+set_zero	include/config.h	11;"	d	language:C++
+swi	vector.S	/^swi:$/;"	l	language:Asm
+ttb	main.c	/^u32 *ttb  = (void *)0x70000000; \/\/app1$/;"	v	language:C
+ttb_init	ttb.c	/^void ttb_init(u32 *ttb)$/;"	f	language:C	signature:(u32 *ttb)
+ttb_l1_mmap	ttb.c	/^void ttb_l1_mmap(u32 *ttb, u32 vaddr, u32 paddr)$/;"	f	language:C	signature:(u32 *ttb, u32 vaddr, u32 paddr)
+ttb_l2_mmap	ttb.c	/^void ttb_l2_mmap(u32 *ttb, u32 *ttb_l2, u32 vaddr, u32 paddr)$/;"	f	language:C	signature:(u32 *ttb, u32 *ttb_l2, u32 vaddr, u32 paddr)
+u16	include/type.h	/^typedef unsigned short u16;$/;"	t	language:C++
+u32	include/type.h	/^typedef unsigned int u32;$/;"	t	language:C++
+u8	include/type.h	/^typedef unsigned char u8;$/;"	t	language:C++
+udelay	include/config.h	6;"	d	language:C++
+undef	vector.S	/^undef:$/;"	l	language:Asm
+v16	include/type.h	/^typedef volatile unsigned short v16;$/;"	t	language:C++
+v32	include/type.h	/^typedef volatile unsigned int v32;$/;"	t	language:C++
+v8	include/type.h	/^typedef volatile unsigned char v8;$/;"	t	language:C++
+vector_end	vector.S	/^vector_end:$/;"	l	language:Asm
+vector_start	vector.S	/^vector_start:$/;"	l	language:Asm
+wdt_feed	wdt.c	/^void wdt_feed(int s)$/;"	f	language:C	signature:(int s)
+wdt_irq_init	wdt.c	/^void wdt_irq_init(int s)$/;"	f	language:C	signature:(int s)
+wdt_reset	wdt.c	/^void wdt_reset(int s)$/;"	f	language:C	signature:(int s)

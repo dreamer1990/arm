@@ -1,0 +1,217 @@
+
+. 启动过程:
+    x86:
+        开机 -> bios 上电自检 -> 驱动电源,内存... -> 驱动显示 -> 驱动鼠标键盘 -> F2 F12 ...
+                (EEPROM)
+    
+        -> 读取cmos启动配置 -> 启动顺序 (usb, cdrom, net, sata/ide, ...) -> mbr(主引导)512 
+              (sram)
+        -> grub -> grub.conf -> kernel /vmlinuz-2.6.37 -> ro root=/dev/sda6 rhgb quiet -> 
+                                                             ^ 大系统(红帽)的根
+    
+        -> initrd /initramfs-2.6.37.img -> /dev/?? /lib/modules /bin/mount ... ->
+                   ^ 根文件系统(内存文件系统)
+        -> /dev/sda6 on / type ext4 (rw) (/etc/fstab) -> /sbin/init -> .... 
+
+
+        bootloader : BIOS + CMOS + GRUB
+        kernel     : vmlinuz-2.6.37
+        rootfs     : initramfs-2.6.37.img root=/dev/sda6
+
+    arm:
+        开机 -> BL0(IROM) -> clock + stack ... -> 读OM (sd卡启动, emmc启动) -> sd卡启动
+
+        -> 驱动sd/mmc接口控制器 -> load bl1 to IRAM(从哪里读??) -> ddr + clock -> 
+
+        -> load bl2 u-boot.bin E4412_tzsw.bin to ddr -> u-boot 命令处理 -> bootcmd 
+
+        -> movi read kernel 0 0x40008000; movi read rootfs 0 0x41000000 0x400000; bootm 0x40008000 0x41000000
+                     zImage                         ramdisk
+        -> setenv bootargs ... -> kernel ... -> init -> ...
+
+
+        bootloader  : BL0 + BL1 + BL2 + U-BOOT.bin + E4412_tzsw.bin
+        kernel      : zImage 
+        rootfs      : ramdisk-u.img system.img
+
+. 硬盘文件系统(emmc/sd/mmc)
+    device_number : 0 / 1
+    usb / net / ...
+    adb   ftp/nfs
+
+. 网络文件系统(nfs)
+    borad:                          pc:
+    u-boot.bin + zImage             rootfs
+                            ---> 
+                            nfs
+
+. qt的网络文件系统搭建:
+    u-boot:
+        fastboot
+
+    pc:
+        cd qt_0822/
+        fastboot flash kernel zImage
+
+        fastboot flash ramdisk ramdisk-u.img
+
+        mkdir /nfsroot
+    
+        vim /etc/exports
+            /nfsroot    *(rw,sync,no_root_squash)
+        service nfs restart
+        [root@deng /]# showmount -e 192.168.0.8
+        Export list for 192.168.0.8:
+        /nfsroot      *
+
+        tar xf rootfs_qtopia_qt4-20140124.tar.gz -C /nfsroot/
+        cd /nfsroot/
+        mv rootfs_qtopia_qt4/* .
+        rm -rf rootfs_qtopia_qt4/
+
+    修改bootargs参数:
+        u-boot:
+            setenv bootargs root=/dev/nfs rw nfsroot=192.168.0.8:/nfsroot ip=192.168.0.123 console=ttySAC0,115200n8 lcd=S70 ctp=3
+                                                     ^pc机的ip
+                                                                             ^板子ip
+            saveenv
+
+. 自己制作简单文件系统 
+         
+    u-boot: u-boot.bin
+    源码编译:
+    1. 配置: 
+        告诉Makefile 
+            1)那些文件需要编译; 
+            2)文件中那些部分需要编译;   include/configs/tiny4412.h
+        make tiny4412_config
+        
+    2. 编译:
+        arm-linux-gcc
+        ARCH = 
+        CROSS_COMPILE ?= arm-linux-
+                         pcc-linux-
+
+    3. 安装:
+        make -C sd_fuse
+
+    zImage: 
+        tar xf linux-3.5-20140822.tgz
+        cd linux-3.5
+        make mrproper
+
+        cp tiny4412_linux_defconfig .config
+        make menuconfig (保存)
+                System Type  ---> 
+                    [ ] Support TrustZone-enabled Trusted Execution Environment 
+                     ^ 取消选择
+        make -j2
+
+        生成vmlinux arch/arm/boot/Image 
+                    arch/arm/boot/zImage  <-- 下载启动 
+
+        以下不同操作:
+        注意: (裁剪移植具体操作)
+            make menuconfig     (内核裁剪)
+                []  * []
+                <>  M * <>
+                -*- 
+                ()  arm-linux-
+                -->
+
+                空格键选择
+                H -> 帮助
+
+                搜索驱动选项
+                输入/
+                    DM9620
+
+            make defconfig      (使用x86默认配置)
+            make exynos4_android_defconfig  (基于某一个架构的模式配置)
+            make exynos4_defconfig
+                cp arch/arm/configs/exynos4_defconfig .config
+            make menuconfig
+                添加固定选项; 
+            
+            DM9620
+            WM8960
+            ...
+            ...
+
+    rootf: 
+        pc:
+            mkdir /rootfs
+            vim /etc/exports
+            /rootfs    *(rw,sync,no_root_squash)
+        
+        u-boot:
+            setenv bootargs root=/dev/nfs rw nfsroot=192.168.0.43:/rootfs ip=192.168.0.123 console=ttySAC0,115200n8 lcd=S70 ctp=3
+            setenv bootcmd "movi read kernel 0 40008000; bootm 0x4008000"
+                saveenv
+
+        启动失败:
+            Kernel panic - not syncing: No init found.  Try passing init=option to kernel. See Linux Documentation/init.txt for guidance.
+            
+
+        生成init, ls, ifconfig, dns, http, ftp ...
+            tar xf busybox-1.17.2-20101120.tgz
+            make defconfig
+            make menuconfig
+                   Busybox Settings  --->
+                            Build Options  --->      
+                                (arm-linux-) Cross Compiler prefix
+                                 ^
+            make
+                生成busybox
+                Trying libraries: crypt m
+                Library crypt is not needed, excluding it
+                Library m is needed, can't exclude it (yet)
+
+            make install
+                _install/
+
+            cp _install/* /rootfs
+            
+        启动失败:
+            Kernel panic - not syncing: No init found.  Try passing init= option to kernel. See Linux Documentation/init.txt for guidance.
+
+        copy依赖库文件:
+            mkdir /rootfs/lib
+            cp /usr/local/arm/4.5.1/arm-none-linux-gnueabi/lib/* /rootfs/lib -rf
+
+        启动成功:
+            但是没有交互;
+
+        添加启动代码:
+            init -> etc/inittab 
+            mkdir /rootfs/etc
+            vim /rootfs/etc/inittab
+            ::sysinit:/etc/init.d/rcS
+            ttySAC0::respawn:-/bin/sh
+            
+            sysinit: 开机时执行一遍(守护进程);
+            /etc/init.d/rcS: 开机执行的脚本;
+
+            开启一个-/bin/sh (有shell的交互)
+            ttySAC0: shell 的输入输出终端;
+            respawn: 执行有终端的程序;
+
+        cd /rootfs
+        mkdir etc/init.d
+        mkdir sys proc tmp dev home root ... 
+        vim etc/init.d/rcS
+        
+        #!/bin/sh
+
+        echo "===========" > /dev/console
+        echo "=hello arm=" > /dev/console
+        echo "===========" > /dev/console
+
+        mount -t sysfs none /sys        <- sysfs 内核的虚拟文件系统;(所有内核设备信息)
+        mount -t proc none /proc        <- proc内核的虚拟文件系统;(所有内核资源信息)
+        mount -t tmpfs none /dev        <- tmpfs 临时文件系统;
+        mount -t tmpfs none /tmp        <- tmpfs 临时文件系统;
+              
+        mdev -s         <- 扫描/sys在/dev下生成设备文件(开机启动时执行一次)
+        echo /sbin/mdev > /proc/sys/kernel/hotplug  <- 支持热插拔;
+

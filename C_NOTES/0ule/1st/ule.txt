@@ -1,0 +1,278 @@
+GNU/Linux:
+    安装系统
+    基本操作(文件系统访问)
+    网络配置/故障排错
+        mii-tool eth0
+        ifconfig eth0
+        ping
+    用户管理
+    用户权限
+    硬盘管理
+    软件管理
+    启动过程
+    进程管理
+    服务管理
+    查找和文本处理
+    SHELL脚本
+
+
+GNU/Linux 发行版本
+    centos6.7   64
+    ubuntu14.04 64  Unity -> linux mint
+    redhat7         GNOME
+    opensuse        KDE
+
+    archlinux
+    gentoo
+    lfs
+
+硬盘管理
+    参考分区表：
+        第一个主分区        50G         Window 系统盘
+        第二个主分区        8G          boot分区
+        第三个主分区        50G         测试系统盘
+        第四个主分区        剩余空间    扩展分区
+        第一个逻辑分区      4G          交换分区
+        第二个逻辑分区      30G         主linux根分区
+        第三个逻辑分区      30G         次linux根分区
+        第四个逻辑分区      20 - 30G    测试linux根分区
+        第五个逻辑分区      50G         linux数据分区
+        第六个逻辑分区      ...         windows D盘
+
+        简化后：
+
+        第一个主分区        50G         Window 系统盘
+        第四个主分区        剩余空间    扩展分区
+        第一个逻辑分区      4G          交换分区
+        第二个逻辑分区      30G         主linux根分区
+        第五个逻辑分区      50G         linux数据分区
+        第六个逻辑分区      ...         windows D盘
+
+    linux磁盘访问流程：
+        1. 分区
+        2. 格式化
+        3. 挂载
+        4. 访问
+        5. 卸载
+
+    sudo fdisk -l       列出当前所有磁盘信息
+    df -h               查看当前挂载的磁盘信息
+
+    要求分区：
+        1.  30G         centos根分区        ext4
+        2.  4G          交换分区            swap
+        3.  10 - 20G    windows C盘         ntfs/vfat
+        4.  所有空间    扩展分区            ext
+        5.  10 - 30G    ubuntu根分区        ext4
+        6.  10 - 30G    rhel根分区          ext3
+        7.  10 - 20G    测试linux根分区     ext4
+        8.  20 - 50G    linux数据分区       ext3
+        9.              D盘                 ntfs/vfat
+
+    1. 分区：sudo fdisk /dev/sda
+        m   得到帮助信息
+        p   打印分区表
+        n   新建分区
+            选择主分区还是扩展分区
+            选择起始位置 直接按回车选择默认值
+            选择结束位置 +20M +30G
+        d   删除分区
+            选择删除哪个分区
+        t   更改分区格式
+            选择更改分区 再选择格式码(L列出格式码列表)
+        q   退出
+        w   保存分区
+
+        partprobe   刷新设备文件
+
+    2. 格式化
+        mkfs.ext3 /dev/sda6
+        mkfs.vfat /dev/sda3
+        mkfs -t ntfs-3g /dev/sda3
+
+    3. 挂载
+        mount -t ext3 /dev/sda6 /mnt
+        cd /mnt     此时/mnt文件夹与sda6绑定，访问/mnt即访问sda6
+
+    4. 卸载
+        umount /dev/sda6
+        umount /mnt
+        umount -l /mnt      强制卸载
+
+    列出所有分区UUID：blkid
+
+    开机自动挂载：
+        vim /etc/fstab
+            第一个字段：设备文件路径或UUID
+                UUID=3176be25-1c5b-460b-97bf-3873fea7a21b
+                /dev/sda6
+
+            第二个字段：挂载目标
+                / /data /mnt
+            第三个字段：文件格式
+                ext4
+            第三个字段：挂载选项 defaults为默认选项
+                defaults
+            第四, 五个字段：
+                1     是否备份
+                1     开机是否检查分区
+
+            /dev/sda6 /data ext4 defaults 0 0
+
+            2.2.2.9:/kyo /mnt nfs defaults 0 0 (不建议)
+
+            mount -a    把fstab里所有条目全部挂载
+
+        mount:
+            mount   列出当前系统所有挂载情况
+            mount -t ext3 /dev/sda3 /mnt
+            mount -t vfat /dev/sda6 /mnt
+            mount -t nfs 2.2.2.9:/kyo /mnt
+            mount -t iso9660 -o loop,ro rhel5.5.iso /mnt
+            mount -o bind /data /mnt
+
+启动过程
+    runlevel    查看当前运行级别
+        0       关机
+        1       单用户模式
+        2       没有网络文本模式
+        3       文本模式
+        4       保留
+        5       图形模式
+        6       重启
+
+    启动流程：
+        通电 -> BIOS
+             -> 读取MBR的启动程序并且执行(grub) (/boot/grub.conf)
+             -> vmlinuz内核
+             -> 临时文件系统 -> 临时文件系统挂载根分区(/etc/fstab)
+             -> init程序 -> 读取/etc/init/rcS.conf配置文件
+             -> /etc/rc.d/rc.sysinit 初始化主机名 网络服务
+             -> /etc/inittab  设置运行级别
+             -> /etc/rc.d/rc5.d/  开机启动服务程序
+             -> /etc/rc.d/rc.local  执行用户自定义启动脚本(文本命令)
+             -> /etc/init/prefdm.conf 启动图形界面
+             -> /etc/X11/xinit/xinitrc.d 图形程序的配置文件
+             -> 启动Shell程序 SHELL的全局配置
+             -> /etc/profile.d/*        用户登录时执行
+             -> /etc/bashrc             启动shell会执行
+            用户对应的SHELL配置文件
+             -> ~/.bash_profile         用户登录时执行
+             -> ~/.bashrc               启动shell会执行
+
+    grub:
+        grub对磁盘分区表示方法：
+            (hd0,1)
+                hd0 第一块硬盘
+                1   第一块硬盘的第二个分区
+
+            (hd0,0)/boot/grub/splash.xpm.gz
+            在第一块硬盘的第一个分区下boot文件夹下grub文件夹下的splash.xpm.gz文件
+
+        vim /boot/grub.conf
+            #默认启动哪个操作系统
+            default=0
+            #等待用户操作的时间 秒级
+            timeout=2
+            #grub选择界面的背景图片路径
+            splashimage=(hd0,2)/grub/splash.xpm.gz
+#默认隐藏菜单
+            hiddenmenu
+
+#菜单标题
+            title CentOS 6 (2.6.32-573.el6.x86_64)
+#设置grub程序的根分区 hd0:代表第一块硬盘 2:这块硬盘的第三个分区
+                root (hd0,2)
+#指定要启动的内核文件 并且给内核传参
+                kernel /vmlinuz-2.6.32-573.el6.x86_64 root=/dev/sda6
+#kernel /vmlinuz-2.6.32-573.el6.x86_64 ro root=UUID=3176be25-1c5b-460b-97bf-3873fea7a21b rd_NO_LUKS rd_NO_LVM LANG=en_US.UTF-8 rd_NO_MD SYSFONT=latarcyrheb-sun16 crashkernel=auto  KEYBOARDTYPE=pc KEYTABLE=us rd_NO_DM rhgb quiet
+#指定要临时文件系统
+                initrd /initramfs-2.6.32-573.el6.x86_64.img
+
+        grub命令：
+            root            指定某个分区作为grub环境的根分区
+            kernel/linux    指定内核文件的路径 并且给内核传参
+            initrd          指定临时文件系统的路径
+
+            boot            启动内核
+
+
+            root (hd0,0)
+            kernel /boot/vmlinuz-2.6.32-573.el6.x86_64 root=/dev/sda1
+            initrd /boot/initrd.img
+            boot
+
+
+        把当前操作系统的grub程序写到mbr里：
+            grub-install /dev/sda
+
+
+网络安装和排错：
+    重启电脑一直按f8 - f12,弹出蓝色的窗口选择网卡启动
+        如果弹出海贼王界面
+            hd      进入硬盘启动
+            centos      进入安装centos界面
+            centos-dev  进入自动安装centos界面
+            centos-resuce   进入centos6.7修复模式
+            rhel5.5     进入安装rhel5.5界面
+            ubuntu      进入安装ubuntu界面
+
+1. centos系统硬盘安装ubuntu:
+    mkfs.ext2 /dev/sda8
+    mkdir /data
+    mount /dev/sda8 /data
+    mount 2.2.2.9:/data /mnt/
+    cp /mnt/ubuntu14.04.iso /data/
+    mount -o loop /data/ubuntu14.04.iso /opt
+    cd /opt/casper/
+    cp vmlinuz.efi initrd.lz /data/
+    vim /boot/grub/grub.conf
+        title ubuntu_install
+            root (hd0,7)
+            kernel /vmlinuz.efi boot=casper iso-scan/filename=/ubuntu14.04.iso quiet splash check live-install
+            initrd /initrd.lz
+    reboot 选择grub条目进入ubuntu_install
+    进入ubuntu安装系统中后按ctrl + shift + t打开终端
+    sudo -i 进入root用户
+    mount   查看挂载情况
+    umount -l /isodevice
+    点击桌面安装图标进行安装
+    注意：
+        选择分区 -> 自定义(手动)分区
+            第五个分区挂载根
+
+2. centos系统硬盘安装rhel5.5:
+    mount /dev/sda8 /data
+    mount 2.2.2.9:/data /mnt/
+    cp /mnt/rhel5.5.iso /data -f
+    mount -o loop rhel5.5.iso /opt
+    cd /opt/isolinux
+    cp vmlinuz initrd.img /data/
+    cd ..
+    cp images /data/ -rf
+
+    vim /boot/grub/grub.conf
+        title rhel_install
+            root (hd0,7)
+            kernel /vmlinuz
+            initrd /initrd.img
+    重启进入rhel_install条目
+        选择硬盘安装 再选择/dev/sda8
+
+3. centos系统硬盘安装windows xp(ghost):
+    mkfs.vfat /dev/sda9
+    mkdir /D
+    mount /dev/sda9 /D
+    mount 2.2.2.9:/data /mnt
+    cp /mnt/win/* /data/ -f
+    cp /mnt/ylmf.gho /D/ -f
+    title Ghost
+        root (hd0,7)
+        kernel /memdisk c=2000 h=4 s=36 floppy
+        initrd /ghost.img
+
+
+进程管理
+服务管理
+查找和文本处理
+SHELL脚本

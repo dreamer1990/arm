@@ -1,0 +1,54 @@
+ 
+ 1. 模块相关命令的练习
+
+    [root@deng code]# cd code
+    [root@deng code]# ls
+    Makefile  test.c
+    
+    [root@deng code]# ls
+    Makefile  test.c
+    # 生成test.ko内核模块
+    [root@deng code]# make 
+    make -C /usr/src/kernels/2.6.18-194.el5-PAE-i686 M=/home/weekend/0ule/5th/code modules
+    make[1]: Entering directory `/usr/src/kernels/2.6.18-194.el5-PAE-i686'
+    CC [M]  /home/weekend/0ule/5th/code/test.o
+    Building modules, stage 2.
+    MODPOST
+    CC      /home/weekend/0ule/5th/code/test.mod.o
+    LD [M]  /home/weekend/0ule/5th/code/test.ko
+    make[1]: Leaving directory `/usr/src/kernels/2.6.18-194.el5-PAE-i686'
+
+    #删除编译生成的信息
+    [root@deng code]# make clean
+        make -C /usr/src/kernels/2.6.18-194.el5-PAE-i686 M=/home/weekend/0ule/5th/code clean
+        make[1]: Entering directory `/usr/src/kernels/2.6.18-194.el5-PAE-i686'
+        CLEAN   /home/weekend/0ule/5th/code/.tmp_versions
+        make[1]: Leaving directory `/usr/src/kernels/2.6.18-194.el5-PAE-i686'
+        rm -rf Module*
+    [root@deng code]# 
+
+    #常用相关的命令
+    insmod test.ko
+    rmmod test
+    lsmod
+    modinfo test.ko
+
+
+    
+
+ 2. 编译kernel 
+
+    a. make clean       #清除之前编译生成的文件
+    b. make menuconfig  #选择要编译的模块,生成一个.config文件
+    c. make -j4         #以4个线程编译kernel源码
+    d. make install     #把内核 文件系统 System.map-2.6.37拷贝到/boot目录下
+
+
+3. 安装Lua解释器
+ 
+    make linux MYLIBS=-ltermcap
+
+    make install
+
+
+

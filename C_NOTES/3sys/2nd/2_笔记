@@ -1,0 +1,245 @@
+
+1.8种进程终止方式
+  正常终止
+  .从main函数返回
+  .调用exit
+  .调用_exit或_Exit
+  .最后一个线程从其启动例程返回
+  .最后一个线程调用pthread_exit
+
+ 异常终止
+  .调用abort
+  .接到一个信号并终止
+  .最后一个线程对取消请求做出响应
+  
+2.exit函数
+  _exit  _Exit(ISO C) 立即进入内核
+  exit则先执行清理处理(比如冲洗标准I/O流)
+  三个函数带回来的整数称为终止状态
+  
+  atexit 
+  可以登记终止处理程序  iso c规定可以登记多达32个退出处理程序
+  
+3.环境变量
+   extern char **environ
+   环境变量的格式  name=value
+   getenv   获取一个指定的环境变量，返回指向value字段的指针，如果不存在则返回NULL
+   
+   setenv  putenv  unsetenv
+
+4.getrlimit  setrlimit  成功返回0  失败返回非0
+  每一个进程都有一组资源限制，其中一些可用这两个函数进行查询和更改
+
+  在更改资源限制时，须遵循下列三条规则：
+    .任何一个进程都可将一个软限制更改为小于或等于其硬限制。
+    .任何一个进程都可降低其硬限制值，但它必须大于或等于其软限制值。这种降低，对普通用户而言是不可逆反的。
+    .只有超级用户可以提高硬限制。
+    一个无限量的限制由常数RLIM_INFINITY指定。
+
+
+5. 进程就是运行中的程序。 一个程序可以有多个进程,  一个进程只能对应一个程序
+
+6. 进程的分类: 交互型， 非交互(后台服务)
+
+7. 调度算法：
+	1. 先来先服务
+	2. 按优先级别：  固定优先级别， 动态分配优先级别
+	3. 短作业优先
+	4. 按时间片: 	实时进程(占时间片多), 非实时进程
+
+进程的状态:    就绪    -->>    运行  -->>   等待   -->> 就绪 
+		分配到时间片       需要外部资源   需要的资源已获取到
+
+		运行   -->>  就绪
+		   分配的时间片用完了
+
+8. 调度的方式:  非抢占式(进程主动让出cpu),   抢占式(系统强制让进程让出)
+
+linux里的进程父子进程的关系. 假如A进程让B程序运行起来变为B进程,那么B进程对A进程是子进程, A进程对于B进程来说就是父进程
+
+可使用ps -auxf查看当前的进程状态:
+D    Uninterruptible sleep (usually IO) //不可中断的等待
+R    Running or runnable (on run queue) //运行
+S    Interruptible sleep (waiting for an event to complete) //可中断的等待
+T    Stopped,  //停止状态, 如变gdp调试
+W    paging (not valid since the 2.6.xx kernel)
+X    dead (should never be seen)
+Z    Defunct ("zombie") process, terminated but not reaped by its parent.//僵尸状态
+
+<    high-priority (not nice to other users) //
+N    low-priority (nice to other users)
+L    has pages locked into memory (for real-time and custom IO) 
+s    is a session leader
+l    is multi-threaded (using CLONE_THREAD, like NPTL pthreads do)
++    is in the foreground process group
+
+进程的级别由-20 到 19， 数越小优先级别越高	
+  .nice() 设置当前进程的nice值
+  setpriority(PRIOR_PROCESS, pid, nice) 设置指定的进程的nice值	
+		
+9.进程：每个进程都有一个非负整型的唯一进程ID。
+  有某些专用的进程：进程ID 0是调度进程，常常被称为交换进程(swapper)。该进程并不执行任何磁盘上的程序—它是内核的一部分，因此也被称为系统进程。进程ID 1通常是init进程，在自举过程结束时由内核调用。
+
+============================================
+10. getpid  返回调用进程pid
+    getppid 返回父进程pid
+    getuid  返回实际用户ID   geteuid   返回有效用户ID
+    getgid  返回实际组ID     getegid   返回有效组ID
+
+11.pid_t  fork(void)
+  由fork创建的新进程被称为子进程（child process）。该函数被调用一次，但返回两次。
+  两次返回的区别是子进程的返回值是0，而父进程的返回值则是新子进程的进程ID
+  子进程和父进程继续执行fork之后的指令。子进程是父进程的复制品。例如，子进程获得父进程数据空间、
+  堆和栈的复制品。注意，这是子进程所拥有的拷贝。父、子进程并不共享这些存储空间部分。如果正文段是只读的，
+  则父、子进程共享正文段. 
+  
+  现在很多的实现并不做一个父进程数据段和堆的完全拷贝，因为在fork之后经常跟随着exec。
+  作为替代，使用了在写时复制( Copy-On-Write,COW)的技术。
+  
+12.父子进程间的关系
+  子进程继承父进程的以下资源：
+  .文件描述符，共享文件表项
+  .实际用户ID、实际组ID、有效用户ID、有效组ID。
+  .用户ID。
+  .进程组ID。
+  .会话ID。
+  .控制终端。
+  .设置-用户- I D标志和设置-组- I D标志。
+  .当前工作目录。
+  .根目录。
+  .文件方式创建屏蔽字。  umask
+  .信号屏蔽和排列。
+  .对任一打开文件描述符的在执行时关闭标志。
+  .环境。
+  .连接的共享存储段。
+  .资源限制。
+
+ 父、子进程之间的区别是：
+  .fork的返回值。
+  .进程I D。
+  .不同的父进程I D。
+  .子进程的tms_utime,tms_stime,tms_cutime以及tms_ustime设置为0。
+  .父进程设置的锁，子进程不继承。
+  .子进程的未决告警被清除。
+  .子进程的未决信号集设置为空集。
+
+13. vfork  函数的调用序列和返回值与fork相同，但两者的语义不同。
+   vfork用于创建一个新进程，而该新进程的目的是e x e c一个新程序
+   vfork与fork一样都创建一个子进程，但是它并不将父进程的地址空间完全复制到子进程中，
+   因为子进程会立即调用exec(或exit)，于是也就不会存访该地址空间。不过在子进程调用exec或exit之前，
+   它在父进程的空间中运行。这种工作方式在某些UNIX的页式虚存实现中提高了效率（与在f o r k之后跟随exec，
+   并采用在写时复制技术相类似）。
+
+   vfork和fork之间的另一个区别是： vfork保证子进程先运行，在它调用exec或exit之后父进程才可能被调度运行
+
+14.僵尸进程： 子进程运行结束， 父进程还在运行中，
+   而且父进程没收回收子进程的资源. 子进程就变为僵尸进程
+
+15.wait  waitpid
+   是调用wait或waitpid的进程可能会：
+    .阻塞(如果其所有子进程都还在运行)。
+    .带子进程的终止状态立即返回(如果一个子进程已终止，正等待父进程存取其终止状态)。
+    .出错立即返回(如果它没有任何子进程)
+	
+ waitpid 的pid参数：
+   .pid == -1 等待任一子进程。于是在这一功能方面waitpid与wait等效。
+   .pid > 0 等待其进程ID与pid相等的子进程。
+   .pid == 0 等待其组ID等于调用进程的组ID的任一子进程。
+   .pid < -1 等待其组ID等于pid的绝对值的任一子进程。
+
+ 这两个函数的区别是：
+   .在一个子进程终止前,wait使其调用者阻塞,而waitpid有一选择项可使调用者不阻塞。
+   .waitpid并不等待第一个终止的子进程—它有若干个选择项，可以控制它所等待的进程。
+
+ 检查wait和waitpid所返回的终止状态的宏
+   .WIFEXITED(status)若为正常终止子进程返回的状态，则为真。
+   对于这种情况可执行WEXITSTATUS(status)取子进程传送给exit或_exit参数的低8位
+
+   .WIFSIGNALED(status) 若为异常终止子进程返回的状态，则为真（接到一个不捕捉的信号）。
+   对于这种情况，可执行WTERMSIG(status)取使子进程终止的信号编号。
+   另外某些实现定义宏：WCOREDUMP(status)若已产生终止进程的core文件，则它返回真
+ 
+   .WIFSTOPPED(status) 若为当前暂停子进程的返回的状态，则为真。
+   对于这种情况，可执行WSTOPSIG(status)取使子进程暂停的信号编号
+
+15.exec函数
+    调用一种exec函数时，该进程完全由新程序代换，而新程序则从其main函数开始执行。
+    因为调用exec并不创建新进程，所以前后的进程I D并未改变。exec只是用另一个新程序替换了当前进程的正文、数据、堆和栈段。
+
+   int execl(const char *path, const char *arg, ...);
+   int execlp(const char *file, const char *arg, ...);
+   int execv(const char *path, char *const argv[]);
+   int execvp(const char *file, char *const argv[]);
+
+   int execle(const char *path, const char *arg,..., char * const envp[]);
+
+   int execve(const char *filename, char *const argv[],char *const envp[]);
+
+    进程ID没有改变。执行新程序的进程还保持了原进程的下列特征：
+       .进程ID和父进程ID。
+       .实际用户ID和实际组ID。
+       .添加组ID。
+       .进程组ID。
+       .会话ID。
+       .控制终端。
+       .闹钟尚余留的时间。
+       .当前工作目录。
+       .根目录。
+       .文件方式创建屏蔽字。
+       .文件锁。
+       .进程信号屏蔽。
+       .未决信号。
+       .资源限制。
+       .tms_utime, tms_stime, tms_cutime以及t m s u s t i m e值。
+
+16.setuid   setgid  	设置实际用户/组ID和有效用户/组ID (如若不改变参数为－1)
+
+   .若进程具有超级用户特权，则setuid函数将实际用户ID、有效用户ID，以及保存的设置用户ID设置为uid。
+   .若进程没有超级用户特权，但是uid等于实际用户ID或保存的设置用户ID，则setuid只将有效用户ID设置为uid。不改变实际用户ID和保存的设置用户ID。
+   .如果上面两个条件都不满足，则errno设置为EPERM，并返回出错。
+
+17.setreuid   setregid    交换实际用户ID和有效用户ID的值
+
+18.seteuid    setegid       只更改有效用户ID和有效组ID。
+
+19.进程组:一个或多个进程组成进程组 每一个进程组可以有一个进程组长，
+   组长进程：进程的标识pid等于其进程组ID
+   pid_t getpgrp();  //返回调用进程进程组ID
+   pid_t getpgid(pid_t pid);  //XSI 扩散 
+
+   加入一个现有的组或创建一个新的组
+   int setpgid(pid_t pid,pid_t pgid);
+   .如果pid==pgid进程成为一个进程组组长进程
+   .如果pid==0则作用于调用进程   ＝＝＞ setpgid(getpid(),pgid);
+   .一个进程只能为它自己或子进程设置进程组ID
+
+20.会话:一个或多个进程组形成一个会话
+   pid_t setsid();  建立一个新会话，返回进程组id，出错返回－1
+   注：如果调用进程为组长进程 将错误返回
+
+   如果调用成功将产生以下三种行为:
+    .该进程将成为新会话首进程
+    .该进程将成为进程组组长
+    .脱离控制终端
+
+    pid_t getsid(pid_t pid);  获取pid进程的会话首进程组id
+
+21:守护进程(精灵进程)
+   步骤:
+   1.设置创建文件屏蔽字
+   2.fork产生孤儿进程
+   3.调用setsid脱离控制终端
+   4.更改工作路径到'/'
+   5.关闭不用的文件描述符  并将 stdin stdout stderr 重定向到/dev/null
+
+产生守护进程的函数:
+   int daemon(int nochdir, int noclose);
+
+homewok:
+   实现简单的shell 支持 光标移动修改命令 输出重定向  10个历史命令
+ 
+   如果有  1000 －－ 20000  产生4个子进程 分工合作打印数字包含7的数字
+
+
+
+

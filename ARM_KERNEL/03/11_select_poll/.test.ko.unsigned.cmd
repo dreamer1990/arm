@@ -1,0 +1,1 @@
+cmd_/share/kernel/03/11_select_poll/test.ko.unsigned := ld -r -m elf_x86_64 -T /usr/src/kernels/2.6.32-573.el6.x86_64/scripts/module-common.lds --build-id -o /share/kernel/03/11_select_poll/test.ko.unsigned /share/kernel/03/11_select_poll/test.o /share/kernel/03/11_select_poll/test.mod.o 

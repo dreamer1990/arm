@@ -1,0 +1,23 @@
+
+一	手工创建用户(不用 useradd 命令)
+
+		第一步：在/etc/passwd添加一行信息
+		bean:x:534:603::/home/bean:/bin/bash
+		第二步：在/etc/shadow添加一行信息
+		grub-md5-crypt 创建md5密码，把密码替换下面两个!!位置
+		bean:!!:15035:0:99999:7:3::
+		第三步：在/etc/group添加组的信息
+		bean:x:603:
+		第四步：在/etc/gshadow添加组的密码信息
+		bean:!::
+		第五步：创建家目录
+		mkdir /home/bean
+		第六步：把用户的环境变量文件复制到家目录
+		cp /etc/skel/.bash* /home/bean
+		chown bean:bean /home/bean/ -R
+		chmod 700 /home/bean/ -R
+		第七步：创建用户的邮件文件
+		touch /var/mail/bean
+		chown bean:bean /var/mail/bean
+		chmod 660 /var/mail/bean
+

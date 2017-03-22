@@ -1,0 +1,50 @@
+1. 从键盘输入一些字符，逐个把它们送到磁盘上去，直到用户输入一个“#”为止
+
+2. 使用fgetc fputc feof实现一个文件拷贝
+
+    拷贝文件file1的内容到文件file2中去
+
+    int main(int argc, char **argv)
+    ./a.out file1  file2
+
+3. 使用fgets fputs feof实现一个文件拷贝
+
+    拷贝文件file1的内容到文件file2中去
+
+    int main(int argc, char **argv)
+    ./a.out file1  file2
+
+4. 实现cat的基本功能
+    
+    a. 从标准输入获取字符串
+    b. 将获取的字符串向标准输出输出
+
+    ./a.out 
+    alkfjkajflksajlkf
+    lakfjlkadjflsajflksdajlkf
+    alkfjsklafjklsadj
+
+
+    5. 使用fread  fwrite保存一个结构体的数据到文件中
+
+    struct stu_t {
+        int id;
+        char sex;
+        char name[32];
+    };
+
+    struct stu_t stu1, stu2;
+
+    stu1初始化 
+
+    printf("id:  %d  sex: %c  name: %s", stu2.id, stu2.sex, stu2.name);
+
+
+	6. 有一个磁盘文件，内有一些信息。要求第一次将它的内容显示在屏幕上，第二次把它复制到另一文件上。
+
+
+
+
+
+
+

@@ -1,0 +1,28 @@
+
+可在任意位置实现函数
+	long sys_函数名(参数)
+	{
+	}
+
+	or
+	
+	#include <linux/syscalls.h>
+	SYSCALL_DEFINEx(函数名， type1, name1, type2, name2, ...)
+					x 表示参数个数， 函数名前面会自动加上sys_
+	{
+	}
+
+
+linux/arch/arm/kernel/call.S
+	CALL(sys_函数名)	
+	加在最后面，系统调用号为前面的调用号加1
+
+
+
+linux/arch/arm/include/asm/unistd.h
+	#define __NR_函数名	(__NR_SYSCALL_BASE+系统调用号)
+	
+	不是必须的， 主要提供给应用层使用, 
+	make headers_install会将头文件安装在linux/usr/下
+
+

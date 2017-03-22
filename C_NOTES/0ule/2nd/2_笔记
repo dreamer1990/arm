@@ -1,0 +1,525 @@
+
+Linux 文件系统基础
+
+	nautilus /home	以文件浏览器的方式查看该目录的内容 
+	或者  应用程序  ---> 系统工具 ---> 文件浏览器
+
+
+
+    
+一、Linux基本命令
+
+Linux是严格区分大小写的
+
+--
+
+# vino-preferences 	--配置VNC的命令
+
+# vncviewer 2.2.2.66  --客户端连接的命令
+
+
+GNU Bourne-Again SHell
+
+	       用户 	
+		｜
+		｜
+	       bash  终端相当于是bash的接口和工具	cat /etc/shells 
+		|			bash-3.2-24.el5.i386.rpm 
+		|
+	    内核kernel   系统接口调用		www.kernel.org
+                |
+		|	1，内存管理
+		|	2，文件系统管理
+		|	3，进程管理	
+		|	4，硬件驱动
+                |       5，网络协议栈实现
+		|
+	     物理硬件 
+
+
+内部命令：	bash这个软件包自带的命令
+
+
+man cd
+       bash,  :,  .,  [, alias, bg, bind, break,
+       builtin, cd, command, compgen,  complete,
+       continue,  declare,  dirs,  disown, echo,
+       enable, eval, exec, exit, export, fc, fg,
+       getopts, hash, help, history, jobs, kill,
+       let, local, logout, popd, printf,  pushd,
+       pwd,  read, readonly, return, set, shift,
+       shopt,  source,  suspend,  test,   times,
+       trap,  type, typeset, ulimit, umask, una-
+       lias, unset, wait -  bash  built-in  com-
+       mands, see bash(1)
+
+
+外部命令：	安装外部软件所带的命令
+
+
+命令的分类：
+    
+	内部命令                    Shell在内部代码中实现的命令
+
+	man type                查看bash Shell自带的命令
+
+	外部命令                    Shell以外的命令
+
+	用type命令查看内部命令还是外部命令
+
+	type cd                 提示cd is a shell builtin则说明是内部命令
+
+	type mount              提示mount is /bin/bash 告诉外部命令的位置
+
+-------------------------------------------------------------
+
+帮助命令
+
+
+	command --help  	查看帮助, 只能查看外部命令
+
+	help command		--内部命令才可以这样查看帮助
+    
+	man                         注重于应用，也是最常用的帮助方法
+        
+		man 的帮助文档存放的位置
+		    
+		    /usr/share/man
+
+		man 的帮助文档分类
+		    
+		    1                   普通用户命令(Linux基础 )
+		    2                   系统核心调用的函数工具
+		    3                   常用的一些函数与函数库
+		    4                   设备文件的说明
+		    5                   配置文件与一些其它格式的文件
+		    6                   游戏相关
+		    7                   网络协议相关
+		    8                   管理员可操作的命令
+		    9                   系统内核相关的文件
+
+		在 man 帮助里：
+		    
+		    /c                  搜索c关键字
+		    n                   下一个关键字
+		    N                   上一个关键字
+			j					向下查看内容	
+			k					向上查看内容
+		    q                   退出
+            
+
+	info                        注重于介绍，不常用
+        
+		帮助文档存放位置
+		    
+		    /usr/share/info
+
+		进入帮助界面
+		    
+		    ?                   info命令帮助
+		    空格键              向下翻一页
+		    tab                 在结点之间移动，有结点的地方通常会以*显示，将光标移动结点位置按回车可进入结点
+		    b                   移动光标到该文章的第一个结点处
+		    e                   移动光标到该文章的最后一个结点处
+		    n                   前往下一个info页
+		    p                   前往上一个info页
+		    u                   向上移动一层
+		    s(/)                在info里搜索
+		    h                   显示帮助菜单
+		    q                   退出
+
+-------------------------------------------------------------
+
+目录命令
+    
+	pwd                         查看当前所在目录的路径
+
+	cd                          切换当前所在目录
+
+		绝对路径
+		    
+		    cd /root/Desktop    指从根目录开始的路径
+
+		相对路径
+		    
+		    cd root/            指以当前目录开始的路径
+
+		.                       代表当前所在目录
+
+		..                      代表当前的父目录
+
+		-                       代表上一次所在的目录
+
+		~                       代表当前登录用户的家目录
+
+
+	mkdir                       创建一个目录,并且该目录以前不存在
+
+		mkdir test              在当前目录下创建test目录
+		mkdir /tmp/test         在根目录下tmp目录里创建test目录
+		mkdir file{1..100}      在当前目录下创建file1到file100的目录,这里会创建100个目录
+		mkdir "file{1..100}"    在当前目录下创建file{1..100}目录,这里只创建一个目录
+		mkdir -p a/b/c          在当前目录下创建a/b/c目录树
+
+
+	rmdir                       只能删除空目录
+
+		rmdir test              删除当前目录的test目录，test必须是空目录
+		rmdir /tmp/test         删除/tmp下的test目录
+		rmdir file{1..100}      删除file1到file100的目录
+		rmdir "file{1..100}"    删除file{1..100}目录
+
+
+-------------------------------------------------------------
+
+文件命令
+    
+	ls                          列出当前文件夹下的所有文件
+
+		ls -a                   列出当前目录下所有文件，包含隐藏文件
+
+		ls -l                   以详细列表形式列出当前目录下的所有文件
+
+		ls -R                   列出当前目录所有文件，包含子目录内所有文件
+		drwxr-xr-x  1   root    root    2062 2011-01-04 file1
+
+		[root@li ~]# which ls
+		alias ls='ls --color=tty'
+			/bin/ls
+		[root@li ~]# rpm -qf /bin/ls
+		coreutils-5.97-23.el5
+		[root@li ~]# rpm -ql coreutils-5.97-23.el5
+
+
+		ls /		--有颜色
+		/bin/ls /	--没颜色	
+		dir /		--没颜色
+
+		--原因是ls 被做了别名
+		[root@li ~]# which ls
+		alias ls='ls --color=tty'
+			/bin/ls
+
+		想自己做一个别名
+		# alias dir='dir --color'
+		# dir /    --就有颜色了
+
+		文件类型和文件权限 文件的硬链接数 文件所属用户  文件所属用户组  文件大小  文件的最后修改日期  文件名
+
+		文件类型：
+		    
+		    c                   字符设备
+		    b                   块设备
+		    l                   符号链接
+		    s                   socket文件
+		    p                   管道文件
+		    d                   文件夹
+		    -                   普通文件
+
+		常用搭配：
+		    
+		    ls -al              显示所有文件包括隐藏文件列表
+		    ls -lt              显示按日期时间排序后的文件列表
+		    ls -lh              显示计算大小为KB为单位的文件列表
+		    ls -dl              显示文件夹详细列表
+
+		用ls对一个目录大小由大到小进行排序列表	-S
+		按时间由最新时间到最老时间排序列表		-t
+
+
+
+	touch                       新建文件
+        
+	        touch file              创建file空文件，如果file存在则更新file的存取和修改时间
+	        touch -c file           如果file不存在，则不创建文件
+	        touch -r file1 file     更新file时间和file1相同
+	        touch -a file           更新file的存取时间
+	        touch -m file           更新file的修改时间
+	        touch file{2,3,4}       同时创建file2,file3,file4三个空文件
+	        touch "file{2,3,4}"     创建file{2,3,4}一个空文件
+
+	sequence 序列 
+		seq 100  产生1到100的序列
+		seq 1 5  产生1到5的序列
+		seq 1 5 100 产生1到100的序列,并且步长为5
+
+
+	stat 1
+		Access: 2011-06-27 14:11:39.000000000 +0800
+		Modify: 2011-06-27 14:11:39.000000000 +0800
+		Change: 2011-06-27 14:11:39.000000000 +0800
+
+	touch 1		--再创建1，不会报“文件已经存在的错误"只是改变了文件的时间相关的属性
+
+		stat 1
+		Access: 2011-06-27 14:12:03.000000000 +0800
+		Modify: 2011-06-27 14:12:03.000000000 +0800
+		Change: 2011-06-27 14:12:03.000000000 +0800
+
+
+	cp                          复制文件
+
+	        cp file dirs/           把file文件复制到dirs目录下
+	        cp -r dir1/ dir2/       把dir1目录复制到dir2目录下
+	        cp -a file dirs/        把file文件复制到dirs目录下，保留文件的原来属性
+	        cp  -rf dir1/ dir2/     强制复制文件夹，不提示
+	        cp -rvf dir1/ dir2/     把dir1目录复制到dir2目录下，并且显示复制过程
+
+
+	mv                          移动和重命名文件
+
+	        mv file dirs/           把file文件移动到dirs目录下
+	        mv file file2           把file文件重命名为file2
+	        mv -u dir1/* dir2/      把dir1目录下所有文件移动到dir2目录下，并且根据文件时间来决定要不要移动
+
+
+	rename                      批量文件重命名
+
+        	rename .conf .html *.conf  把所有后缀以.conf的文件名里出现.conf就改成.html 
+
+
+	rm                          删除文件
+        
+	        rm file*                删除所有file打头的文件
+	        rm -i file*             提示是否确定删除
+	        rm -f file*             不提示，强行删除
+	        rm -r dir2              删除目录
+			rm -f [ab].txt			等价于rm -f a.txt b.txt
+			rm -f [^ab].txt			删除除a.txt b.txt以外的所有?.txt
+			rm -f ?.txt				?代表一个字符
+			rm -f ???.txt			
+			
+		
+
+-------------------------------------------------------------
+
+文件阅读命令
+        
+	cat                         文件查看命令
+
+		cat /etc/passwd         查看/etc/passwd内容
+
+		cat -n /etc/passwd      查看/etc/passwd内容并且编号
+
+		cat -b /etc/passwd      查看/etc/passwd内容并且给非空行编号
+		
+		cat -A /etc/passwd 		等价于 -vET
+
+	gedit filename					以图形界面打开文件,如果filename不存在则新建一个空文件
+
+	more                
+
+		more /etc/passwd        逐屏查看/etc/passwd文件内容
+
+	less
+
+		less /etc/passwd        查看/etc/passwd文件内容，和more不同的是可以上下滚动
+		j 	往上翻  k  向下翻   q  退出
+
+	head
+
+		head /etc/passwd        查看/etc/passwd前10行内容
+
+		head -c 30 /etc/passwd  查看/etc/passwd前30个字符
+
+		head -n 30 /etc/passwd  查看/etc/passwd前30行内容
+
+	tail
+
+		tail /etc/passwd        查看/etc/passwd后10行内容
+
+		tail -n 30 /etc/passwd  查看/etc/passwd后30行内容
+
+		tail -c 30 /etc/passwd  查看/etc/passwd后30个字符
+
+		tail -f /etc/passwd     实时查看/etc/passwd文件内容
+
+
+	重定向
+
+		标准输入    代码 0      默认设备为键盘   
+		标准输出    代码 1      默认设备为屏幕   
+		错误输出    代码 2      默认设备为屏幕   
+
+		ls  /etc/passwd > output.txt    标准正确输出重定向到output.txt
+		ls  /etc/shadow >> output.txt   标准正确输出追加重定向到output.txt
+		ls  dddddd 2> error.txt         标准错误输出重定向到error.txt
+		ls  dddddd 2> /dev/null         标准错误输出重定向到黑洞
+		ls ddddd /etc/passwd &> /dev/null   标准正确输出标准错误输出全都重定向到黑洞
+
+	管道
+
+		cat /etc/passwd | less          |之前的命令执行的结果做|后命令的输入
+
+	三个特殊的文件(了解)
+	/dev/zero  	    '\0' 
+	/dev/null		黑洞文件
+	/dev/random  	随机字符文件
+
+
+	reset:
+		如果终端出现乱码, 终端初始化 
+
+===============================================================================
+
+二、VIM编辑器的使用
+
+	vi  vim (增强版vi,现在各版本的linux都带有vim)
+
+	三种模式：
+	普通模式：控制光标移动，删除字符，段落复制(按ESC)
+	编辑模式：包含插入模式和替换模式，新增文字和修改文字
+	命令行模式/末行模式：保存文字，离开vim，以及其它设置
+
+	vim newfile  新建一vim空白文件进行编辑
+
+	普通模式
+	--------------
+	编辑模式下按ESC切换为普通模式
+	在普通模式中输入: 就可以进入命令行模式
+	命令        说明
+
+	移动：
+
+	h           将光标向左移动一格
+	l           将光标向右移动一格
+	j           将光标向下移动一格
+	k           将光标向上移动一格
+	^           光标移动到行首,即第一有效字符位置
+	0           将光标移动到该行的行首，行的第一格位置
+	$           将光标移动到行尾
+	H           将光标移动到该屏幕的顶端
+	M           将光标移动到该屏幕的中间
+	L           将光标移动到该屏幕的底端
+	gg          将光标移动到文章的首行
+	G           将光标移动到文章的尾行
+	w           将光标移动到下一单词
+	b           将光标移动到上一单词
+	%           跳到匹配的括号(比较重要)
+	Ctrl+u      将窗口向上移动半屏
+	Ctrl+d      将窗口向下移动半屏
+	Ctrl+f      向前滚动一整屏 (forward)
+	ctrl+b      向后滚动一整屏 (back)
+	ctrl+g      在窗口下方显示信息，告诉当前文件中的位置和文件名等
+	Ctrl+o      跳到上次光标位置
+	‘’          跳到上次光标位置，和ctrl+o不同，它只能和上一次光标位置和当前位置来回跳转
+
+	ctrl+i      和ctrl+o功能相反
+	m           有名标记，在想要做标记位置按ma， 再到移动其它地方，当想回到做标记位置时,按'a就跳回做标记位置
+
+	简单搜索：
+	---------------
+
+	/           /后跟要搜索的关键词
+	n       移到下一个找到关键词位置
+	N		移动到上一个关键词的位置
+
+	/\<the  找以the开头的关键词
+	/the\>  找以the结尾的关键词
+	/t.e    中间替换任何一个字符搜索关键词
+	*           移动关键词按*，会自动高亮，再按n就可查找此关键词
+
+	操作符命令：
+
+	x           删除当前光标下的字符,相当于dl,d 和 l的组合使用
+	X           删除当前光标前一个字符,相当于dh
+	u           恢复上一次命令，针对字符
+	ctrl+r      和u相匹配重做
+	r           替换当前光标位置字符
+	dw          删除一个单词
+	D           删除当前光标后面所有字符，相当于d$
+	d^          删除当前光标前面所有字符
+	d0          删除当前光标前所有的字符，置行首
+	ndd			删除n行
+	dd          删除一行
+	c           和d功能一样，只不过删除完会进入插入模式
+	yy          选定光标所在行复制
+	p           粘贴yy复制的行,贴在光标所在位置之右(paste)
+	P           粘贴yy复制的行,贴在光标所在位置之左
+	R           进入替换模式
+
+
+	进入编辑模式
+	i           在当前位置进入插入模式(insert)
+	I           将光标移动到行首进入插入模式
+	o           在本行向下新建一行进入插入模式
+	O           在本行向上新建一行进入插入模式
+	a           将光标之后进入插入模式(append)
+	A           将光标移动到行尾进入插入模式
+
+	s           删除光标位置字符进入插入模式,相当于cl
+	S           删除光标所在行进入插入模式，相当于cc
+	.           重复上一次命令
+	~           改变当前光标下字符的大小写
+	v           进入字符可视模式
+	V           进入行可视模式
+	ctrl + v    进入列可视模式
+
+
+	命令行模式：
+	:                   进入命令行模式
+
+
+	set number          显示行号
+	set nonumber        关闭行号，所有命令前加no为关闭
+	set ruler           在右下角显示当前光标位置
+	set autoindent      开始新行时对该行施行上一行缩进方式
+	set list            显示制表符
+
+	set ignorecase      忽略大小写搜索
+	set hlsearch        在关键词上按*，自动高亮
+	set nohl			取消高亮
+
+
+	split               横分一新窗口
+	3split          指定新分的窗口高度为3
+	vsplit              竖分一新窗口
+	3vsplit         指定新分窗口宽度为3
+
+	Ctrl+w w        窗口之间切换
+
+	!                   执行shell命令
+	r!                  执行shell命令并把结果插入到当前光标位置
+	w                   保存
+	q                   退出
+	wq					保存退出
+	qall                全部退出
+	wqall               全部保存退出
+	qall!                全部强制退出
+
+	替换
+	------------------------
+	s/if/hello/         把本行的第一个if替换成hello
+	1,$s/if/hello/      把第一行到最后一行的每行的 第一个if 替换成hello
+	1,$s/if/hello/g     把第一行到最后一行的每行的 所有的if 替换成hello
+	%s/if/hello/g		同上
+
+	:240                快速定位到240行
+
+	打开多个文档
+
+	vim -o a.txt b.txt          横屏打开两文件
+	vim -O a.txt b.txt          竖屏打开两文件
+	vim a.txt +42               打开a.txt光标定到42行
+
+	VIM的基本配置：
+	文件名称： vimrc   
+	全局配置： /etc/vimrc
+	局部配置： ~/.vimrc配置文件  ~/.vim 配置目录
+
+	
+	set tabstop=4                   "设置tab长度为4
+	set softtabstop=4               "使得按退格键时可以一次删除4个空格    
+	set shiftwidth=4                "设定>命令移动时宽度为4
+	set autoindent                  "自动缩进
+	set ruler			            "标尺信息，显示光标在哪
+	set cindent                    "C语言缩进风格
+	........
+	其他更多配置，请参考vim_config目录中的vimrc文件
+	vimrc文件中有详细的注释
+	
+	
+
+
+
+

@@ -1,0 +1,12 @@
+ 
+
+1. 如果make menuconfig的时候，提示ncurses之类的错误
+
+    yum install ncurses*
+    ncurses* 是make  menuconfig 所依赖的一个图形相关的软件
+
+
+2. 讨论软链接和硬链接的使用场合？
+
+
+

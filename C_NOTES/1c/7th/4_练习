@@ -1,0 +1,42 @@
+练习:
+
+1. 然后让用户选择1或2，选1时调用max函数，输出二者中的大数，选2时调用min函数，输出二者中的小数。
+
+    int choice;
+    printf("please make a choice(1  max:  2  min:)\n");
+
+    1
+        输出max(a, b)
+    2 
+        输出min(a, b)
+
+
+2. 回调函数练习 有两个整数a和b，由用户输入1,2或3。如输入1，程序就给出a和b中大者，输入2，就给出a和b中小者，输入3，则求a与b之和。 
+
+
+3. 写出signal函数的原型, 取代别名那一部分
+    #include <signal.h>
+    typedef void (*sighandler_t)(int);
+    sighandler_t signal(int signum, sighandler_t handler);
+
+    答案:
+    void (*signal(int signum, void (*handler)(int)))(int);
+
+    举例:
+    typedef unsigned int uint;
+    uint test(int a, uint b);
+
+    =====> 转换为
+    unsigned int test(int a, unsigned int b);
+
+4. 
+    有a个学生，每个学生有b门课程的成绩。要求在用户输入学生序号以后，能输出该学生的全部成绩。用指针函数实现。
+     float score[ ][4]={{60,70,80,90},{56,89,67,88},{34,78,90,66}}; 
+
+练习:
+	找出其中有不及格的课程的学生及其学生号。
+
+
+
+
+

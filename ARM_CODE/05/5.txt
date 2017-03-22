@@ -1,0 +1,213 @@
+
+. ldm/stm (内存突发访问)
+    stmfd rd, {r0, r1, r2, r3}      *rd *rd-4 *rd-8 *rd-12 <- r3, r2, r1, r0
+    stmfd rd!, {r0, r1, r2, r3}     *rd *rd-4 *rd-8 *rd-12 <- r3, r2, r1, r0
+                                    rd-=12
+
+    普通内存访问:
+    ldr ->
+        cpu -> addr -> DRAMC -> DDR
+            <- data          <-
+                                32bit
+        cpu -> addr -> DRAMC -> DDR
+            <- data          <-
+                                32bit
+
+    突发访问:
+    ldm ->
+        cpu -> addr -> DRAMC -> DDR
+            <- data          <- 
+            <- data          <- 
+            <- data          <- 
+            <- data          <- 
+            <- data          <- 
+
+            .
+    ........@....|
+            .    ||
+          -------||
+            -------|
+              ------
+                  ^ BANK
+        
+    ldmfd/stmfd 
+        stmfd : 先减再存;   stmdb
+        ldmfd : 先取后加;   ldmia
+    ldmfa/stmfa
+    ldmed/stmed
+    ldmea/stmea
+
+    fd : 满递减栈;  //atpcs
+    fa : 满递增栈;
+    ed : 空递减栈;
+    ea : 空递增栈;
+
+    ldmdb/stmdb
+    ldmia/stmia
+    ldmib/stmib
+    ldmda/stmda
+
+    d: 递减;
+    b: 先;
+    i: 递增;
+    a: 后;
+
+. c 和汇编参数传递;
+    r0-r3   sp
+
+    mov ip, sp
+
+    ldr r1, [ip]
+    ldr r1, [ip, #4]
+
+    ip:
+    fp:
+    sp:
+    lr:
+    pc:
+
+. thumb指令:
+    16bit指令
+
+    编译器:
+        .thumb/.THUMB       16bit
+        .arm/.ARM           32bit
+
+    告诉cpu取指:
+        bx  r0  (r0最低位为1) -> thumb  (16bit)
+                (r0最低位为0) -> arm    (32bit)
+
+        cpsr.T = 1: thumb
+                 0: arm
+
+    thumb-2
+
+. cmp cmn tst teq 
+    cmp : 两个数相减;subs -> cpsr   比较
+    cmn : 。。。。加;adds -> cpsr   判断相加后是否有溢出
+    tst : 。。。。与;ands -> cpsr   测试某一个位是否为1
+    teq : 。。。。异或;eors->cpsr   测试两个数是否完全相等
+
+. swp
+    原子操作;
+    swp rd, rn, [rm]
+
+    ldr rd, [rm]
+    str rn, [rm]
+    
+. 内嵌汇编:
+    纯汇编: .global (所有人都可以访问该汇编) 
+
+    c 代码和汇编的混合编程;
+
+    volatile 
+    __volatile__
+
+    asm __volatile__("mrs r0, cpsr");
+    asm __volatile__("nop; nop; nop; nop");
+    asm __volatile__(
+        "nop\n\t"
+        "nop\n\t"
+        "nop\n\t"
+    );
+    
+    asm __volatile__(
+        "代码\n\t"
+        "mov %0, r1\n\t"
+        "mov %[ss], r2\n\t"
+        :               输出列表; "=r" "=&r" "+r"
+        :               输入列表; "r" "I" "m"
+        :               破坏列表; "r3", "r4", "memory"
+    );
+
+. arm 指令集合手册
+. 查指令用法:
+    ARM架构手册.pdf -> armv6    A4.? 
+    armv7.pdf                   A8.8
+
+. 汇编(编码):
+    mov r0, #??
+    1. 合法立即数;  armv6.pdf (A5.1)
+
+    b   loop
+    2. b/bl指令跳转范围是+/-32MB
+    
+    ldr r0, .L0
+    ldr r0, [pc, #?]
+                 ^12bit
+                 +/-4K
+    3. ldr/str访问的标签不能超过+/-4K
+    
+. 反汇编(编码):
+    0xe59f01a4
+
+    1110 0101 1001 1111 0000 0001 1010 0100
+                             [            ]
+                   pc   r0     12bit
+                                
+    ldr r0, [pc, #0x1a4]
+
+    arm-linux-objdump -D    反汇编所有段;
+                      -d    只反汇编代码段;
+
+-------------------------------------------------------
+. 裸板驱动
+    1)应用程序??
+        app
+        api
+    2)内核驱动??
+        app
+        api
+        vfs
+        chrdev
+        device_driver
+        register
+    3)裸板驱动??
+        register
+    没有系统;
+    
+    依赖u-boot:
+
+    1)怎么传输代码?
+        pc -> u-boot
+        1. 安装dnw工具
+            cd /home/weekend/arm_data/tools
+            tar xf dnw-linux.tar.gz
+            cd dnw-linux/
+            make && make install
+
+            注意: 5.5内核, 注释src/driver/secbulk.c 第182行;
+                  make需要依赖内核源码;/usr/src/kernels/2.6.32-431.el6.x86_64/
+                  没有内核源码: yum install kernel-devel
+
+        2. 下载文件到u-boot
+            (链接board的usb线)
+            u-boot:
+                dnw 0x50000000  (下载的地址0x50000000)
+
+            pc:
+                dnw abc         (上传文件abc) (失败了重复)
+
+        3. 查看代码
+            u-boot:
+                md 0x50000000
+
+    2. 怎么运行代码?
+            u-boot:
+                go 0x50000000 [arg ...] 参数可选;
+
+    3. 函数调用;
+        printf -> stdout (依赖系统)
+                         (依赖动态库)
+
+        u-boot(printf) -> uart0 -> minicom 
+
+    4. 怎么生成代码?
+        a.out (elf头代码)
+        _start 起始; (...)
+
+        arm-linux-gcc -c start.s
+        arm-linux-ld start.o -o start
+        arm-linux-objcopy -O binary start start.bin 
+                                          ^ 纯二进制代码
+

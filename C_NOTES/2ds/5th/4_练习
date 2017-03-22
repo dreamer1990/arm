@@ -1,0 +1,15 @@
+
+1. 实现无头的双向循环链表
+
+
+2. 使用已经封装好的双向循环链表实现一个员工管理系统
+
+
+typedef struct _worker{
+    int id;     //员工编号
+    int age;    //员工年龄
+    int salary; //员工薪水
+    char sex;   //员工性别
+    char *name; //员工姓名
+    char *addr; //员工家庭住址
+}worker_t;

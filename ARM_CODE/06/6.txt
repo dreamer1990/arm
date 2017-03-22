@@ -1,0 +1,194 @@
+
+. datasheet
+. Exynos4412 手册:
+    ddr -> pc -> cpu -> ...
+
+    cpu -> 控制器 -> pin -> led
+           uart -> uart_pin
+           spi  -> spi_pin
+           i2c  -> i2c_pin
+           lcd  -> lcd_pin
+
+    exynos4412 = cortex-a9 + AMBA + bus + 控制器 -> pin
+    
+. 1章
+    AMBA : 64bit/128bit bus
+
+    哈佛结构: 数据和指令分离;     arm9
+    冯诺依曼结构: 数据和指令统一; arm7
+
+    支持的控制器有那些(有那些功能), 开发板外设选择;
+    1GB  DDR        32bit
+    2*8M SRAM       8bit/16bit
+    ...
+
+    mov r0, #10
+    ldr r0, [r1, #4]
+
+    ICACHE <- mov r0, #10
+    DCACHE <- [r1, #4]
+
+    .text   ro
+    .data   rw
+    .bss    rw
+    .rodata ro
+
+. 2章
+    786pin
+    soc和外设链接;
+
+. 3章
+    Memory Map
+    统一编址: 地址空间 != 数据空间
+        32bit (4G)
+        0x0000_0000 ~ 0x0001_0000         64 KB       iROM
+        0x0200_0000 ~ 0x0201_0000         64 KB       iROM (mirror of 0x0 to 0x10000)
+
+        0x0202_0000 ~ 0x0206_0000         256 KB      iRAM
+        ...
+        0x0400_0000 ~ 0x0500_0000         16 MB       SRAM
+        0x0500_0000 ~ 0x0600_0000
+        0x0600_0000 ~ 0x0700_0000
+        0x0700_0000 ~ 0x0800_0000
+        ...
+        0x1000_0000 ~ 0x1400_0000         64 MB       SFR region    特殊功能寄存器
+        ...
+        0x4000_0000 ~ 0xA000_0000         1.5GB       DDR       0x40000000 ~ 0x80000000
+        0xA000_0000 ~ 0x0000_0000         1.5GB       DDR
+
+    独立编址: 地址空间 == 数据空间
+        x86 intel
+        EEPROM      0x0 - 255
+        SRAM        0x0 - 4K
+        DDR         0x0 - 4G
+
+. 4章
+    Chip ID
+     
+. 关闭U-BOOT的MMU
+    MMU: 实现物理地址和虚拟地址的映射关系;
+             统一编址
+
+    0x40000000 ~ 0x60000000 -> 0xc0000000 ~ 0xe0000000
+    0x60000000 ~ 0x80000000 -> X
+
+    vim include/configs/tiny4412.h
+    312 #undef  CONFIG_ENABLE_MMU   加入这行;
+
+    vim board/samsung/tiny4412/config.mk
+    13 #CONFIG_SYS_TEXT_BASE = 0xc3e00000
+    14 CONFIG_SYS_TEXT_BASE = 0x43e00000
+
+    43e11a2c T printf
+
+    重新烧写u-boot
+
+. 5章
+    启动流程;
+    NAND FLASH
+    USB
+    SD/MMC      V
+    EMMC        V
+
+    IROM(BL0)   + IRAM(BL1)   + IRAM(BL2) +  DDR(BL3)
+    0x0           02021400      02023400     u-boot.bin
+    0x2000000                                43e00000
+
+. 6章
+    GPIO (通用多功能引脚)
+    304pin multi-functional input/output port pins
+    37 groups
+
+    GPA0 : 4bit * 8pin
+    GPA1 : 4bit * 6pin
+
+. led
+    1)找到设备; LED1 LED2 LED3 LED4
+    2)找原理图; 核心板和底板 
+        LED1  : 输出低电平亮灯;
+                    高电平灭灯;
+        GPM4_0  LED1 
+        GPM4_1  LED2
+        GPM4_2  LED3
+        GPM4_3  LED4
+    3)找数据手册;
+        GPM4CON     0x110002E0  配置寄存器
+            [15:12]     0x1     配置成输出
+            [11:8]      0x1
+            [7:4]       0x1
+            [3:0]       0x1
+
+        GPM4DAT     0x110002E4  数据寄存器
+            [3:0]       0x0     全亮;
+                        0xf     全灭;
+    
+. 练习:
+1.
+    全灭
+2.
+    全亮全灭(闪烁)
+3.
+    流水灯  led1 -> led2 -> led3 -> led4 -> led1
+
+    43e26480 T udelay
+
+. buzzer
+    1) BP1
+    2) PWM0 <- XpwmTOUT0 <- GPD0_0
+        输出高电平buzzer叫;
+    3) 
+        GPD0CON     0x114000A0
+            [3:0]       0x1
+
+        GPD0DAT     0x114000A4
+            [0]         0/1
+
+. key
+    1) key1 key2 key3 key4
+    2) GPX3_2   XEINT26  key1
+       GPX3_3   XEINT27  key2
+       GPX3_4   XEINT28  key3
+       GPX3_5   XEINT29  key4
+    3)
+        GPX3CON     0x11000C60
+            [23:20]     0x0
+            [19:16]     0x0
+            [15:12]     0x0
+            [11:8]      0x0
+
+        GPX3DAT     0x11000C64
+            [5:2]       0000/1111
+
+. homework:
+1.
+    key1 -> led0
+    key2 -> led1
+    key3 -> led2
+    key4 -> led3
+
+    一直按着灯就一直亮;
+
+2.
+    key1 -> led0
+    key2 -> led1
+    key3 -> led2
+    key4 -> led3
+
+    按一下, 灯亮, 再按一下, 灯灭;
+
+    状态: 按下到抬起是一下;
+    防抖动; udelay(10000);
+
+3.
+    汇编改成c 语言;
+    led.s       -> led.c 
+    buzzer.s    -> buzzer.c
+    key.s       -> key.c
+
+
+
+
+
+
+
+

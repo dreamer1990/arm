@@ -1,0 +1,128 @@
+
+
+1.练习：
+    
+    每天的1，3，7，8，13，21点的05分执行
+    每月的5号到20号的4点到13点的15分执行
+    每个星期三的每两小时
+    每年的5到8月的星期三和星期天的4点01分执行
+    
+    min     hour    day     mon     week
+    05      1,3,7,8,13,21 * *       *
+    15      4-13    5-20    *       *    
+    *       */2     *       *       3
+    01      4       *       5-8     3,7
+
+
+2. 练习:
+    使用crontab添加每天晚上九点关闭计算机的任务
+
+
+3. nfs的搭建
+
+    showmount -e  ip
+    mount -t nfs  ip:/    /mnt
+
+    配置步骤如下：
+    
+    a. 修改配置文件
+
+    #vim /etc/exports
+
+    添加如下内容:
+        
+    /home *(ro,sync,no_root_squash)
+    /home/test 172.16.1.*(ro,sync,no_root_squash)
+    /home/test1 172.16.1.123(ro,sync,no_root_squash)
+
+
+    b.  启动nfs服务 
+        service portmap restart
+        service nfs restart
+
+    c. 验证
+    showmount -e 172.16.1.144  (IP地址)
+
+    d. 挂载
+    mount -t nfs 172.16.1.144:/home /mnt
+
+
+4. 搭建samba服务器
+
+    匿名访问的方式
+	[Uplooking]
+	comment = uplooking share
+	path = /home/test
+    guest ok = yes
+	public = yes
+    browseable=yes
+	writable = yes
+	printable = no
+
+
+5. 搭建tftp服务器
+
+    a. 确定安装好了tftp
+        [root@deng home]# yum list | grep "tftp"
+        This system is not registered with RHN.
+        RHN support will be disabled.
+        tftp.i386                                  0.49-2                      installed
+        tftp-server.i386                           0.49-2                      installed
+
+    tftp.i386   是客户端
+    tftp-server.i386 是服务端
+
+
+    b. 修改配置文件
+        
+        [root@deng home]# vim /etc/xinetd.d/tftp 
+
+    
+    service tftp
+    {
+    	socket_type		= dgram
+    	protocol		= udp
+    	wait			= yes
+    	user			= root
+    	server			= /usr/sbin/in.tftpd
+    	server_args		= -s /tftpboot  #tftp 发布目录
+    	disable			= no            #no 表示启用  yes表示关闭服务
+    	per_source		= 11
+    	cps			= 100 2
+    	flags			= IPv4
+    }
+
+    c. 启动服务
+
+    [root@deng home]# /etc/init.d/xinetd  restart
+    停止 xinetd：                                              [确定]
+    启动 xinetd：                                              [确定]
+    [root@deng home]# 
+
+
+    d. 验证
+
+    下载文件a到本地，并且你要确定a存在
+    [root@deng home]# tftp 172.16.1.144
+    tftp> get a
+    tftp> help
+
+
+
+
+
+         
+    
+
+        
+        
+
+
+
+
+
+
+
+
+
+

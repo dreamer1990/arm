@@ -1,0 +1,97 @@
+
+1.  写一个shell脚本, 输出本机的IP地址
+    172.16.172.41
+
+    str=$(ifconfig eth0)
+    echo $str
+
+2. 输入一个路径  ./test  ./txt  如果为目录就打包成test.tar.gz,并且删除目录
+                                如果为普通文件就打包成txt.tar.bz2
+    read -p "please input a path: "  path
+    -d 
+    -f
+    tar -cjvf 
+    tar -czvf 
+
+
+3. 写一个脚本自动拷贝老师共享的笔记
+    
+    a. 保证能够ping通共享资料的主机
+        ping -c 1 -t 0.1 172.16.172.41 &> /dev/null
+    b. 查看共享的目录 
+        showmount -e 172.16.172.41 &>/dev/null
+
+    c. 解挂本地/mnt
+        umount /mnt -l
+
+    d. 挂载
+        mount -t nfs 172.16.172.41:/var/ftp/pub/weekend  /mnt
+    
+    e. 拷贝
+        \cp /mnt/* ~/notes  -rf
+
+    f. 解挂
+        
+        umount -l /mnt
+
+    g. 安装
+        mkdir ~/notes
+        cp 12mount.sh /bin/notes
+        chmod 777 /bin/notes
+
+    h. 测试
+        在终端中输入notes
+        在当前用户的家目录中查看是否有notes目录，并且notes目录中有数据
+
+
+4. 判断闰年
+
+5. 输出九九乘法表
+    1*1=1
+    1*2=2 2*2=4
+    1*3=3 2*3=4 3*3=9
+    .................
+
+6. 将一个目录中的所有的目录都打包成对应的.tar.gz包,并且删除目录,如果是文件则直接删除
+
+    read -p "please input a path:  " path
+
+    for 
+
+    -d 
+    -f
+
+
+
+
+7. 读取用户列表文件，并且自动批量添加该用户, 密码为"用户名123"
+    name.list
+        lucy
+        tom
+        petter
+
+    
+
+8. 输出如下图形
+    *
+    **
+    ***
+    ****
+    *****
+
+9. 产生随机数, 猜数
+
+    while
+    read -p "please input a number: "  n
+
+    RANDOM == n  退出循环
+    RANDOM > n    try again
+    RANDOM > n    try again
+
+
+9. 查看能ping通的IP地址，写入到ip.list文件中
+
+10. 自动修改IP地址，能够防止IP地址冲突
+
+
+

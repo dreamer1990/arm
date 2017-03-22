@@ -1,0 +1,301 @@
+
+. 汇编语言
+    x86
+    arm -> cpsr (mrs msr)
+    1)与平台相关指令;
+    2)启动代码实现;(寄存器)
+    3)效率考虑;
+
+. hello world:
+    1).s
+    2)-c ld
+    3)段为单位;
+    4)_start; .global main
+    5)函数调用bl    printf
+    6)参数传递ldr r0, =.LC0
+    7)函数怎么返回; mov pc, lr/bx   lr
+    8)返回值; mov r0, #0
+    9)编译; arm-linux-gcc xx.s -o xx
+    10)执行;./main (依赖库是有的)
+    
+. 伪指令
+    .section    .rodata 声明以下代码为.rodata
+    .section    .text
+    .section    .data
+    .section    .bss
+    
+.LC0:   标签;
+    .string "hello world\n"     声明后面的数据是字符串;
+    .asciz  "hello world\n"     声明后面的数据是带尾0的ascii码串;
+    .ascii  "hello world\n\000" 声明后面的数据是不带尾0的ascii码串;
+
+    0
+    \00
+    \0x0
+    \0b0
+
+    .global main    导出符号main
+
+        nm  1.o
+        00000000 T main (导出符号)
+                 U puts (导入符号)
+
+        00000000 t main (静态符号)
+                 ^ 不能被外部调用;
+
+    .align  2       2^2字节对齐
+        1)内存硬件访问必须4B对齐;
+        2)提高访问内存的效率;
+            结构体的字节对齐;
+            struct xxx{
+                char xxx;
+                int xxxx;
+            };
+        3)arm 是定长指令集合(精简指令集合)
+            32bit
+
+            精简指令集合(定长)
+                arm     32bit
+                thumb   16bit
+
+                cpu 解析指令更简单;
+                指令简单易学;
+                复杂操作, 多条指令一起完成;
+
+                复杂度在于编译器;
+
+            复杂指令集合(不定长)
+                x86     ??
+
+                cpu 解析指令更复杂;
+                指令复杂难学;
+                复杂操作, 一条指令完成;
+
+                复杂度在于硬件(cpu);
+
+. arm指令集
+    arm <- armv1
+    arm <- armv2
+    arm <- armv3
+    arm7<- armv4
+    arm9<- armv5
+    arm11<-armv6
+    arm1176jzf-s<-armv6xx
+    cortex-a9<-armv7(体系结构/指令集)
+
+    arm 架构
+    x86 架构
+
+    arm-linux-gcc 4.5.1 -> armv6
+
+. 通用寄存器(arm核里) (32bit)
+    r0-r15 
+
+    ...
+    r11(fp) : 帧指针寄存器;
+    r12(ip) : 临时寄存器;
+    r13(sp) : 栈指针;
+    r14(lr) : 保存函数返回地址寄存器;
+    r15(pc) : 程序指针;
+
+    cpsr    : 当前程序状态寄存器
+    [31][30][29][28]
+     N   Z   C   V
+    
+    N : 符号位;
+    Z : 零位;
+    C : 溢出位; 32bit加溢出;
+    V : 溢出位; 31bit有符号数加溢出;
+
+. intel语法和at&t语法
+    intel
+        movl    $0, %eax
+        
+    at&t
+        mov     r0, #0
+
+. 数据处理指令
+    mov : =
+        mov 目标寄存器, 操作数(源寄存器, 立即数)
+        mov r0, #0                                  r0=0
+                ^
+                立即数(数值常量)
+            
+        mov pc, lr                                  pc=lr
+        mov rd, #(10*20+4)                          rd=10*20+4
+                  ^数学表达式
+
+        桶型移位器
+        mov rd, rn, lsl #4                          rd=rn<<4
+                    lsr     逻辑右移
+                    asl
+                    asr     算术右移
+                    ror     循环右移
+                    rrx      
+        mov rd, rn, lsl rs                          rd=rn<<rs
+            
+        
+    合法立即数:
+        #xxxx
+        ^
+        12bit
+        4bit + 8bit
+               ^
+               8bit立即数 (0-255)
+        ^
+        偏移量 (循环右移)
+        0-15 * 2
+
+        合法立即数, 必须是可以由一个8bit数循环右移偶数位的到;
+
+        mov r1, #0xffff0000 X       0xffff 循环右移 16bit   X
+        mov r1, #0xff000000         0xff 循环右移 8bit得到;
+        add r1, r1, #0xff0000       0xff 循环右移 16bit得到;
+        mov r1, #0x0c000003         0b11000011 循环右移 6bit得到;
+        mov r1, #0x18000006         0b11000011 循环右移 5bit得到;   X
+
+    mvn : =~
+        mvn r1, #0                          r1=~0;
+        ...
+
+    add : +
+        add rd, rn, rm                      rd=rn+rm
+        add rd, rn, #xxx                    rd=rn+xxx
+        add rd, rn, #(10*20+4)
+        add rd, rn, rm, lsl #1
+        add rd, rn, rm, lsr rs
+                        asl
+                        asr
+                        ror
+                        rrx
+
+    sub : -
+        sub rd, rn, rm                      rd=rn-rm
+        sub rd, rn, #xxx                    rd=rn-xxx
+        sub rd, rn, #(10*20+4)
+        sub rd, rn, rm, lsl #1          
+        ...
+
+    rsb : 反-
+        rsb rd, rn, rm                      rd=rm-rn
+        rsb rd, rn, #xxx                    rd=xxx-rn
+        ...
+
+    and : &                 &0 清零, &1 取值
+        and rd, rn, rm                      rd=rn&rm
+        and rd, rn, #xxx
+        ...
+
+    orr : |                 |1 置一
+        orr rd, rn, rm
+        orr rd, rn, #xxx                    rd=rn|xxxx
+        ...
+
+    eor : ^                 ^1 取反
+        eor rd, rn, rm                      rd=rn^rm
+        eor rd, rn, #xxx
+        ...
+
+    bic : &~                &~1 清某一个位为零
+        bic rd, rn, rm                      rd=rn&(~rm)
+        ....
+
+    adc : +Cflag
+        adc rd, rn, rm                      rd=rn+rm+Cbit
+        ...
+
+    sbc : -C
+        sbc rd, rn, rm                      rd=rn-rm-1+Cbit
+        ...
+
+    rsc : 反-C
+        rsc rd, rn, rm                      rd=rm-rn-1+Cbit
+        ..
+    
+. 乘法指令
+    mul : *
+        mul rd, rn, rm                      rd=rn*rm
+        mul rd, rn, #xx         X
+        mul rd, rn, rm, lsl #xx X
+        mul rd, rn, #(10*20+4)  X
+
+. 杂类指令
+    mrs rd, cpsr                            rd=cpsr
+    msr cpsr, rd                            cpsr=rd
+
+    user普通用户模式下, cpsr只能修改高5位;
+
+. 指令后缀
+    +s : 当前指令执行结果修改cpsr标志位...;
+    adds r1, r2, #100
+
+. 分支指令
+    b   : 跳转指令
+        b   标签        (直接跳转)
+        
+    bl  : 跳转指令
+        bl  标签        (先保存返回地址到lr, 再跳转)
+        bl  printf
+            pc+?? 
+            相对跳转(pc+??)
+
+    bx  : 跳转指令
+        bx  寄存器
+        bx  lr
+        mov pc, lr
+        ldr pc, =printf
+            绝对跳转(pc=lr)
+    
+. 内存访问指令
+
+    . 伪指令
+    ldr :
+        ldr pc, =.LC0           : pc = .LC0
+        ldr r0, =0xffff0000     : r0 = 0xffff0000
+
+    push :
+        push {寄存器列表}       : r0-r15 -> stack
+
+    pop :
+        pop {寄存器列表}        : stack -> r0-r15
+
+
+. atpcs(arm thumb 子程序调用规范)
+    r0 : 作为返回值;
+    fp(r11)
+    ip(r12)
+    sp(r13) :  栈指针(满递减栈)
+    lr(r14) :  记录调用函数的返回地址;
+    pc(r15) :  程序指针;
+
+    函数传递参数:
+    r0-r3 : r0(第一参数)
+            r1(第二参数)
+            r2(第三参数)
+            r3(第四参数)
+    超过4个参数使用stack传递;
+
+. homework:
+1.
+    r1=1234+23*4+((123<<12)&(0xf))^((100-34)>>3)+(1<<15)|(2<<20);
+2.
+    r1=0xffc5
+    第5,7,12,15位清0;
+3.
+    r1=0xffc5
+    第5,7,12,15位置1;
+4.
+    r1=0xffc5
+    第5~7,12~15位清0;
+5.
+    r1=0xffc5
+    取出第5~12位;
+6.
+    r1=0xffc5
+    第5~7,12~15位取反;
+
+
+
+
+
+

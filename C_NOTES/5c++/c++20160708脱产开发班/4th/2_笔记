@@ -1,0 +1,386 @@
+1. 异常处理
+
+	C++处理异常的机制是由3个部分组成的，即检查(try)、抛出(throw)和捕捉(catch)。把需要检查的语句放在try块中，throw用来当出现异常时发出一个异常信息，而catch则用来捕捉异常信息，如果捕捉到了异常信息，就处理它。
+
+	(1) 首先把可能出现异常的、需要检查的语句或程序段放在try后面的花括号中。
+	(2) 程序开始运行后，按正常的顺序执行到try块，开始执行try块中花括号内的语句。如果在执行try块内的语句过程中没有发生异常，则catch子句不起作用，流程转到catch子句后面的语句继续执行。
+	(3) 如果在执行try块内的语句(包括其所调用的函数)过程中发生异常，则throw运算符抛出一个异常信息。throw抛出异常信息后，流程立即离开本函数，转到其上一级的函数(main 函数)。
+	throw抛出什么样的数据由程序设计者自定，可以是任何类型的数据。
+	(4) 这个异常信息提供给try-catch结构，系统会寻找与之匹配的catch子句。
+	(5) 在进行异常处理后，程序并不会自动终止，继续执行catch子句后面的语句。
+	由于catch子句是用来处理异常信息的，往往被称为catch异常处理块或catch异常处理器。
+
+	throw语句一般是由throw运算符和一个数据组成的，其形式为
+	throw 表达式;
+	try-catch的结构为
+	try
+	      {被检查的语句} 
+	catch(异常信息类型 [变量名])
+	      {进行异常处理的语句}
+	说明:
+	(1) 被检测的函数必须放在try块中，否则不起作用。
+	(2) try块和catch块作为一个整体出现，catch块是try-catch结构中的一部分，必须紧跟在try块之后，不能单独使用，在二者之间也不能插入其他语句。但是在一个try-catch结构中，可以只有try块而无catch块。即在本函数中只检查而不处理，把catch处理块放在其他函数中。
+	(3) try和catch块中必须有用花括号括起来的复合语句，即使花括号内只有一个语句，也不能省略花括号。
+	(4) 一个try-catch结构中只能有一个try块，但却可以有多个catch块，以便与不同的异常信息匹配。
+
+
+2. 命名空间
+
+	2.1 什么是命名空间
+
+	所谓命名空间，实际上就是一个由程序设计者命名的内存区域。程序设计者可以根据需要指定一些有名字的空间域，把一些全局实体分别放在各个命名空间中，从而与其他全局实体分隔开来。如
+	namespace ns1//指定命名空间ns1
+	{int a;
+	double b;
+	}
+	现在命名空间成员包括变量a和b，注意a和b仍然是全局变量，仅仅是把它们隐藏在指定的命名空间中而已。
+
+	在声明一个命名空间时，花括号内不仅可以包括变量，而且还可以包括以下类型: 
+	变量(可以带有初始化)；
+	常量；
+	函数(可以是定义或声明)；
+	结构体；
+	类；
+	模板；
+	命名空间(在一个命名空间中又定义一个命名空间，即嵌套的命名空间)。
+
+
+	namespace ns1
+	{const int RATE=0.08;//常量
+	double pay;                         //变量
+	double tax( )                        //函数
+	{return a*RATE;}
+	namespace ns2                       //嵌套的命名空间
+	    {int age;}
+	}
+	如果想输出命名空间ns1中成员的数据，可以采用下面的方法:
+	cout<<ns1::RATE<<endl;
+	cout<<ns1::pay<<endl;
+	cout<<ns1::tax()<<endl;
+	cout<<ns1::ns2::age<<endl;//需要指定外层的和内层的命名空间名
+
+	2.2 使用命名空间成员的方法
+	在引用命名空间成员时，要用命名空间名和作用域分辨符对命名空间成员进行限定，以区别不同的命名空间中的同名标识符。即
+	命名空间名::命名空间成员名
+
+	（1） 使用命名空间别名
+	可以为命名空间起一个别名(namespace alias)，用来代替较长的命名空间名。如
+	namespace Television//声明命名空间，名为Television
+	 {…}
+	可以用一个较短而易记的别名代替它。如
+	namespace TV = Television;//别名TV与原名Television等价
+	（2） 使用using 命名空间成员名
+	using后面的命名空间成员名必须是由命名空间限定的名字。例如
+	using ns1::Student;
+	using声明的有效范围是从using语句开始到using所在的作用域结束。如果在以上的using语句之后有以下语句:  
+	（3） 使用using namespace 命名空间名
+	能否在程序中用一个语句就能一次声明一个命名空间中的全部成员呢？
+	C++提供了using namespace语句来实现这一目的。using namespace语句的一般格式为
+	using namespace命名空间名；
+
+	2.3 标准命名空间std
+
+
+	为了解决C++标准库中的标识符与程序中的全局标识符之间以及不同库中的标识符之间的同名冲突，应该将不同库的标识符在不同的命名空间中定义(或声明)。标准C++库的所有的标识符都是在一个名为std的命名空间中定义的，或者说标准头文件(如iostream)中函数、类、对象和类模板是在命名空间std中定义的。
+	这样，在程序中用到C++标准库时，需要使用std作为限定。如
+	std::cout<<″OK.″<<endl; //声明cout是在命名空间std中定义的流对象
+
+3. 标准模板库
+    C++ 标准模板库(STL)
+    C++ STL (Standard Template Library标准模板库) 是通用类模板和算法的集合，它提供给程序员一些标准的数据结构的实现如 queues(队列), lists(链表), 和 stacks(栈)等.
+    
+    C++ STL 提供给程序员以下三类数据结构的实现:
+    
+    顺序结构 
+    C++ Vectors 
+    C++ Lists 
+    C++ Double-Ended Queues 
+    容器适配器 
+    C++ Stacks 
+    C++ Queues 
+    C++ Priority Queues 
+    联合容器/关联容器 
+    C++ Bitsets 
+    C++ Maps 
+    C++ Multimaps 
+    C++ Sets 
+    C++ Multisets 
+    程序员使用复杂数据结构的最困难的部分已经由STL完成. 如果程序员想使用包含int数据的stack, 他只要写出如下的代码:
+    
+    stack<int> myStack;
+    
+    接下来, 他只要简单的调用 push() 和 pop() 函数来操作栈. 借助 C++ 模板的威力, 他可以指定任何的数据类型，不仅仅是int类型.  STL stack实现了栈的功能，而不管
+    
+
+4.  迭代器
+    C++ Iterators(迭代器)
+    迭代器可被用来访问一个容器类的所包函的全部元素，其行为像一个指针。举一个例子，你可用一个迭代器来实现对vector容器中所含元素的遍历。有这么几种迭代器如下：
+    
+    迭代器           描述 
+    input_iterator 提供读功能的向前移动迭代器，它们可被进行增加(++)，比较与解引用（*）。 
+    output_iterator 提供写功能的向前移动迭代器，它们可被进行增加(++)，比较与解引用（*）。 
+    forward_iterator 可向前移动的，同时具有读写功能的迭代器。同时具有input和output迭代器的功能，并可对迭代器的值进行储存。 
+    bidirectional_iterator 双向迭代器，同时提供读写功能，同forward迭代器，但可用来进行增加(++)或减少(--)操作。  
+    random_iterator 随机迭代器，提供随机读写功能.是功能最强大的迭代器， 具有双向迭代器的全部功能，同时实现指针般的算术与比较运算。 
+    reverse_iterator 如同随机迭代器或双向迭代器，但其移动是反向的。（Either a random iterator or a bidirectional iterator that moves in reverse direction.）（我不太理解它的行为） 
+    
+5. Vector容器
+    C++ Vectors
+    Vectors 包含着一系列连续存储的元素,其行为和数组类似。访问Vector中的任意元素或从末尾添加元素都可以在常量级时间复杂度内完成，而查找特定值的元素所处的位置或是在Vector中插入元素则是线性时间复杂度。
+    Constructors 构造函数 
+    Operators 对vector进行赋值或比较 
+    assign() 对Vector中的元素赋值 
+    at() 返回指定位置的元素 
+    back() 返回最末一个元素 
+    begin() 返回第一个元素的迭代器 
+    capacity() 返回vector所能容纳的元素数量(在不重新分配内存的情况下） 
+    clear() 清空所有元素 
+    empty() 判断Vector是否为空（返回true时为空） 
+    end() 返回最末元素的迭代器(译注:实指向最末元素的下一个位置) 
+    erase() 删除指定元素 
+    front() 返回第一个元素 
+    get_allocator() 返回vector的内存分配器 
+    insert() 插入元素到Vector中 
+    max_size() 返回Vector所能容纳元素的最大数量（上限） 
+    pop_back() 移除最后一个元素 
+    push_back() 在Vector最后添加一个元素 
+    rbegin() 返回Vector尾部的逆迭代器 
+    rend() 返回Vector起始的逆迭代器 
+    reserve() 设置Vector最小的元素容纳数量 
+    resize() 改变Vector元素数量的大小 
+    size() 返回Vector元素数量的个数
+    swap() 交换两个Vector 
+    
+    5.1 构造函数
+    构造函数
+    语法: 
+    vector();
+    vector( size_type num, const TYPE &val );
+    vector( const vector &from );
+    vector( input_iterator start, input_iterator end );
+
+
+
+    C++ Vectors可以使用以下任意一种参数方式构造: 
+
+    无参数 - 构造一个空的vector, 
+    数量(num)和值(val) - 构造一个初始放入num个值为val的元素的Vector 
+    vector(from) - 构造一个与vector from 相同的vector 
+    迭代器(start)和迭代器(end) - 构造一个初始值为[start,end)区间元素的Vector(注:半开区间). 
+    举例,下面这个实例构造了一个包含5个值为42的元素的Vector
+
+    vector<int> v1( 5, 42 );
+
+
+6. List容器
+    C++ Lists（链表）
+    Lists将元素按顺序储存在链表中. 与 向量(vectors)相比, 它允许快速的插入和删除，但是随机访问却比较慢. 
+    
+    assign() 给list赋值 
+    back() 返回最后一个元素 
+    begin() 返回指向第一个元素的迭代器 
+    clear() 删除所有元素 
+    empty() 如果list是空的则返回true 
+    end() 返回末尾的迭代器 
+    erase() 删除一个元素 
+    front() 返回第一个元素 
+    get_allocator() 返回list的配置器 
+    insert() 插入一个元素到list中 
+    max_size() 返回list能容纳的最大元素数量 
+    merge() 合并两个list 
+    pop_back() 删除最后一个元素 
+    pop_front() 删除第一个元素 
+    push_back() 在list的末尾添加一个元素 
+    push_front() 在list的头部添加一个元素 
+    rbegin() 返回指向第一个元素的逆向迭代器 
+    remove() 从list删除元素 
+    remove_if() 按指定条件删除元素 
+    rend() 指向list末尾的逆向迭代器 
+    resize() 改变list的大小 
+    reverse() 把list的元素倒转 
+    size() 返回list中的元素个数 
+    sort() 给list排序 
+    splice() 合并两个list 
+    swap() 交换两个list 
+    unique() 删除list中重复的元素 
+    
+7. Set容器
+    C++ Sets
+    
+    集合(Set)是一种包含已排序对象的关联容器
+    
+    begin()
+     返回指向第一个元素的迭代器
+      
+    clear()
+        清除所有元素
+    
+    count()
+        返回某个值元素的个数
+    
+    empty()
+        如果集合为空，返回true
+    
+    end()
+        返回指向最后一个元素的迭代器
+    
+    equal_range()
+        返回集合中与给定值相等的上下限的两个迭代器
+    
+    erase()
+        删除集合中的元素
+    
+    find()
+        返回一个指向被查找到元素的迭代器
+    
+    get_allocator()
+        返回集合的分配器
+    
+    insert()
+        在集合中插入元素
+    
+    lower_bound()
+        返回指向大于（或等于）某值的第一个元素的迭代器
+    
+    key_comp()
+        返回一个用于元素间值比较的函数
+    
+    max_size()
+        返回集合能容纳的元素的最大限值
+    
+    rbegin()
+        返回指向集合中最后一个元素的反向迭代器
+    
+    rend()
+        返回指向集合中第一个元素的反向迭代器
+    
+    size()
+        集合中元素的数目
+    
+    swap()
+        交换两个集合变量
+    
+    upper_bound()
+        返回大于某个值元素的迭代器
+    
+    value_comp()
+        返回一个用于比较元素间的值的函数
+
+8.  Multisets容器
+
+    #include <set>
+    C++ MultiSets
+    
+    多元集合(MultiSets)和集合(Sets)相像，只不过支持重复对象。
+    
+    begin()
+        返回指向第一个元素的迭代器
+    
+    clear()
+        清除所有元素
+    
+    count()
+        返回指向某个值元素的个数
+    
+    empty()
+        如果集合为空，返回true
+    
+    end()
+        返回指向最后一个元素的迭代器
+    
+    equal_range()
+        返回集合中与给定值相等的上下限的两个迭代器
+    
+    erase()
+        删除集合中的元素
+    
+    find()
+        返回一个指向被查找到元素的迭代器
+    
+    get_allocator()
+        返回多元集合的分配器
+    
+    insert()
+        在集合中插入元素
+    
+    key_comp()
+        返回一个用于元素间值比较的函数
+    
+    lower_bound()
+        返回指向大于（或等于）某值的第一个元素的迭代器
+    
+    max_size()
+        返回集合能容纳的元素的最大限值
+    
+    rbegin()
+        返回指向多元集合中最后一个元素的反向迭代器
+    
+    rend()
+        返回指向多元集合中第一个元素的反向迭代器
+    
+    size()
+        多元集合中元素的数目
+    
+    swap()
+        交换两个多元集合变量
+    
+    upper_bound()
+        返回一个大于某个值元素的迭代器
+    
+    value_comp()
+        返回一个用于比较元素间的值的函数
+    
+9. Map容器        
+    C++ Maps
+    C++ Maps是一种关联式容器，包含“关键字/值”对
+    
+    begin() 返回指向map头部的迭代器 
+    clear() 删除所有元素 
+    count() 返回指定元素出现的次数 
+    empty() 如果map为空则返回true 
+    end() 返回指向map末尾的迭代器 
+    equal_range() 返回特殊条目的迭代器对 
+    erase() 删除一个元素 
+    find() 查找一个元素 
+    get_allocator() 返回map的配置器 
+    insert() 插入元素 
+    key_comp() 返回比较元素key的函数 
+    lower_bound() 返回键值>=给定元素的第一个位置 
+    max_size() 返回可以容纳的最大元素个数 
+    rbegin() 返回一个指向map尾部的逆向迭代器 
+    rend() 返回一个指向map头部的逆向迭代器 
+    size() 返回map中元素的个数 
+    swap() 交换两个map 
+    upper_bound() 返回键值>给定元素的第一个位置 
+    value_comp() 返回比较元素value的函数 
+    
+10. multimap容器
+
+    #include <map>
+    C++ MultiMaps
+    C++ Multimaps和maps很相似，但是MultiMaps允许重复的元素。
+    
+    begin() 返回指向第一个元素的迭代器 
+    clear() 删除所有元素 
+    count() 返回一个元素出现的次数 
+    empty() 如果multimap为空则返回真 
+    end() 返回一个指向multimap末尾的迭代器 
+    equal_range() 返回指向元素的key为指定值的迭代器对 
+    erase() 删除元素 
+    find() 查找元素 
+    get_allocator() 返回multimap的配置器 
+    insert() 插入元素 
+    key_comp() 返回比较key的函数 
+    lower_bound() 返回键值>=给定元素的第一个位置 
+    max_size() 返回可以容纳的最大元素个数 
+    rbegin() 返回一个指向mulitmap尾部的逆向迭代器 
+    rend() 返回一个指向multimap头部的逆向迭代器 
+    size() 返回multimap中元素的个数 
+    swap() 交换两个multimaps 
+    upper_bound() 返回键值>给定元素的第一个位置 
+    value_comp() 返回比较元素value的函数 
+    
+                                          　
+    
+    
+    

@@ -1,0 +1,148 @@
+
+文件IO
+
+1. 引言
+	大多数LInux文件IO只需用到5个函数:open read write lseek close.
+
+2. 文件描述符
+	对于内核而言，所有打开文件都由文件描述符引用。文件描述符是一个非负整数。当打开一个现存文件或创建一个新文件时，内核向进程返回一个文件描述符。当读、写一个文件时，
+用open或create返回的文件描述符标识该文件，将其作为参数传送给read或write。
+	在POSIX.1应用程序中，幻数0、1、2应被代换成符号常数STDIN_FILENO、STDOUT_FILENO和STDERR_FILENO。这些常数都定义在头文件<unistd.h>中。
+每个进程运行时，系统已分配3个文件描述符(0,1,2),分别对应标准输入， 标准输出, 标准错误输出
+
+
+3. 文件IO中常用的函数
+
+3.1 open: 
+	打开一个文件或者设备文件, 返回一个文件描述符。当操作此文件描述符时，就是操作相应的文件或设备
+
+	int open(char *pathname,int falgs,.../*mode*/)
+	flags 必须指其中O_RDONLY  O_WRONLY  O_RDWR唯一项
+	可选项：
+	O_APPEND   每次写操写都将文件指针定位文件尾处
+	O_CREAT    如果文件不存在创建新文件
+	O_EXCL     如指定O_CREAT时文件存在 出错返回
+	O_TRUNC    必须以O_WRONL或O_RDWR进行操作,把文件清空
+
+	O_NONBLOCK 以非阻塞的方式打开 
+	O_NOCTTY   如果打开文件为终端设备,不将该设备分配为此进程的控制终端
+	O_SYNC     每次write都等到I/O操作完成，并等文件的属性更新
+	O_RSYNC    作为read操作等侍，直到任何对同文件部分未决的写入完成
+	O_DSYNC    每次write都等到I/O操作完成，不等文件的属性更
+
+	mode指定创建文件的权限
+	//创建一个文件，假设这个文件存在时要清空
+	open("文件", O_RDWR|O_CREAT|O_TRUNC, 0777);
+	fd = open("txt", O_RDONLY | O_CREAT | O_EXCL, 0644);
+
+3.2 creat
+   int creat(char *pathname,mode_t mode)
+   等价于：open(char *,O_WRONLY | O_CREAT | O_TRUNC, mode)
+
+3.3 read
+	读取已经打开的文件中的数据。读了文件以后，文件描述符对应文件的offset会自动偏移。
+
+	ssize_t read(int fd, void *buf, size_t count);
+	从文件描述符fd指向文件里读取最大为count字节的数据放到buf指定的地址上去.
+	返回值: 为实际上读取的数值, 为0时读到文件尾, 为-1时错误
+
+3.4 write
+	向指定的文件中写数据。成功写以后， 文件描述符的offset自动偏移
+
+	size_t  write(int fd, const void *buf, size_t count);
+	把在buf地址指定的数据写到fd指向的文件里，最大写count字节.
+	成功返回写了多少字节, -1失败。write出错的一个常见原因是：磁盘已写满，或者超过了对一个给定进程的文件长度限制。
+
+3.5 lseek
+	每个打开文件都有一个与其相关联的“当前文件位移量”。它是一个非负整数，用以度量
+从文件开始处计算的字节数。就是改变文件描述符的偏移位置。
+	off_t lseek(int fildes, off_t offset, int whence);
+
+	whence:
+	SEEK_SET : 把偏移量设为offset, 从文件头开始.
+	SEEK_CUR : 把当前偏移量加上offset的值
+	SEEK_END : 先从文件尾开始偏移offset的值
+
+	返回值：成功返回定位之后的文件指针偏移 失败返回 -1
+
+	返回当前文件的偏移量
+	off_t currpos = lseek(fd, 0, SEEK_CUR);
+
+3.7 close
+	把没用的文件描述符关掉，把此文件描述符重新分配.
+	int close(int fd);
+
+3.8 dup
+	可用来复制一个现存的文件描述符.
+	int dup(int oldfd);
+	int dup2(int oldfd, int newfd);
+
+	dup2(oldfd, newfd) //让newfd成为oldfd的一个副本
+	dup2(fd, 1); //让fd替代标准输出
+
+	int ret=dup2(old,new)
+	如果new 打开的，则关闭new 返回新的文件描述符 失败返回－1. du2是一个原子操作。
+	dup2可以用newfd参数指定新描述符的数值。如果newfd当前已经打开，则先将其关闭再做dup2操作，如果oldfd等于newfd，则dup2直接返回newfd而不用先关闭newfd再复制。
+
+
+3.9 fcntl 
+	用于改变已打开的文件的性质 只能改变O_APPEND, O_NONBLOCK,O_ASYNC,  O_DIRECT
+	int fcntl(int fileds,int cmd,.../*int arg */)
+	第三个参数除了cmd用于记录锁时为一个结构指针之外，其余均为整数
+
+	fcntl五种功能如下:
+	.复制一个现有的描述符 cmd=F_DUPFD
+	 复制的新文件描述符清掉文件描述符标志 并且共享同一个文件表项
+
+	.获得/设置文件描述符标记 cmd=F_GETFD/F_SETFD
+	flags = fcntl(fd, F_GETFL); //获取
+	fcntl(fd, F_SETFL, flags);  //设置
+
+	.获得/设置文件状态标志 cmd=F_GETFL/F_SETFL
+	  忽略 O_CREAT, O_EXCL, O_NOCTTY, O_TRUNC标志
+	  由于历史原因O_RDONLY O_WRONLY O_RDWR并不各占一位,
+	  它们之间互斥。因此首先必须用屏蔽字O_ACCMODE 
+	  取得访问模式然后与这三种flags比较
+	  value=fcntl(fd,F_GETFL,0);
+	  switch(value & O_ACCMODE){
+		 case O_RDONLY :
+	  }
+
+	.获得/设置导步I/O所有权cmd=F_GETOWN/F_SETOWN
+	.获得/设置记录锁 cmd=F_GETLK F_SETLK/F_SETLKW
+   
+
+3.10 pread  pwrite  
+	定位文件进行读写 不影响文件指针 偏移和读写操作为原子操作
+
+
+
+
+3.11 sync
+   void sync(void)     
+    :函数只是将所有修改过的块缓冲区排入写队列，然后就返回，并不等实际写磁盘完成
+   int fsync(int fd) 
+    :等待实际磁盘写操作完成，并且同步更新文件的属性，可用于数据库类型的应用程序
+   int fdatasync(int fd)
+    :类似于fsync，但只影响文件的数据部分不影响文件的属性
+   
+3.12 ioctl 
+	int ioctl(int fd, int request, ...);
+    称之为I/O操作的垃圾箱 只要其字操函数不能或难于实现在 它都可能很容易做到
+
+==========================================================
+4. 某些系统下提供名为/dev/fd/N 等文件。打开文件/dev/fd/N　等效于复制Ｎ文件描述符(假定Ｎ描述符是打开的)
+与其Ｎ共享文件表项
+也有某些系统为/dev/fd/stdin   /dev/fd/stdout 等，均为同等操作
+
+
+
+homework：
+1.  实现mycopy拷贝一个文件到另外一个文件(功能相当于 cp a.txt b.txt)
+
+2.  实现mytouch 创建一个文件(功能相当于touch a.txt)。
+
+3.  编写一个同dup2功能相同的函数，要求不调用fcntl函数并且要有正确的出错处理。	
+4.  在如启用添加标志打开一文件以便读、写，能否用lseek在任一位置开始读？能否用lseek更新文件中任一部分的数据？请写一段程序以验证之。
+
+

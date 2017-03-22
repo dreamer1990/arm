@@ -1,0 +1,41 @@
+
+1. 定义数组指针变量,使它们赋值兼容
+
+int b;
+int a[10];
+int c[10][10];
+int d[10][10][10];
+
+int *e[10];
+int **f[10];
+
+eg:
+    int *p = a;
+
+2. 实现strcpy
+char *my_strcpy(char *dest, const char *src);
+char *my_strncpy(char *dest, const char *src, size_t n);
+
+3. 实现strcat
+char *my_strcat(char *dest, const char *src);
+char *my_strncat(char *dest, const char *src, size_t n);
+
+4. 实现strlen
+size_t my_strlen(const char *s);
+
+5. 实现strcmp
+int my_strcmp(const char *s1, const char *s2);
+int my_strncmp(const char *s1, const char *s2, size_t n);
+
+6. 实现strchr
+char *my_strchr(const char *s, int c);
+char *my_strrchr(const char *s, int c);
+
+
+7. C和指针 关于指针部分的内容   
+
+
+
+
+
+

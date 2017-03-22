@@ -1,0 +1,1 @@
+cmd_/var/ftp/pub/weekend/0ule/5th/code/test.ko := ld -m elf_i386 -m elf_i386 -r -o /var/ftp/pub/weekend/0ule/5th/code/test.ko /var/ftp/pub/weekend/0ule/5th/code/test.o /var/ftp/pub/weekend/0ule/5th/code/test.mod.o

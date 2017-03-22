@@ -1,0 +1,57 @@
+
+1. 安装Qt4.7
+
+
+    第一种情况: 64位  6.5
+
+    a. 查看系统相关信息 
+
+    [root@deng bits]# cat /etc/issue
+        Red Hat Enterprise Linux Server release 6.5 (Santiago)
+        Kernel \r on an \m
+
+    [root@deng bits]# 
+    [root@deng bits]# uname -a 
+    Linux deng.com 2.6.32-431.el6.x86_64 #1 SMP Sun Nov 10 22:19:54 EST 2013 x86_64 x86_64 x86_64 GNU/Linux
+    [root@deng bits]# 
+
+    b. 确定64位redhat6.5
+    [root@deng Qt]# chmod 777 qt-sdk-linux-x86_64-opensource-2010.04.bin 
+    [root@deng Qt]# ./qt-sdk-linux-x86_64-opensource-2010.04.bin 
+
+
+
+    第二种情况 32位  5.5
+
+    a. 安装fontconfig-2.8.0.tar.gz    
+
+    tar -xzvf fontconfig-2.8.0.tar.gz
+    ./configure
+    make -j4
+    make install
+
+
+    b. 安装Qt
+    [root@deng Qt]# chmod 777 qt-sdk-linux-x86-opensource-2010.04.bin 
+    [root@deng Qt]# ./qt-sdk-linux-x86-opensource-2010.04.bin 
+
+
+
+2. Windows安装
+
+    vs  依赖VS2010 VS2013 ....
+
+    Migw
+
+
+
+
+
+
+
+
+
+
+
+
+

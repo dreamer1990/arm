@@ -1,0 +1,267 @@
+1.	预处理器头文件包含:
+
+	gcc默认搜索头文件位置
+   	gcc -E prog.c -o prog.i
+   	cpp prog.c > prog.i
+
+   	默认搜索头文件路径:
+   	/usr/include
+   	/usr/local/include
+
+   	当使用#include 预处理指令时,
+   	后面的<>中填写相对于默认搜索目录的路径.
+   	如果使用"", 则默认先搜索当前目录, 然后
+   	再搜索系统目录.
+
+   	-I选项用来指定除默认搜索目录之外的头文件
+	搜索路径.
+
+2. 预处理器定义
+	简单定义:
+	#define MACRO_NAME REPLACE
+
+	定义"宏函数", 带参宏:
+	#define MACRO_FUNC(arg1, arg2) REPLACE
+
+3. 条件编译
+	#ifdef DEBUG
+		...
+	#else
+		...
+	#endif
+
+	#ifndef XXX
+		...
+	#else
+		...
+	#endif
+
+	注意条件编译是在编译期编译之前处理的,
+	因此它和C语言的if语句有本质的差别, 它
+	不在运行时进行条件判断.
+
+	gcc选项 -D可以用来预定义一个宏,
+	ex:
+		gcc -DDEBUG ...
+	代表预定义DEBUG宏
+
+4. 库(用size命令查看可执行程序的大小)
+	1) 静态库生成:
+	静态库(static library, archive, 后缀.a): 
+		打包好的.o档.
+		打包:
+		ar -crv libxxx.a 1.o 2.o ...
+	当应用程序使用静态库时,
+	静态库和应用程序链接在一起, 应用程序中会保存有
+	静态库的副本.
+	静态库的缺点:
+		1. 占用空间
+		2. 升级不便, 每次升级都要重新链接程序.
+
+	eg:
+    2.h:
+
+    #include <stdio.h>
+    
+    int add(int a, int b);
+    
+    2.c:
+    
+    int add(int a, int b)
+    {
+        return a + b;
+    }
+    
+    #include "2.h"
+    
+    int main(void)
+    {
+    
+        int a = 3, b = 4;
+        printf("a + b = %d\n", add(a, b));
+        return 0;
+    }
+    
+
+    静态库的使用：	
+    [root@bogon test]# ls
+    2.c  2.h  main.c
+    [root@bogon test]# gcc -c 2.c
+    [root@bogon test]# ls
+    2.c  2.h  2.o  main.c
+    [root@bogon test]# ar -crv libadd.a 2.o
+    a - 2.o
+    [root@bogon test]# gcc main.c -ladd
+    [root@bogon test]# ./a.out
+    a + b = 7
+    [root@bogon test]# 
+
+
+	2). 共享库生成
+	共享库(shared object, dynamic linked library,
+	后缀.so):
+		gcc --shared -fPIC -o libxxx.so 1.c 2.c ...
+	当应用程序使用共享库时,
+	链接阶段应用程序需要查询函数是否定义, 但并不将
+	共享库的副本保存在应用程序中. 当应用程序开始执
+	行时, 操作系统会通过保留在应用程序中的相关信息
+	加载相应的共享库.
+	动态库/共享库的优点:
+		1. 占用空间少(硬盘占用少, 内存空间占用少)
+		2. 升级方便
+	缺点:
+		需要将其放入系统默认动态库搜索目录或者配置
+		/etc/ld.so.conf才能使用, 软件发布具有依赖性.
+
+    eg:
+    [root@bogon test]# ls
+    2.c  2.h  2.o  a.out  libadd.a  main.c
+    [root@bogon test]# gcc --shared -fPIC -o liba.so 2.c
+    [root@bogon test]# ls
+    2.c  2.h  2.o  a.out  libadd.a  liba.so  main.c
+    [root@bogon test]# 
+    
+    第一种方法：
+    将生成的动态库拷贝到 /usr/lib/目录下
+    
+    [root@localhost sharelib]# gcc main.c -lmy
+    [root@localhost sharelib]# ./a.out
+    a + b = 7
+    a - b = -1
+    [root@localhost sharelib]# 
+    
+    与下面的等价：
+    [root@localhost sharelib]# gcc main.c -ld libmy.so
+    [root@localhost sharelib]# ./a.out
+    a + b = 7
+    a - b = -1
+    [root@localhost sharelib]# 
+    
+    
+    第二种方法:
+    config:
+    在文件/etc/ld.so.conf中末尾直接添加：/usr/local/lib（这个方法给力！）
+    [root@bogon test]# pwd
+    /home/test
+    [root@bogon test]# vim /etc/ld.so.conf
+    
+    include ld.so.conf.d/*.conf
+    /home/test
+    [root@localhost sharelib]# ldconfig
+    
+    [root@localhost sharelib]# gcc main.c -ld libmy.so
+    [root@localhost sharelib]# ./a.out
+    a + b = 7
+    a - b = -1
+    [root@localhost sharelib]# 
+    
+
+
+5. gcc 选项:
+	-I: 指定gcc除默认目录外的头文件搜索目录.
+	-L: 指定gcc除默认搜索目录外的库文件搜索目录.
+		gcc默认搜索/lib 和 /usr/lib下的库文件.
+	-l: 指定链接哪一个库. 例如, 要链接数学库libm.so
+	    那么编译时命令行上指定 -lm
+
+6. 共享库加载
+	系统默认到/lib /usr/lib下加载动态库.
+	否则需要配置 /etc/ld.so.conf, 加入放置动态库的
+	路径, 并执行ldconfig更新动态库路径信息.
+
+  对于此种情况有2种解决办法：
+        （1）在用源码安装时，用--prefix指定安装路径为/usr/lib。这样的话也就不用配置PKG_CONFIG_PATH
+          (2) 直接将路径/usr/local/lib路径加入到文件/etc/ld.so.conf文件的中。在文件/etc/ld.so.conf中末尾直接添加：/usr/local/lib（这个方法给力！）
+
+
+
+
+
+7. 单链表的封装
+
+    实现如下单链表的封装
+
+
+#ifndef __SLIST_H__
+#define __SLIST_H__
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define  SLIST  "SLIST"
+
+typedef void(*op_t)(void *data);
+typedef int (*cmp_t)(void *data, void *key);
+typedef int(*op_file_t)(void *data, FILE *fp);
+
+typedef struct _node {
+    void *data;     //数据域
+    struct _node *next; //指针域
+}node_t;
+
+//头信息结构体  头节点
+typedef struct _slist {
+    node_t *p;    //指向链表的第一个结点
+    int size;     //data中的数据的大小
+    int count;    //链表的结点的个数
+    op_t destroy; //销毁data的自定义函数
+}slist_t;
+
+
+//创建头结点
+slist_t *slist_create(int size, op_t destroy);
+
+//返回链表结点的个数
+int slist_count(slist_t *s);
+
+//在链表的尾端插入一个结点
+int slist_append(slist_t *s,  void *data);
+//在链表的第一个结点前面插入一个结点
+int slist_prepend(slist_t *s,  void *data);
+//将该结点插入到第index个结点的位置上
+int slist_insert_by_index(slist_t *s, void *data, int index);
+
+//检索第index个位置结点中的数据域,保存到data中
+int slist_retrieve_by_index(slist_t *s, void *data, int index);
+
+//通过关键字找第一个索引
+int slist_find_index_by_key(slist_t *s, void *key, cmp_t my_cmp);
+//通过关键字找所有的索引
+slist_t *slist_find_all_by_key(slist_t *s, void *key, cmp_t my_cmp);
+
+//通过索引值改对应的数据域
+int slist_modify_by_index(slist_t *s, void *key, int index);
+//通过关键字该所有的对应的数据域
+int slist_modify_by_key(slist_t *s, void *key, void *data, cmp_t my_cmp);
+
+//通过索引删除链表的结点
+int slist_delete_by_index(slist_t *s, int index);
+//通过关键字删除链表的结点
+int slist_delete_by_key(slist_t *s, void *key, cmp_t my_cmp);
+//通过关键字删除所有的结点
+int slist_delete_all_by_key(slist_t *s,  void *key, cmp_t my_cmp);
+
+//链表的反转
+int slist_reverse(slist_t *s);
+
+//将链表数据保存到文件中
+int slist_store(slist_t *s, char *path, op_file_t op_file);
+//从文件中加载链表数据
+int slist_load(slist_t *s, char *path, op_file_t op_file);
+
+//链表的遍历
+int slist_traverse(slist_t *s, op_t my_print);
+
+//链表的销毁
+int slist_destroy(slist_t *s);
+
+#endif /*__SLIST_H__*/
+
+
+
+
+
+
+
+

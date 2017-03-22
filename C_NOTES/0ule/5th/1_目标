@@ -1,0 +1,54 @@
+
+# 系统启动流程
+掌握系统启动流程
+掌握/etc/inittab配置文件
+# grub启动加载器
+了解/boot/grub中一些文件的作用
+掌握/boot/grub/grub.conf中相关配置
+了解grub背景图片的制作
+掌握grub基本命令 (root kernel initrd  setup boot)
+掌握root相关参数
+掌握kernel启动参数
+了解如何打开initrd-2.6.18-194.el5PAE.img
+掌握使用grub排错
+
+# 模块管理
+了解kernel模块的编译
+掌握使用lsmod列出当前系统装载的模块
+掌握使用rmmod卸载当前系统装载的模块
+掌握使用modinfo列出模块的信息
+掌握使用insmod装载模块
+了解modprobe命令
+掌握使用dmesg查看系统内核启动相关的信息
+
+# 内核编译
+了解内核源码目录树中常用文件夹的作用
+掌握编译内核的步骤
+掌握编译内核常用的命令
+    make clean
+    make distclean
+    make menuconfig         .config 
+    make -j4
+
+# 字符处理工具
+掌握使用wc统计文件字符数，行数，单词数
+掌握sort排序命令
+掌握cut命令
+掌握uniq命令
+掌握diff命令
+重点掌握grep搜索文本命令
+掌握tr命令
+
+# 查找命令
+掌握which命令
+掌握whereis命令
+掌握locate命令
+重点掌握find查找文件
+
+
+#软硬链接
+掌握ln创建一个软链接和硬链接
+掌握软链接和硬链接本质的区别
+了解空链接
+了解递归链接
+

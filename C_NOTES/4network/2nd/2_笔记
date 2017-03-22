@@ -1,0 +1,200 @@
+
+1. 网络分层 
+    7层:  物理层 数据链路层 网络层 传输层 会话层 表示层 应用层
+    5层:  物理层 数据链路层 网络层 传输层  应用层
+    4层:  链路层 网络层 传输层 应用层
+
+2. 常见的网络设备
+    网卡: Mac地址唯一 但是Linux中网卡的Mac地址可以修改
+    路由器： WAN口 LAN口  OpenWrt
+    交换机: 网管型交换机 非网管型交换机 
+    集线器: 
+    网桥:
+
+3. 网络序
+    小端模式: 高位存放在高地址  低位存放在低地址
+    大端模式: 高位存放在低地址  低位存放在高地址
+    
+    一般的PC机都是小端模式  网络序是大端模式
+    
+    
+    网络序和主机序转换的API
+        h: host n: network l:long s: short
+        #include <arpa/inet.h>
+        uint32_t htonl(uint32_t hostlong);
+        uint16_t htons(uint16_t hostshort);
+        
+        uint32_t ntohl(uint32_t netlong);
+        uint16_t ntohs(uint16_t netshort);
+
+4. IP地址的转换
+    char *inet_ntop(int domain,const void *addr,char *buf,size_t len);
+    半网络字节序的二进制的地址转换成文本字符格式串 
+    len是存放文本字符的大小,可用两个常量:INET_ADDRSTRLEN  INET6_ADDRSTRLEN
+    
+    int inet_pton(int domain,const char *ipstr,void *addr);
+    将文本的Ip地址转换成二进制的地址
+
+    char *inet_ntoa(struct in_addr in);
+
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+    #include <arpa/inet.h>
+    int inet_aton(const char *cp, struct in_addr *inp);
+    in_addr_t inet_addr(const char *cp);
+    in_addr_t inet_network(const char *cp);
+    char *inet_ntoa(struct in_addr in);
+    struct in_addr inet_makeaddr(int net, int host);
+    in_addr_t inet_lnaof(struct in_addr in);
+    in_addr_t inet_netof(struct in_addr in);
+
+
+
+5. socket函数
+    socket 是通信端点的抽象
+    int socket(int domain,int type,int protocol);
+
+    domain:确定通信的特征,包括地址格式.
+    AF_INET  IPV4因特网域
+    AF_INET6 IPV6因特网域
+    AF_UNIX / AF_LOCAL  UNIX域
+    AF_UNSPEC 未指定,可以是任何域
+
+    type  :确定套接字类型,进一步确定通信特征
+    SOCK_DGRAM    长度固定,无连接的不可靠的报文传递(默认为UDP)
+    SOCK_RAW      IP协议的数据报接口 (原如套接字,底层套接字)
+    SOCK_SEQPACKET长度固定 有序 可靠的面向连接报文传递
+    SOCK_STREAM   有序 可靠 双向的面向连接的字节流 (默认协议TCP/IP)
+
+    protocol:可以通过该参数指定选择一个特定的协议 ,一般填为0 使用默认的协议
+
+6. shutdown
+    int shutdown(int sockfd,int how);
+    how:SHUT_RD   关闭读端  SHUT_WR   SHUT_RDWR
+
+    地址格式
+    struct sockaddr_in {
+        sa_family_t    sin_family; /* address family: AF_INET */
+        u_int16_t      sin_port;   /* port in network byte order */
+        struct in_addr sin_addr;   /* ipv4 internet address */
+    };
+
+    /* Internet address. */
+    struct in_addr {
+        u_int32_t      s_addr;     /* address in network byte order */
+    };
+
+7. 
+    绑定一个套接字
+    一般来说,与客户端的套接字关联的地址没有太大意义,可以让系统默认的地址,
+    而对服务端需要给一个接收客户端请求的套接字绑定一个众所周知的地址.
+    int bind(int sockfd,const struct *addr,socklen_t len);
+    .在进程运行的机器上,指定的地址必须有效,不能指定一个其他机器的地址
+    .地址必须和创建套接字时的地址族所支持的格式相匹配
+    .端口号不小于1024,超级用户除外
+
+    获取套接字绑定的地址
+    int getsockname(int sockfd,struct sockaddr *addr,socklen_t *alenp);
+    参数 alenp 为一个指向整数的指针,该整数指定缓冲区sockaddr的大小,
+    返回时,该整数被设置返回地址的大小,如果长度不匹配,将其截短不报错
+
+    如果套接字已经连接,则通过以下函数 找到对方的地址
+    int getpeername(int sockfd,struct sockaddr *addr,socklen_t *alenp);
+
+    如果处理的是面向连接的网络服务(SOCK_STREAM 或 SOCK_SEQAPCKET)在交换数据以前,建立一个连接
+    int connect(int sockfd,const struct sockaddr *perr_addr,socklen_t len);
+
+    服务器调listen宣告可接受连接请求
+    int listen(int sockfd,int backlog);   backlog :支持连接数
+
+    服务器调listen之后则可能调用accept建立连接
+    int accept(int sockfd,struct addr *peer_addr,socklen_t *len);
+    成功返回用以交换数据的套接字,该套接字连接到调用connect的客户端
+    peer_addr 获取连接方的标识信息,如果不关心可填NULL
+    如果没有连接请求时,accept阻塞到一个请求的到来
+
+    数据传输:
+    建立连接的套接字可用read write 进行数据收发
+    但read write所能做一切仅是数据的传送,但如果指定选项,从多个客户端接收数据包或者发送带外数据就不行了   
+
+    send成功返回,并不必然表示连接另一端接收到数据,仅当send无错误的发送到网络,
+    如果对于字节流协议,send被阻塞到整个数据被传输
+
+    ssize_t send(int sockfd,const void *buf,size_t nbytes,int flag);
+    与write不同是flag选项
+    MSG_DONTROUTE 勿将数据路由出本地网络
+    MSG_DONTWAIT  允许非阻塞操作
+    MSG_EOR       如果协议支持,将作为记录结束
+    MSG_OOB       如果协议支持,发送带外数据
+
+    ssize_t recv(int sockfd,void *buf,size_t nbytes,int flag);
+    返回值以字计算消息长度,若无可用消息或对方已按序结否则返回0,出错返回-1
+    flag:
+    MSG_OOB   如果协议支持,发送带外数据
+    MSG_PEEK  查看下一个要读的数据但不会真的取走,再一次调用read或recv时会取走刚才查看的数据
+
+
+    =====================================
+    设置套接字:
+    int setsockopt(int sfd, int level, int optname, const void *optval,socklen_t optlen);
+
+    sfd:	套按字
+    level(级别):指定选项代码的类型。
+              SOL_SOCKET: 基本套接口
+              IPPROTO_IP: IPv4套接口
+              IPPROTO_IPV6: IPv6套接口
+              IPPROTO_TCP: TCP套接口
+
+              optname:选项名称
+
+              SOL_SOCKET
+              -------------------------------------
+              SO_BROADCAST 允许发送广播数据 int
+              SO_DEBUG 允许调试 int
+              SO_DONTROUTE 不查找路由 int
+              SO_ERROR 获得套接字错误 int
+              SO_KEEPALIVE 保持连接 int
+              SO_RCVLOWAT 接收缓冲区下限 int
+              SO_SNDLOWAT 发送缓冲区下限 int
+              SO_RCVTIMEO 接收超时 struct timeval
+              SO_SNDTIMEO 发送超时 struct timeval
+              SO_REUSERADDR 允许重用本地地址和端口 int
+              充许绑定已被使用的地址（或端口号），可以参考bind的man
+              SO_TYPE 获得套接字类型 int
+              SO_BSDCOMPAT 与BSD系统兼容 int
+
+              ===============================
+
+              IPPROTO_IP
+              ------------------------------------
+              IP_HDRINCL 在数据包中包含IP首部 int
+              这个选项常用于黑客技术中，隐藏自己的IP地址
+
+              IP_OPTINOS IP首部选项 int
+              IP_TOS 服务类型
+              IP_TTL 生存时间 int
+
+              以下IPV4选项用于组播
+              IP_ADD_MEMBERSHIP    struct ip_mreqn 加入到组播组中
+              IP_ROP_MEMBERSHIP    struct ip_mreqn 从组播组中退出
+              IP_MULTICAST_IF      struct ip_mreqn 指定提交组播报文的接口
+              IP_MULTICAST_TTL     u_char 指定提交组播报文的TTL
+              IP_MULTICAST_LOOP    u_char 使组播报文环路有效或无效
+
+              在头文件中定义了ip_mreq结构：
+              struct ip_mreq {
+                  struct in_addr imr_multiaddr; /* IP multicast address of group */
+                  struct in_addr imr_interface; /* local IP address of interface */
+              };
+
+            若进程要加入到一个组播组中，用soket的setsockopt()函数发送该选项。
+            该选项类型是ip_mreq结构，它的第一个字段imr_multiaddr指定了组播组的地址，
+            第二个字段imr_interface指定了接口的IPv4地址。
+            IP_MULTICAST_TTL
+            设置组播报文的数据包的TTL（生存时间）。默认值是1，表示数据包只能在本地的子网中传送。
+            IP_MULTICAST_LOOP
+            组播组中的成员自己也会收到它向本组发送的报文。这个选项用于选择是否激活这种状态。
+            
+
+
+

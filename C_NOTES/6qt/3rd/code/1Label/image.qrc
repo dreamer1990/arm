@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>image/cubemap_negx.jpg</file>
+        <file>image/cubemap_negy.jpg</file>
+        <file>image/cubemap_negz.jpg</file>
+        <file>image/cubemap_posx.jpg</file>
+        <file>image/cubemap_posy.jpg</file>
+        <file>image/cubemap_posz.jpg</file>
+        <file>image/qt-logo.jpg</file>
+        <file>image/square.jpg</file>
+        <file>image/cat.gif</file>
+        <file>image/dave.gif</file>
+        <file>image/jim.gif</file>
+        <file>image/a.mng</file>
+    </qresource>
+</RCC>

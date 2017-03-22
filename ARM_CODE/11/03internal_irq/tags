@@ -1,0 +1,198 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+Buzzer_Off	basedevice.c	/^void Buzzer_Off(void)$/;"	f
+Buzzer_On	basedevice.c	/^void Buzzer_On(void)$/;"	f
+CCFLAG	Makefile	/^CCFLAG=-fno-builtin   $/;"	m
+CROSS_COMPILE	Makefile	/^CROSS_COMPILE=arm-linux-$/;"	m
+Configure_Buzzer	basedevice.c	/^void Configure_Buzzer(void)$/;"	f
+Configure_led	basedevice.c	/^void Configure_led(void)$/;"	f
+DataAbt	vector.S	/^DataAbt:$/;"	l
+DataAbt	vector/vector.S	/^DataAbt:$/;"	l
+GPD0CON	res.h	17;"	d
+GPD0DAT	res.h	18;"	d
+GPM4CON	res.h	14;"	d
+GPM4DAT	res.h	15;"	d
+GPX3CON	res.h	20;"	d
+ICCBPR_CPU0	res.h	59;"	d
+ICCEOIR_CPU0	res.h	61;"	d
+ICCIAR_CPU0	res.h	60;"	d
+ICCICR_CPU0	res.h	57;"	d
+ICCPMR_CPU0	res.h	58;"	d
+ICDDCR	res.h	65;"	d
+ICDICTR	res.h	66;"	d
+ICDIPR0_CPU0	res.h	72;"	d
+ICDIPR10	res.h	82;"	d
+ICDIPR11	res.h	83;"	d
+ICDIPR12	res.h	84;"	d
+ICDIPR13	res.h	85;"	d
+ICDIPR14	res.h	86;"	d
+ICDIPR15	res.h	87;"	d
+ICDIPR16	res.h	88;"	d
+ICDIPR17	res.h	89;"	d
+ICDIPR18	res.h	90;"	d
+ICDIPR19	res.h	91;"	d
+ICDIPR1_CPU0	res.h	73;"	d
+ICDIPR20	res.h	92;"	d
+ICDIPR21	res.h	93;"	d
+ICDIPR22	res.h	94;"	d
+ICDIPR23	res.h	95;"	d
+ICDIPR24	res.h	96;"	d
+ICDIPR25	res.h	97;"	d
+ICDIPR26	res.h	98;"	d
+ICDIPR27	res.h	99;"	d
+ICDIPR28	res.h	100;"	d
+ICDIPR29	res.h	101;"	d
+ICDIPR2_CPU0	res.h	74;"	d
+ICDIPR30	res.h	102;"	d
+ICDIPR31	res.h	103;"	d
+ICDIPR32	res.h	104;"	d
+ICDIPR33	res.h	105;"	d
+ICDIPR34	res.h	106;"	d
+ICDIPR35	res.h	107;"	d
+ICDIPR36	res.h	108;"	d
+ICDIPR37	res.h	109;"	d
+ICDIPR38	res.h	110;"	d
+ICDIPR39	res.h	111;"	d
+ICDIPR3_CPU0	res.h	75;"	d
+ICDIPR4_CPU0	res.h	76;"	d
+ICDIPR5_CPU0	res.h	77;"	d
+ICDIPR6_CPU0	res.h	78;"	d
+ICDIPR7_CPU0	res.h	79;"	d
+ICDIPR8	res.h	80;"	d
+ICDIPR9	res.h	81;"	d
+ICDIPTR0_CPU0	res.h	112;"	d
+ICDIPTR10	res.h	122;"	d
+ICDIPTR11	res.h	123;"	d
+ICDIPTR12	res.h	124;"	d
+ICDIPTR13	res.h	125;"	d
+ICDIPTR14	res.h	126;"	d
+ICDIPTR15	res.h	127;"	d
+ICDIPTR16	res.h	128;"	d
+ICDIPTR17	res.h	129;"	d
+ICDIPTR18	res.h	130;"	d
+ICDIPTR19	res.h	131;"	d
+ICDIPTR1_CPU0	res.h	113;"	d
+ICDIPTR20	res.h	132;"	d
+ICDIPTR21	res.h	133;"	d
+ICDIPTR22	res.h	134;"	d
+ICDIPTR23	res.h	135;"	d
+ICDIPTR24	res.h	136;"	d
+ICDIPTR25	res.h	137;"	d
+ICDIPTR26	res.h	138;"	d
+ICDIPTR27	res.h	139;"	d
+ICDIPTR28	res.h	140;"	d
+ICDIPTR29	res.h	141;"	d
+ICDIPTR2_CPU0	res.h	114;"	d
+ICDIPTR30	res.h	142;"	d
+ICDIPTR31	res.h	143;"	d
+ICDIPTR32	res.h	144;"	d
+ICDIPTR33	res.h	145;"	d
+ICDIPTR34	res.h	146;"	d
+ICDIPTR35	res.h	147;"	d
+ICDIPTR36	res.h	148;"	d
+ICDIPTR37	res.h	149;"	d
+ICDIPTR38	res.h	150;"	d
+ICDIPTR39	res.h	151;"	d
+ICDIPTR3_CPU0	res.h	115;"	d
+ICDIPTR4_CPU0	res.h	116;"	d
+ICDIPTR5_CPU0	res.h	117;"	d
+ICDIPTR6_CPU0	res.h	118;"	d
+ICDIPTR7_CPU0	res.h	119;"	d
+ICDIPTR8	res.h	120;"	d
+ICDIPTR9	res.h	121;"	d
+ICDISER0_CPU0	res.h	67;"	d
+ICDISER1	res.h	68;"	d
+ICDISER2	res.h	69;"	d
+ICDISER3	res.h	70;"	d
+ICDISER4	res.h	71;"	d
+ICDSGIR	res.h	152;"	d
+LINKSCRIPT	Makefile	/^LINKSCRIPT=test.lds$/;"	m
+Lbignum	_udivsi3.S	/^Lbignum:$/;"	l
+Ldiv0	_divsi3.S	/^Ldiv0:$/;"	l
+Ldiv0	_udivsi3.S	/^Ldiv0:$/;"	l
+Led_Off	basedevice.c	/^void Led_Off(void)$/;"	f
+Led_On	basedevice.c	/^void Led_On(void)$/;"	f
+Lgot_result	_udivsi3.S	/^Lgot_result:$/;"	l
+Loop1	_udivsi3.S	/^Loop1:$/;"	l
+Loop3	_udivsi3.S	/^Loop3:$/;"	l
+NULL	res.h	9;"	d
+PrefecthAbt	vector.S	/^PrefecthAbt:$/;"	l
+PrefecthAbt	vector/vector.S	/^PrefecthAbt:$/;"	l
+Reset	vector.S	/^Reset:$/;"	l
+Reset	vector/vector.S	/^Reset:$/;"	l
+Str	vector/vector.S	/^Str:$/;"	l
+Svc	vector.S	/^Svc:$/;"	l
+Svc	vector/vector.S	/^Svc:$/;"	l
+TARGET	Makefile	/^TARGET=test$/;"	m
+Ttext	vector/Makefile	/^	arm-linux-ld -Ttext=0x5FFF0000 vector.o -o vector$/;"	m
+U16	res.h	/^typedef volatile unsigned short U16 ; $/;"	t
+U32	res.h	/^typedef volatile unsigned int U32 ; $/;"	t
+U8	res.h	/^typedef volatile unsigned char  U8 ; $/;"	t
+Undef	vector.S	/^Undef:$/;"	l
+Undef	vector/vector.S	/^Undef:$/;"	l
+_BASEDEVICE_H	basedevice.h	3;"	d
+_RES_H	res.h	3;"	d
+___strtok	string.c	/^char * ___strtok;$/;"	v
+__aeabi_idiv	_divsi3.S	/^__aeabi_idiv:$/;"	l
+__aeabi_idivmod	_udivsi3.S	/^__aeabi_idivmod:$/;"	l
+__aeabi_uidiv	_udivsi3.S	/^ __aeabi_uidiv:$/;"	l
+__aeabi_uidivmod	_udivsi3.S	/^__aeabi_uidivmod:$/;"	l
+__div0	string.c	/^void __div0(void)$/;"	f
+__divsi3	_divsi3.S	/^__divsi3:$/;"	l
+__udivsi3	_udivsi3.S	/^ __udivsi3:$/;"	l
+_start	test.c	/^int _start(void)$/;"	f
+_start	vector/vector.S	/^_start:$/;"	l
+bcopy	string.c	/^char * bcopy(const char * src, char * dest, int count)$/;"	f
+curbit	_udivsi3.S	/^curbit		.req	r3$/;"	l
+dividend	_udivsi3.S	/^dividend	.req	r0$/;"	l
+divisor	_udivsi3.S	/^divisor		.req	r1$/;"	l
+do_DataAbt	test.c	/^void do_DataAbt(void)$/;"	f
+do_Fiq	test.c	/^void do_Fiq(void)$/;"	f
+do_Irq	test.c	/^void do_Irq(void)$/;"	f
+do_PrefetchAbt	test.c	/^void do_PrefetchAbt(void)$/;"	f
+do_Reset	test.c	/^void do_Reset(void)$/;"	f
+do_Svc	test.c	/^void do_Svc(void)$/;"	f
+do_Undef	test.c	/^void do_Undef(void)$/;"	f
+enable_cpsr_I	test.c	/^void enable_cpsr_I(void)$/;"	f
+enable_mmu	enable_mmu.c	/^void enable_mmu(void)$/;"	f
+fiq	vector.S	/^fiq:$/;"	l
+fiq	vector/vector.S	/^fiq:$/;"	l
+iccbase	res.h	56;"	d
+icdbase	res.h	64;"	d
+init_ttb	enable_mmu.c	/^void init_ttb(unsigned int *ttb)$/;"	f
+irq	vector.S	/^irq:$/;"	l
+irq	vector/vector.S	/^irq:$/;"	l
+memchr	string.c	/^void *memchr(const void *s, int c, size_t n)$/;"	f
+memcmp	string.c	/^int memcmp(const void * cs,const void * ct,size_t count)$/;"	f
+memcpy	string.c	/^void * memcpy(void *dest, const void *src, size_t count)$/;"	f
+memmove	string.c	/^void * memmove(void * dest,const void *src,size_t count)$/;"	f
+memscan	string.c	/^void * memscan(void * addr, int c, size_t size)$/;"	f
+memset	string.c	/^void * memset(void * s,int c,size_t count)$/;"	f
+mmap	enable_mmu.c	/^void mmap(unsigned int *ttb , unsigned int Pa , unsigned int Va)$/;"	f
+printf	test.c	/^int (*printf)(const char *fmt , ...) = (void *)0x43e11a2c ;$/;"	v
+result	_udivsi3.S	/^result		.req	r2$/;"	l
+size_t	res.h	/^typedef unsigned int size_t ; $/;"	t
+start	vector.S	/^start:$/;"	l
+strcat	string.c	/^char * strcat(char * dest, const char * src)$/;"	f
+strchr	string.c	/^char * strchr(const char * s, int c)$/;"	f
+strcmp	string.c	/^int strcmp(const char * cs,const char * ct)$/;"	f
+strcpy	string.c	/^char * strcpy(char * dest,const char *src)$/;"	f
+strlen	string.c	/^size_t strlen(const char * s)$/;"	f
+strncat	string.c	/^char * strncat(char *dest, const char *src, size_t count)$/;"	f
+strncmp	string.c	/^int strncmp(const char * cs,const char * ct,size_t count)$/;"	f
+strncpy	string.c	/^char * strncpy(char * dest,const char *src,size_t count)$/;"	f
+strnlen	string.c	/^size_t strnlen(const char * s, size_t count)$/;"	f
+strpbrk	string.c	/^char * strpbrk(const char * cs,const char * ct)$/;"	f
+strrchr	string.c	/^char * strrchr(const char * s, int c)$/;"	f
+strsep	string.c	/^char * strsep(char **s, const char *ct)$/;"	f
+strspn	string.c	/^size_t strspn(const char *s, const char *accept)$/;"	f
+strstr	string.c	/^char * strstr(const char * s1,const char * s2)$/;"	f
+strswab	string.c	/^char *strswab(const char *s)$/;"	f
+strtok	string.c	/^char * strtok(char * s,const char * ct)$/;"	f
+udelay	test.c	/^void (*udelay)(unsigned int usec) = (void *)0x43e26480;$/;"	v
+ulong	res.h	/^typedef unsigned long  ulong ; $/;"	t
+vector_copy	test.c	/^void vector_copy(void)$/;"	f

@@ -1,0 +1,30 @@
+
+文档: Documentation/kbuild/kconfig-language.txt
+
+
+Kconfig句法
+	config
+	menuconfig
+	choice/endchoice
+	menu/endmenu
+	if/endif
+	source
+	comment
+
+菜单属性
+	bool tristate string hex int
+	prompt
+	default
+	depends on
+	select
+	range
+	help
+
+菜单依赖
+		<expr>
+        <symbol> '=' <symbol>
+        <symbol> '!=' <symbol>
+        '(' <expr> ')'
+        '!' <expr> 
+        <expr> '&&' <expr>
+        <expr> '||' <expr>

@@ -1,0 +1,284 @@
+
+qt + c++
+---------------------------------------------------
+嵌入式:
+    1)资源受限(cpu + 外设); (参品定位)
+    2)系统嵌入到cpu中, 不能随意删减, 更改;
+
+二进制语言: 
+汇编语言:
+高级语言:
+    c
+
+    x86-linux-gcc
+    arm-linux-gcc
+
+kernel:
+    linux
+    设备驱动; (内核设备驱动+裸板驱动)
+rootfs:
+    busybox
+    文件(可执行文件, 配置文件, ...)
+
+        app
+    qt libc++ libc
+        api
+-----------------------
+        kernel
+    device driver
+-----------------------
+    board driver
+
+arm:
+    exynos4412      (消费类电子) 
+        cortex-a9   (armv7)
+    裸板开发:
+        硬件基础: 看懂原理图; 
+        语言基础: 看数据手册;
+        开发语言: c 语言; 汇编语言;  
+    
+. 开发板: TINY4412(友善之臂)
+    soc : 片上系统
+          exynos4412
+            cortex-a9 * 4
+                AMBA总线
+            控制器
+
+. 开发板资源介绍
+. DATASHEET (数据手册) 原理图 soft (bootloader+kernel+rootfs+tools)
+
+. minicom 
+    安装:
+        1) yum install minicom (有yum源)
+            配置yum源:
+                mount -o loop rhel-server-6.5-x86_64-dvd.iso /mnt/
+                cp server.repo /etc/yum.repos.d/   
+                yum clean all
+                yum list 
+                
+        2) rpm -ivh lrzsz-0.12.20-27.1.el6.x86_64.rpm
+           rpm -ivh minicom-2.3-6.1.el6.x86_64.rpm
+
+    pc <-> usb <-> com0 <-> board
+    
+    ls /dev/ttyUSB0 --> usb接口链接成功;
+    minicom -s
+        
+   +-----[configuration]------+
+   | Filenames and paths      |
+   | File transfer protocols  |
+   | Serial port setup        | <-- 
+   | Modem and dialing        |
+   | Screen and keyboard      |
+   | Save setup as dfl        |
+   | Save setup as..          |
+   | Exit                     |
+   | Exit from Minicom        |
+   +--------------------------+
+
+    +-----------------------------------------------------------------------+
+    | A -    Serial Device      : /dev/ttyUSB0              <---            |
+    | B - Lockfile Location     : /var/lock                                 |
+    | C -   Callin Program      :                                           |
+    | D -  Callout Program      :                                           |
+    | E -    Bps/Par/Bits       : 115200 8N1                <---            |
+    | F - Hardware Flow Control : No                        <---            |
+    | G - Software Flow Control : No                                        |
+    |                                                                       |
+    |    Change which setting?                                              |
+    +-----------------------------------------------------------------------+
+            | Screen and keyboard      |
+            | Save setup as dfl        |
+            | Save setup as..          |
+            | Exit                     |
+            | Exit from Minicom        |
+            +--------------------------+
+                                                                             
+            +-----[configuration]------+                                     
+            | Filenames and paths      |                                     
+            | File transfer protocols  |                                     
+            | Serial port setup        |                                     
+            | Modem and dialing        |                                     
+            | Screen and keyboard      |                    
+            | Save setup as dfl        |     <---- 保存成默认;
+            | Save setup as..          |                    
+            | Exit                     |     <---- 退出进入minicom               
+            | Exit from Minicom        |                    
+            +--------------------------+                    
+
+. minicom使用
+    ctrl + A <key>
+              Z : 帮助
+              Q : 退出
+              W : 开启换行模式
+              S : 发送文件
+    
+. 烧写android系统到sd卡:
+    . 搭建开发交叉编译环境:
+        arm-linux-gcc -v    
+        ash: arm-linux-gcc: command not found      (没有交叉编译器)
+        安装交叉编译器:
+        tar xf arm-linux-gcc-4.5.1-v6-vfp-20120301.tgz  (拷贝应用)
+        mkdir /usr/local/arm/
+        mv opt/FriendlyARM/toolschain/4.5.1/ /usr/local/arm/
+        
+        vim /root/.bash_profile
+        PATH=/usr/local/arm/4.5.1/bin:$PATH
+        注销当前用户, 重新登录; (ctrl + alt + backspace)
+        
+        arm-linux-gcc -v        (命令执行正常)
+            yum install glibc.i686  (32bit c库)
+
+        . 交叉编译
+            x86下编译, arm下运行程序;
+            x86工具更全, 速度更快, ...;
+
+    . 烧写bootloader(启动加载器)
+        u-boot (开源bootloader)  
+        grub    
+        
+        编译u-boot:  
+        tar xf uboot_tiny4412_0929.tar.gz
+        cd uboot_tiny4412_0929
+        make distclean
+        make tiny4412_config
+            chmod +x mkconfig
+        make 
+            chmod +x tools/* -R
+
+            依赖zlib库
+                yum install zlib.i686
+                            zlib.x86_64
+        生成u-boot u-boot.bin ...
+
+        烧写工具编译:
+        make -C sd_fuse/
+
+        烧写u-boot:
+        准备一张>4GB SD卡和读卡器; 插入pc的usb接口;
+        如果有自动挂载, 执行:umount /dev/sdb*
+        cd sd_fuse/tiny4412/
+        ./sd_fusing.sh /dev/sdb     (需要备份sd卡中的数据, 可能会丢失)
+                              ^ (根据实际情况而定)
+                       /dev/sdb1  X
+                            ^ 
+                       /dev/mmcblock0
+                              ^ (sd卡槽)
+                       /dev/mmcblockp1 X
+        烧写成功;
+
+        64bit : 32bit 
+        5.5
+        6.5
+
+. 使用u-boot启动:
+    拨动启动开关为sd/mmc启动 (下拨)
+    
+    启动开发板(3s内按下任意键)
+
+    TINY4412 #  <-- u-boot 命令行提示符号
+
+    u-boot命令:
+        help
+        help printenv
+        printenv
+            baudrate=115200     波特率uart
+            bootargs=console=ttySAC0,115200n8 androidboot.console=ttySAC0 lcd=S70
+                                启动kernel的参数;
+                     ^ kernel输出设备console -> /dev/ttySAC0
+                                              ^ android输出设备
+                                                                          ^显示屏的分辨率
+                                                                          480*800
+            bootcmd=movi read kernel 0 40008000;movi read rootfs 0 41000000 400000;bootm 40008000 41000000
+                                3s后自动启动执行的命令
+                              ^kernel分区
+                                     ^sd/mmc
+                                       ^内存地址40008000
+                                                          ^ramdisk
+                                                                                  ^启动内核
+            bootdelay=3         Ns后自动启动
+            ethaddr=00:40:5c:26:0a:5b
+            gatewayip=192.168.0.1
+            ipaddr=192.168.0.20
+            netmask=255.255.255.0
+            serverip=192.168.0.10
+        printenv bootdelay
+        setenv
+            setenv bootdelay 10
+            setenv bootdelay 0      自动启动系统bootcmd
+            setenv abc 123          添加设置abc 变量
+            setenv abc              删除变量abc
+        saveenv 
+        reset 
+        
+        fdisk 
+            fdisk -p 0
+            fdisk -c 0 320 806 518
+
+        fatformat
+            fatformat mmc 0:1
+
+        fastboot
+            [Partition table on MoviNAND]
+            ptn 0 name='fwbl1' start=0x1000A len=N/A (use hard-coded info.(cmd: movi))
+            ptn 1 name='bl2' start=N/A len=N/A (use hard-coded info. (cmd:movi))
+            ptn 2 name='bootloader' start=N/A len=N/A (use hard-coded info.(cmd: movi))
+            ptn 3 name='tzsw' start=N/A len=N/A (use hard-coded info. (cmd:movi))
+            ptn 4 name='kernel' start=N/A len=N/A (use hard-coded info. (cmd:movi))
+            ptn 5 name='ramdisk' start=N/A len=0x6800(~27262976KB) (usehard-coded info. (cmd: movi))
+            ptn 6 name='system' start=0x1000A len=0x51888(~341975040KB)     <-android系统
+            ptn 7 name='userdata' start=0x1000A len=0xC9FAE(~847165440KB) 
+            ptn 8 name='cache' start=0x1000A len=0x81B64(~544051200KB) 
+            ptn 9 name='fat' start=0x1000A len=0x5A736E(~1775089664KB) 
+
+. 开始烧写android系统
+    board:
+        fastboot
+    pc:
+        烧写工具:
+            cd tools/ 
+            tar xf android_tools.tgz
+            cd usr/local/bin/
+            cp * /usr/local/bin/
+            cd ../../../
+            rm -rf usr
+            cd ../
+        烧写内核:
+            cd android_0822/
+            fastboot flash kernel zImage        烧写内核
+            mmc    start   Count
+            0      1057    12288
+
+            fastboot    -w                      格式化userdata cache
+
+            fastboot flash ramdisk ramdisk-u.img    烧写内存文件系统android的/目录
+                   start    Count
+                   13345    361
+
+            fastboot flash system system.img    烧写android文件系统
+                   start
+                    ???
+
+        设置启动参数
+        uboot:
+            setenv bootargs console=ttySAC0,115200n8 androidboot.console=ttySAC0 lcd=S70
+            saveenv
+
+        重启board
+
+. android系统下执行c 代码
+    传输工具:
+        pc:
+            adb push 1.c /cache     上传
+            adb pull /cache/a.out . 下载
+
+    编译和执行:
+        pc:
+            arm-linux-gcc -static 1.c -o 1      (android默认不支持c代码运行,使用静态编译)
+            adb push 1 /cache
+        board:
+            ./1
+
+
+
+

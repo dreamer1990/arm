@@ -1,0 +1,20 @@
+ 
+2016年 04月 17日 星期日 11:53:42 CST
+
+
+
+[问题]
+    nfs
+    mount clntudp_create: RPC: Program not registered
+
+    重启portmap nfs 服务 
+    service portmap restart
+    service nfs restart
+
+
+
+2. 自己查询http服务器的搭建
+        
+    vim /etc/httpd/conf/httpd.conf 
+
+    虚拟主机

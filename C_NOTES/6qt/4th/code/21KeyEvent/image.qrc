@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>image/cat.gif</file>
+        <file>image/dog.gif</file>
+    </qresource>
+</RCC>

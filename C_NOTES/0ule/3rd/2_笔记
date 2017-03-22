@@ -1,0 +1,583 @@
+
+课程内容：
+ 	1. 用户管理和组管理
+	2. 文件所有者和权限
+	3. 环境变量、命令别名与命令历史
+	4. 网络相关的配置
+	5. 常用网络工具(了解)
+	6. 系统基本命令
+
+
+
+一、用户管理
+
+	用户分类
+
+		管理员                      根用户user id一定为0，务必唯一
+		系统用户                    伪用户,user id 1-499,默认是不允许登录系统，用于给予某些服务运行时候所用的身份
+		普通用户                    user id 500-60000, 通过手工或都命令建立起来的用户，默认可以进行登录系统
+
+	用户管理
+
+		用户相关配置文件
+
+		/etc/passwd
+		/etc/shadow
+
+        man 5 passwd  查看配置文件字段的意思
+		vim /etc/passwd
+
+		第一列：用户名
+		第二列：密码    x代表密码存放在/etc/shadow里，如果去掉x就代表此用户没有密码
+		第三列：uid 用户ID值操作系统是不认识用户名，只认uid
+		第三列：gid,用户组的ID
+		第五列：描述项
+		第六列：指定家目录(主目录)
+		第七列：指定bash
+
+		vim /etc/shadow
+
+		第一列：用户名
+		第二列：真实的密码，经过加密的，以*或都!号开头的不能登录
+		第三列：上一次修改密码的时间，linux以1970年1月1日到现在的天数来算的
+		第四列：修改密码后几天内不允许再修改， 0代表不限制
+		第五列：多少天内必须修改密码，99999代表不限制
+		第六列：过期前几天给你一个警告信息
+		第七列：密码过期后的一个宽限时间
+		第八列：这里可以写一个实际的账号过期天数，也是以1970年1月1日到现在来算的，多用于收费系统
+		第九列：保留，留着以后功能扩展
+
+	用户命令相关配置文件,保存useradd命令创建用户使用的默认值
+
+		/etc/default/useradd
+		/etc/login.defs
+
+
+	用户相关命令
+
+
+		useradd/adduser
+		userdel/deluser
+		usermod
+		passwd
+
+        useradd tom     增加普通用户tom
+        passwd  tom     修改普通用户tom的密码
+        userdel -r tom  删除用户tom并且移除该用户相关的目录
+        usermod -c "hello" tom 修改tom用户的描述项
+
+
+
+		id 				   打印用户的成员身份信息  
+			id -g		   打印有效的组ID	
+			id -G		   打印所有的组ID
+			id -u		   打印有效的用户ID
+			id -n 		   打印用户名或组名称，而不是数字，需要与以上三个选项配合使用，不能单独使用
+	
+		whoami			   打印与当前生效的用户 ID 关联的用户名。
+
+		users			   打印当前登录用户的简单列表
+
+		w				   打印当前登录用户的详细信息
+			w -h		   跳过标题
+			w -s  		   简短列表
+			w -f   		   不要显示FROM字段
+
+		[root@localhost pub]# w
+			20:23:48 up  1:01,  6 users,  load average: 0.08, 0.04, 0.06
+			USER     TTY      FROM              LOGIN@   IDLE   JCPU   PCPU WHAT
+			root     :0       -                19:23   ?xdm?  35.33s  0.13s /usr/bin/gnome-session
+		
+		USER	登录用户的用户名		
+		TTY		用户登录的终端
+		FROM	如果用户从网络登录，用户使用的主机名
+		LOGIN@	用户开始会话的时间
+		IDLE	终端已经空闲的时间
+		JCPU	与终端会话相关，所有当前运行进程消耗的CPU时间总量
+		PCPU	在“WHAT”字段中命名的唯一一个当前进程所消耗的CPU时间总量
+		WHAT	用户当前运行的进程
+
+		who		打印当前登录用户详细的信息
+	
+		useradd a          创建一a用户
+		useradd -g kyo a   新建a用户并且把a用户添加进kyo用户组
+		userdel a          删除a用户
+		userdel -r a       删除a用户并且删除a的家目录和邮件目录
+		passwd a           修改a用户密码
+		passwd -l a        临时关闭用户,或修改/etc/shadow第二个字段加*
+		passwd -u a        释放临时关闭用户
+
+		usermod            修改用户信息
+		-u                 修改UID
+		-g                 修改GID
+		-d                 指它家目录
+		-s                 指用bash
+		usermod -G kyo a            把a用户添加进kyo用户组
+
+
+	用户信息相关的命令
+	chfn                        修改一个用户相关的信息
+	finger                      查看一个用户相关的信息
+
+
+	组管理(了解)
+
+		相关配置文件
+
+		/etc/group
+		/etc/gshadow
+
+		vim /etc/group
+		第一列：组名
+		第二列：密码，x代表密码在/etc/gshadow
+		第三列：gid 组ID
+		第四列：定义组成员的用户名列表，用逗号隔开
+
+		vim /etc/gshadow
+		第一列：组名
+		第二列：密码
+		第三列：组管理员
+		第四列：组成员
+
+	相关命令
+
+		groupadd                添加一新用户组
+		groupdel                删除一用户组
+		groupmod                修改用户组信息
+		gpasswd                 修改用户组密码
+		gpasswd -a a root       把a用户放进root用户组
+		gpasswd -A a root       把a用户放进root用户组并当管理员
+		gpasswd -d a root       把a用户从root用户组里删除
+		newgrp root             把当前用户临时添加进root用户组，重新登录失效
+
+	用户身份切换
+
+		su - a                      完全切换，不继承上一个用户的环境变量，即sbin目录下的命令用不了
+		su   a                      不完全切换，继承上一个用户的环境变量，可以用sbin目录下的命令
+
+
+	================================================================================
+
+二、文件所有者及权限
+
+	ls -l
+
+		-   rw-             r--           r--     1 root root 4383 2011-03-01 01:37 readme.txt
+		所属用户权限u 所属用户组权限g 其它人权限o
+
+		r                           read 读权限
+		针对文件夹，具有r权限，就代表具有对这个文件夹进行列表的权限
+		针对文件，具有r权限，就代表具有读取这个文件的内容的权限
+
+		w                           write 写权限
+		针对文件夹，具有w权限，代表具有他能在此文件夹里创建修改等操作
+		针对文件，具有w权限，代表具有修改此文件内容的权限
+
+		x                           execute 执行权限
+		针对文件夹，具有x权限，代表可以切换到此文件夹
+		针对文件，具有x权限，代表可以运行它，文件必须是可执行或脚本等
+
+
+	二进制转八进制：
+
+		000     0       ---
+		001     1       --x
+		010     2       -w-
+		011     3       -wx
+		100     4       r--
+		101     5       r-x
+		110     6       rw-
+		111     7       rwx
+
+		rwx, r-x, r-x
+		7    5      5
+
+-------------------------------------------------------------
+chmod                           修改权限的命令
+
+	chmod u+x,g+r,o-r file      修改file文件用户权限加上可执行权限，用户组也加上读权限，其它用户减去读权限
+	chmod u=rwx,g=rw,o=r file   修改file文件用户权限为可读可写可执行，用户组为可读可写权限，其它用户为读权限
+	chmod 755 file              修改file文件用户权限为可读可写可执行权限，用户组为可读可执行权限，其它用户也为可读可执行权限
+	chmod 755 dirs -R           修改dirs目录里所有文件的用户权限为可读可写可执行权限，用户组为可读写执行权限，其它用户也为可读可执行权限
+
+-------------------------------------------------------------
+
+	chown                           修改文件用户所属
+
+	chown tom file              修改file文件所属用户为tom
+    chown :tom file             修改file文件所属用户组tom
+	chown tom:jack file         修改file文件的所属用户为tom,所属用户组为jack
+	chmod jack.root dirs -R     修改dirs目录里所有文件所属用户为jack，所属用户组为root
+
+
+-------------------------------------------------------------
+
+	umask                           默认创建文件或文件夹权限掩码
+
+    umask 0002 修改umask的值
+	管理员默认umask为022
+	普通用户默认umask为002
+
+	默认创建文件夹权限是777,而掩码设置为022,则要减去掩码，默认创建文件夹权限则变成755
+	默认创建文件权限是666，而掩码设置为022,则减去掩码，默认创建文件权限为644
+
+
+-------------------------------------------------------------
+
+	特权位                          针对命令文件，设定setuid、setgid
+
+	针对命令文件设定setuid、setgid
+
+	没加特权位之前，命令运行的时候所采用的身份是运行者的身份
+	添加了特权位之后，命令运行的时候采用的身份不再是运行者的身份，而是命令本身的所属者
+	例：passwd touch
+
+	针对目录设定setgid
+
+	设定了组的特权位后，在该文件夹下创建子文件或子目录，它们自动继承文件夹的所属组的身份,子目录会继承目录的特权位
+
+
+	chmod u+s/g+s  file         给file设置特权位 
+	chmod u-s/g-s  file         给file取消特权位
+
+
+-------------------------------------------------------------
+
+	粘贴位                          防止其它用户删除文件，针对其它用户，管理员和本人可以删除，针对目录有效，文件没有用
+
+	chmod o+t dirs              给dirs目录设置粘贴位
+
+
+-------------------------------------------------------------
+
+	文件特殊属性
+
+	lsattr                      查看文件特殊属性
+
+	chattr                      添加或修改文件特殊属性
+
+	chattr +i file          添加i属性，管理员也不得更改
+	chattr +a file          只能追加内容，不得修改内容，如果有i属性，先取消才能加a属性
+	chattr -i/-a file       取消文件特殊属性
+
+===============================================================================
+
+三 环境变量、命令别名与命令历史
+
+	env                             显示当前shell定义的环境变量，包括当前用户的环境变量 
+
+	set                             显示当前shell定义的私有变量，包括用户环境变量,按变量名称排序
+
+	export                          显示当前导出成用户变量shell变量，并显示变量的属性，按变量名称排序
+
+
+	用户环境变量相关配置文件
+	路径：/home/用户名/  或  /root/
+
+	.bash_history               用户退出登录之后记录之前的历史命令，logout后才会把当前命令历史添加到此文件
+	.bash_logout                用户退出登录时执行的代码，前提是logout退出或su切换用户用exit或logout才会生效
+	.bash_profile               用户的环境变量常规设定的地方,用户登录时执行
+	.bashrc                     命令别名的设定地方，打开终端时执行
+
+	全局环境变量相关配置文件
+
+	/etc/bashrc                 和上述一样，只不过这是全局，所有用户都影响
+	/etc/profile
+
+	source /etc/profile         立即生效对/etc/profile文件的修改
+	. /etc/profile              功能同上
+
+
+	命令历史
+
+	history                     查看当前用户的历史命令
+
+	!!                      重复执行上一条命令
+	!a                      重复执行上一条以a为首的命令
+	!100                    重复执行第100条命令
+	!$                      获取上一条命令的参数，多用于获取路径
+
+	history 10                  显示最后10条命令历史
+	history -c                  清除命令历史
+	history -r  a.history       把a.history的命令读到命令历史列表中
+	history -w  b.history       把当前命令历史写到b.history文件中
+
+
+	命令别名
+
+	alias                       列出目前所有的别名设置
+	alias ls='ls -l'            创建ls -l的别名为ls, 只在本shell生效，而且重启终端即失效
+	unalias ls                  释放ls -l的别名
+
+	永久生效就把alias创建加入到bashrc里即可
+
+
+	bash快捷键
+
+	tab                         一次补完命令行或文件名，二次可以列出所有匹配的选择
+	ctrl+c                      结束当前的任务
+	ctrl+z                      当前任务暂停放在后台
+	ctrl+l                      清屏
+	ctrl+d                      标准输入结束或光标左边的一个字符
+	ctrl+h                      删除光标左边的一个字符
+	ctrl+u                      删除光标左边的所有字符
+	ctrl+k                      删除光标右边的所有字符
+	ctrl+t                      调换光标前两个字符的次序
+	ctrl+a                      将光标移动到命令首字符
+	ctrl+e                      将光标移动到命令尾字符
+	ctrl+n                      下一个命令历史
+	ctrl+p                      上一个命令历史
+	ctrl+f                      移动光标到后一个字符
+	ctrl+b                      移动光标到前一个字符
+
+	eg:
+	cat /dev/zero > /dev/null   ----> ctrl + c 终止
+	cat	 ----> ctrl + D 正常终止输入
+
+===============================================================================
+
+四 网络相关配置(掌握)
+        
+        mii-tool                            查看网卡连接
+            no link                         网线不通
+            link ok                         代表网线ok
+            NO-MII....                      网卡模块没有加裁或网卡和主板连接问题
+
+        ifconfig                            查看所有网卡信息
+            
+            ifconfig eth0                   查看eth0网卡信息
+            ifconfig eth0 down              临时关闭eth0网卡,可以简写 ifdown eth0
+            ifdown eth0                     同上
+            ifconfig eth0 up                临时开启eth0网卡,可以简写 ifup eth0
+            ifup eth0                       同上
+            ifconfig eth0 2.2.2.12          临时设置eth0网卡IP地址,重启电脑或重启网络服务失效
+            ifconfig eth0 2.2.2.12 netmask 255.255.255.0 临时设置eth0网卡IP地址和子网掩码
+            ifconfig eth0 hw ether 00:11:22:33:44:55    修改网卡硬件地址，这个永久生效
+
+            永久修改IP地址：
+                vim /etc/sysconfig/network-scripts/ifcfg-eth0
+                    
+                    DEVICE=eth0                 指定设备号
+                    BOOTPROTO=dhcp              指定IP分配方式，dhcp为动态分配，static为静态分配
+                    HWADDR=00:23:CD:94:B5:92    物理地址,这里不是修改网卡硬件地址，只是起个绑定作用，可不写
+                    IPADDR=2.2.2.12             IP地址
+                    NETMASK=255.255.255.0       子网掩码
+                    GATEWAY=2.2.2.1             网关
+                    ONBOOT=yes                  是否启用这个网卡
+
+                service network restart         重启网络服务，使配置生效
+                /etc/init.d/network restart     同上
+
+                图形配置：
+                    system-config-network 
+
+        ping                                检测网络的连通性
+            
+            -c                              指定ping多少次
+            -i                              指定时间
+            
+        hostname                            查看或临时修改主机名,主机名最好是域名形式
+            
+            hostname up.uplooking.com      修改主机名，立即生效
+
+            永久修改主机名：
+                
+                vim /etc/sysconfig/network  
+                    HOSTNAME=kyo.uplooking.com      永久修改
+
+                vim /etc/hosts                      在hosts文件里写上IP地址和主机名对应，不写会影响X server
+                    2.2.2.12  kyo.uplooking.com     
+
+
+        vim /etc/resolv.conf                指定DNS服务器IP地址，最多支持三个，写多无效
+
+            nameserver 2.2.2.1
+            nameserver 202.96.128.166
+
+
+
+
+    五、常用网络工具 (了解)
+    
+        route                               路由表设定和查看
+            
+            -n                              不把IP地址转为域名输出，会快很多
+
+            route add default gw 2.2.2.1    添加网关
+            route del default gw 2.2.2.1    删除网关
+            route add -net 2.2.2.0  netmask 255.255.255.0 dev eth0  添加一个路由条目
+            route del -net 2.2.2.0  netmask 255.255.255.0 删除一个路由条目
+        
+        cat /proc/net/dev                   监控网卡数据流量
+            
+            bytes                           接收或者发送的数据量的总大小
+            packets                         接收和发送的数据包的个数
+            errs                            被驱动程序检测到是错误的包个数
+            drop                            由于资源的限制，来的不处理丢掉的包
+            fifo                            缓存出现
+            colls                           冲突包次数
+
+        netstat                             显示网络连接情况
+
+            netstat  -r -n                  显示路由表
+            netstat  -i -e                  显示网卡信息
+            netstat  -a                     查看所有类型的连接信息
+            netstat  -nt                    查看所有的tcp的连接信息(-t),-n不把IP转换成域名
+            netstat  -ntl                   只查看tcp连接并且是处于listen状态
+            netstat  -utl                   只查看udp连接并且是处于listen状态
+            netstat  -ntlp                  显示打开的连接对应的程序，-p 显示程序的路径
+
+        tcpdump                             抓包工具
+            
+            tcpdump  arp                    捕捉arp协议的数据包
+            tcpdump  tcp                    捕捉tcp协议的所有数据包
+            tcpdump  udp                    捕捉udp协议的所有数据包
+            tcpdump  tcp port 22            捕捉tcp协议并且是端口22的数据包
+            tcpdump  tcp port 22 -vv        同上并且把数据包的详细信息都记录下来
+            tcpdump  tcp src port 22        只记录源端口是22的数据包
+            tcpdump  dst 2.2.2.10           只记录目的IP是2.2.2.10的数据包
+            tcpdump  tcp dst port 80        只记录访问本机80端口的数据包
+            tcpdump  tcp dst port 80 -vv -w /tmp/test/http.cap   把记录保存到文件中
+
+		traceroute 							诊断路由问题
+
+        ssh                                 远程登录
+           
+		服务器端的配置:
+            vim /etc/ssh/sshd_config        ssh服务的主配置文件
+                
+                Port 22                     默认使用的端口,为了安装一般把这端口改变，用-p后接端口,scp就要用-P指定端口
+                PermitRootLogin yes         允许root用户登录
+                Permitemptypasswords yes    允许空密码登录
+
+            设置好重启下ssh服务
+                
+                /etc/init.d/sshd restart
+
+            --------------------------------------------------------------------------------
+
+		客户端连接:
+            iptable -F                      关闭防火墙
+
+            ssh 2.2.2.100                   远程登录2.2.2.100，以当前登录用户去登录2.2.2.100，第一次登录需要确认，然后输入对方用户密码登录
+
+            ssh kyo@2.2.2.100               以kyo用户去登录2.2.2.100
+
+            ssh 2.2.2.100 -l kyo            同上
+
+            ssh 2.2.2.100 -l kyo -p 2222    以kyo登录2.2.2.100,并且指定端口号
+
+            ssh 2.2.2.100 -Y                登录后可以调用2.2.2.100这台机的图形程序到本地来显示
+
+            ssh 2.2.2.100 -X firefox        直接调用2.2.2.100的firefox程序
+
+             一个ssh错误的情况:
+            ssh 2.2.2.100
+            @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            @    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+            @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+            Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+            It is also possible that the RSA host key has just been changed.
+            The fingerprint for the RSA key sent by the remote host is
+            de:d5:ea:a8:34:d2:86:97:af:44:26:56:f9:84:3a:e4.
+            Please contact your system administrator.
+            Add correct host key in /root/.ssh/known_hosts to get rid of this message.
+            Offending key in /root/.ssh/known_hosts:3
+            RSA host key for 10.1.0.100 has changed and you have requested strict checking.
+            Host key verification failed.
+
+
+            --遇到此错误，有可能是因为100这个IP换了另一台主机在使用；解决方法：把/root/.ssh/known_hosts里关于100的那一行RSA　KEY信息给删除掉，保存退出后就可以再连
+
+        exit            退出登录
+        --------------------------------------------------------------------------------
+
+        远程拷贝　　scp	--拷目录的话记住加上-r参数
+
+        从本地拷到远程
+            scp /share/iso/rhel-5.5-server-i386-dvd.iso 2.2.2.100:/root/Desktop/
+
+        从远程拷到本地
+            scp 2.2.2.100:/root/Desktop/123 /root   
+
+            scp /root/Desktop/isocp.sh kyo.com:/root/Desktop/	--也可以使用主机名去代替IP表示远程主机，但要加到/etc/hosts里才可以
+
+
+======================================================================
+	六  系统基本命令
+                      
+        file                                查看文件类型
+
+        uname                               查看系统基本信息
+            
+            -r                              内核版本
+            -s                              什么内核
+            -o                              什么操作系统
+            -n                              什么发行版
+            -m                              什么平台
+            -a                              查看所有信息
+
+        cal                                 打印日历
+            cal 2005                        打印2005年日历
+            cal 3 2016                      打印2016年3月的日历
+
+        bc                                  支持超大数的文本计算器
+            quit                            退出
+
+        date                                时间日期命令 
+            
+            +%Y                             年
+            +%m                             月
+            +%d                             日
+            +%H                             小时
+            +%M                             分
+            +%S                             秒
+            ......
+        date +%F                            打印当前的日期 
+
+        echo                                打印字符串
+
+            -n                              不换行
+            -e                              支持\t\n等
+
+        shutdown -k                         发送提示消息，并不会重启 
+        shutdown -r                         重启
+        shutdown -c                         取消计划中的关机或重启
+        shutdown -p                         直接关闭电源
+        shutdown -h                         关机
+        shutdown -h 30 "30秒后就要关机"     计划关机并给所有终端提示
+
+        init                                改变系统运行级别
+            
+            0                               关机
+            1                               单用户模式，没有用户和密码验证
+            2                               不带网络的文本模式
+            3                               带网络的文本模式
+            4                               保留
+            5                               带图形界面的模式
+            6                               重启电脑
+        init 0  关机
+        init 6  重启
+        init 3  进入带网络的文本模式
+
+        runlevel                            查看当前运行级别
+
+        sync                                同步磁盘
+
+        cat /etc/issue                      查看linux系统发行版本信息
+        
+        运行程序：
+
+            ./command                       运行程序 
+            
+            ./command &                     &代表后台运行
+
+            ctrl+z                          把当前运行的程序放到后台暂停
+
+            fg                              放回前台运行,后面可以跟数字，指定哪个后台程序
+
+            ctrl+c                          强制关闭当前运行的程序
+
+
+===============================================================================

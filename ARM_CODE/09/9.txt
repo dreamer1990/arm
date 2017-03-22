@@ -1,0 +1,205 @@
+
+. cpu工作模式:
+    User        普通模式 
+    FIQ         快速中断 
+    IRQ         普通中断
+    Supervisor  超级管理员模式(bootloader/kernel)
+    Monitor     ...
+    Abort       异常模式(段错误)
+    Hyp         ...
+    Undefined   未定义模式
+    System      系统模式
+
+    r0-r15
+. user和kernel
+    user        -> api          -> kernel
+      bl printf         
+         bl write  sys_write        do_write -> 
+         lr = printf                    lr = ....
+         sp = (0-3G)                    sp = (3G-4G)
+
+                                    spsr 
+      if()                          if()
+         cpsr.NZCV                      cpsr.NZCV
+         lt                             lt
+         gt                             gt
+         le                             le
+         ...                            ...
+
+                                    cpsr = spsr
+
+    user :  stack (0-3G)
+            sp
+            lr
+
+    kernel: stack (3G-4G)
+            sp
+            lr
+            spsr  (用于保存cpsr的值)
+
+
+    cpsr.M (记录当前工作模式)
+        
+        
+    cpu -> cpsr.T -> 取指thumb/arm
+           cpsr.M -> PL0 -> 权限
+                     PL1
+                     PL2
+           cpsr.M -> r13_xxx
+                     sp_xxx
+
+
+. arm的寄存器:
+    user/system     svc             abort       undef       irq     firq
+    r0-r15          r0-r12,r15      r0-r12,r15     ...      ...     ... 
+    cpsr            cpsr            cpsr
+                    sp_svc          sp_abt                          r8-r12_firq
+                    lr_svc          lr_abt                          sp_firq
+                    spsr_svc        spsr_svc                        lr_firq
+                                                                    spsr_firq
+    
+. PL0/PL1/PL2
+             特权模式        普通模式       虚拟化模式
+                             user
+             PL1             PL0            PL2
+    AP: 11   读写            读写   
+        10   读写            只读
+        01   读写           不可访问
+        00   不可访问       不可访问
+
+. 模式切换:
+    user -> svc
+    user -> kernel
+
+    cpsr.M : user不能修改cpsr.M
+
+    svc -> user
+
+    普通模式 切换到 特权模式    失败;
+             cpsr.M
+
+    特权模式 切换到 其他模式    是可以;
+             cpsr.M
+
+    sp_user     没有初始化(随机数)
+    sp_svc      printf(); (bootloader初始化好的)
+
+    lr_user
+    lr_svc
+
+. 普通模式切换到特权模式
+    异常发生;
+
+    user -> 段错误 -> abort
+    user -> api    -> svc
+            svc
+            swi
+    
+. 异常:
+                                                                异常向量表
+                                                                SCTLR.V
+                                                             bootloader    kernel
+                                                                V=0          V=1
+                                    Exception base address = 0x00000000      0xFFFF0000
+    Reset                                   Supervisor          0x0
+        复位异常                                
+        1)硬件复位;
+        2)软件复位;
+
+    Undefined Instruction                   Undefined           0x4
+        未定义指令异常
+        1)译码阶段;
+
+        .word   0xffffffff
+        .word   0x77777777
+
+        代码没有对齐;
+
+    Supervisor Call                         Supervisor          0x8
+        系统调用异常
+        1)系统调用(执行成功)
+        swi #5
+             ^ 系统调用号
+        
+        user -> open(r0-r3) (api) -> swi #5 -> svc -> 0xffff0008 -> #5 -> sys_open (r0-r3)
+                ^ c 库函数
+       
+        唯一一种从用户态主动进入内核态的方法;
+
+
+    Prefetch Abort                          Abort               0xc
+        预取指令异常
+        1)取指阶段;
+
+        --> ldr r0, [r1]    
+        当前指令所在的地址不可访问;
+                          mmu 没有映射;
+                          1M
+
+    Data Abort                              Abort               0x10
+        预取数据异常
+        1)执行阶段(执行失败)
+
+        ldr r0, [r1]
+                 ^ r1指向的地址不可访问;
+
+    IRQ interrupt                           IRQ                 0x18
+        普通中断异常
+        1)中断触发;
+
+        一定是在上一条指令执行完后才触发;
+
+    FIQ interrupt                           FIQ                 0x1c
+        快速中断异常
+        1)中断触发;
+
+        一定是在上一条指令执行完后才触发;
+
+. reset
+    SWRESET
+
+
+. WDT_reset
+    WTCON       0x10060000
+        [15:8]      0-255
+        [5]         enable
+        [4:3]       00 = 16 
+                    01 = 32 
+                    10 = 64 
+                    11 = 128 
+        [2]         0/1 enable irq
+        [0]         reset signal 
+
+    WTDAT       0x10060004
+        [15:0]      0-65535     WTCNT计数到0, 产生中断后装载;
+
+    WTCNT       0x10060008
+        [15:0]      0-65535     计数到0产生中断或者复位;
+
+    WTCLRINT    0x1006000C
+        [31:0]      Write any value to clear the interrupt
+
+    PCLK/(255+1)/128 = 3052HZ
+    100MHZ
+
+
+. PMU
+    AUTOMATIC_WDT_RESET_DISABLE     0x10020408
+        [20]        0   enable wdt reset
+
+    MASK_WDT_RESET_REQUEST          0x1002040C
+        [20]        0   enable wdt reset
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,77 @@
+
+1. QString类
+
+    #include <QString>
+
+    a. 构造函数
+        QString ()
+        QString ( const QChar * unicode, int size )
+        QString ( QChar ch )
+        QString ( int size, QChar ch )
+        QString ( const QLatin1String & str )
+        QString ( const QString & other )
+        QString ( const char * str )
+        QString ( const QByteArray & ba )
+
+    b. 其他常用函数
+    
+        字符床追加函数
+        QString &   append ( const QString & str )
+        QString &   append ( const char * str )
+        QString &   append ( QChar ch)
+
+
+2. Layout
+
+
+    a. 水平布局
+
+    b. 垂直布局
+
+    c. 表格布局
+
+    d. 网格布局
+
+
+3. Button
+    
+    QPushButton
+
+4. 信号与槽
+
+    三种方式:
+    1. 手动关联
+     connect(sender, SIGNAL(destroyed()), this, SLOT(objectDestroyed(QObject*)));
+
+    2. go to slot 自动关联
+
+    3. 通过信号与槽编辑器编辑
+
+    一个信号可以被多个槽关联
+    一个槽可以关联多个信号
+    信号没有返回值，也不需要用户自己去实现
+
+5. QRadioButton
+    多个选项中只能选择一个
+
+
+6. QCheckBox
+    多选
+
+7. QToolButton
+    工具按钮
+
+8. QLabel
+    标签
+
+
+
+
+
+
+
+
+
+
+
+

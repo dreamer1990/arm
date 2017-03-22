@@ -1,0 +1,24 @@
+
+
+1. 实现单链表的头插操作：
+
+    //在链表的第一个结点前面插入一个结点
+    int slist_prepend(slist_t *s,  void *data);
+
+2. 实现单链表插入到指定的位置上的操作:
+    
+    //将该结点插入到第index个结点的位置上
+    int slist_insert_by_index(slist_t *s, void *data, int index);
+
+3. 实现单链表如下的函数 
+    
+    //通过关键字找所有的索引
+    slist_t *slist_find_all_by_key(slist_t *s, void *key, cmp_t my_cmp);
+
+
+
+homework:
+    实现链表的反转
+
+
+

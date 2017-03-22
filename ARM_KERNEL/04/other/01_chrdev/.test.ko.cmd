@@ -1,0 +1,1 @@
+cmd_/share/kernel/04/other/01_chrdev/test.ko := arm-linux-ld -EL -r  -T /share/data/linux-3.5-qt/scripts/module-common.lds --build-id  -o /share/kernel/04/other/01_chrdev/test.ko /share/kernel/04/other/01_chrdev/test.o /share/kernel/04/other/01_chrdev/test.mod.o

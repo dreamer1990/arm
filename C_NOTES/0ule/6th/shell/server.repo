@@ -1,0 +1,7 @@
+
+[Server]
+name=server
+baseurl=file:///var/ftp/pub/iso/Server
+        ftp://172.16.1.144/pub/iso/Server
+enabled=1
+gpgcheck=0

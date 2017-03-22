@@ -1,0 +1,34 @@
+
+start:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00008074 <_start>:
+    8074:	e92d4000 	push	{lr}
+    8078:	e59f001c 	ldr	r0, [pc, #28]	; 809c <_start+0x28>
+    807c:	e28f0008 	add	r0, pc, #8
+    8080:	e1a0e00f 	mov	lr, pc
+    8084:	e59ff014 	ldr	pc, [pc, #20]	; 80a0 <_start+0x2c>
+    8088:	e8bd8000 	pop	{pc}
+    808c:	6c6c6568 	cfstr64vs	mvdx6, [ip], #-416	; 0xfffffe60
+    8090:	6f77206f 	svcvs	0x0077206f
+    8094:	0a646c72 	beq	1923264 <__bss_end__+0x19131c0>
+    8098:	00000000 	andeq	r0, r0, r0
+    809c:	0000808c 	andeq	r8, r0, ip, lsl #1
+    80a0:	43e11a2c 	mvnmi	r1, #180224	; 0x2c000
+
+Disassembly of section .ARM.attributes:
+
+00000000 <.ARM.attributes>:
+   0:	00002541 	andeq	r2, r0, r1, asr #10
+   4:	61656100 	cmnvs	r5, r0, lsl #2
+   8:	01006962 	tsteq	r0, r2, ror #18
+   c:	0000001b 	andeq	r0, r0, fp, lsl r0
+  10:	4d524105 	ldfmie	f4, [r2, #-20]	; 0xffffffec
+  14:	36373131 	undefined instruction 0x36373131
+  18:	2d465a4a 	vstrcs	s11, [r6, #-296]	; 0xfffffed8
+  1c:	09060053 	stmdbeq	r6, {r0, r1, r4, r6}
+  20:	01090108 	tsteq	r9, r8, lsl #2
+  24:	Address 0x00000024 is out of bounds.
+

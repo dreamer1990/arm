@@ -1,0 +1,160 @@
+QT
+    QT概述
+        1.挪威TrollTech一家公司，最初目标Linux C++图形库，当是图形X Windows以C为主.
+        2.被KDE选作底层图形库.
+        3.GNOME是基于开源库GTK构造。QT公布一个开源版的程序库。用以解决KDE的版权问题.
+        4.Delphi是Linux版， Kylix也是采用QT作为底层库。SkyPe,Google Earth都是采用QT来设计的.
+        5.QT扩展Windows/MAC OS, 很多Windows C++程序员转向QT.
+        6.早期他没有集成环境，但是有一个简单的窗口绘制工具QT Designer.用于可视化窗口设计; 但是编译仍要采用对于OS的编程工具，如Linux下用Gcc/Make, windows用minGW/VC++.
+        7.QT有一个嵌入式版本Qte,产品代号是Qtopia，针对嵌入式设备的，大部分的ARM开发板采用Qtopia 2.2.
+        8.从QT4开始，所有版本开始统一.
+        9.2008年，QT被Nokia收购，并且在新版本推出一个集成开发环境QT Creator. 所有开发将在一个IDE完成; Qtpia改名为QtExtented.
+        10. 2009年，QT推出QT for WinCE.
+        11. 2009年5月，QT4.6推出，开始支持Symbian的开发,并且未来将作为Symbian主要开发平台.
+        12. 一个新支持6个平台的C++开发平台就产生，支持桌面的Linux/Windows/MacOS 和 嵌入式的Linux/WinCE/Symbian; 完整开发环境包括：Qt Creator、C++类库/源码.
+
+    QT的组成
+        Qt Designer Qt界面设计师， 用来可视化地设计应用程序界面.
+        Qt Linguist Qt语言学家，用来翻译应用程序，以此提供对多种语言的支持.
+        Qmake   使用此工具可以由简单的、与平台无关的工程文件来生成编译所需的Makefile.
+        Qt Assistant  关于Qt的帮助文件，可以快速地发现你所需要的帮助.
+
+        moc     元对象编译器.
+        uic     用户界面编译器，在程序编译时被自动调用，通过ui_*.h文件生成应用程序界面.
+        qembed  转换数据，比如，将图片转换为C++代码.
+
+    QT的安装
+        ./qt-sdk-linux-x86-opensource-2010.04.bin 
+        修改QTDIR环境变量
+            vim ~/.bashrc 或  / vim ~/.bash_profile
+                QTDIR=/opt/qtsdk-2010.04/qt
+                export PATH=/opt/qtsdk-2010.04/bin:$QTDIR/bin:$PATH
+				export QTDIR
+            . ~/.bashrc 或重启注销使环境变量生效
+        测试：
+            echo $QTDIR     指向 /opt/qtsdk-2010.04/qt
+            which qmake     指向 /opt/qtsdk-2010.04/qt/bin/qmake
+
+    QT 4 查看新特性：
+        /opt/qtsdk-2010.04/qt/bin/qtdemo
+        源码路径： /opt/qtsdk-2010.04/qt/demos
+    
+    Qt 4 项目：
+        一个完成项目包括：
+            *.pro       项目文件
+            *.ui        界面设计文件
+            .cpp/.h     源码文件
+            Makefile    编译文件
+        
+        能过QtCreator向导创建项目：
+            在QtCreator欢迎界面点击Develop --> Create Project... 或点击菜单File --> New File or Project (再或按快捷键Ctrl + N) 弹出创建项目窗口:
+                选择Qt C++ Project --> Qt Gui Application --> 点击Choose... --> 输出项目名称和存储项目路径 再点击Next --> 选择Qt 编译版本 --> 填写主源文件名，头文件名 界面设计文件名 基类名 --> Finish
+
+            创建文件：
+                Ctrl + N --> 选择 C++ --> C++ Source File --> 填写文件名和存储路径
+        
+    编译QT程序：
+        qmake hello.pro     生成makefile
+        make                编译
+
+    QtCreator 编译：
+        QtCreator需要调用qmake完成编译，如果没有安装Qt4的版本，将不会AutoDectectd, 必须手工设置qmake路径
+        在主菜单 tool --> Qoptions --> Qt4 --> Qt Version
+            如果Auto-Dected能找到Qt4则能正常编译，否则使用manual手工增加qmake
+
+        编译错误提示：undefined reference to `FcFreeTypeQueryFace`
+            是因为fontconfig版本太低，升级即可
+            tar -xf fontconfig-2.8.0.tar.gz 
+            cd fontconfig-2.8.0
+            ./configure --sysconfdir=/etc --prefix=/usr --mandir=/usr/share/man
+            make && make install
+
+        无法调试提示：libQtCore.so.4: cannot open shared object file...
+            这里调试器找不到对应动态库，所以把库路径添加到动态库搜索路径中
+            vim /etc/ld.so.conf   新增一行
+                /opt/qtsdk-2010.04/lib
+            保存退出后运行ldconfig刷新动态库即可
+    
+    Qt 项目主程序：
+        #include <QtGui/QApplication>
+        #include "mainwindow.h" 
+        
+        int main(int argc, char *argv[])
+        {
+            QApplication a(argc, argv);
+            MainWindow w;
+            w.show();
+            return a.exec();
+        }
+
+        QApplication类
+            主要负责窗口管理，接收用户输入并发送到焦点窗口
+            构造函数要求两个参数，因为Qt在一定程序上是支持命令行参数
+            exec 方法 事件循环，表示开始接收各种事件
+
+        MainWindow 类
+            窗口类 show方法为显示主窗口
+
+
+快捷键：
+    F1                  选择某一类或函数，出现帮助文档
+    F2                  选择某一类或函数，声明和定义之间切换
+    F4                  源文件和头文件之间切换
+
+    F5                  调试
+    Shift + F5          停止调试
+    F9                  调试切换断点
+    F10                 单目调试下一步 
+    F11                 单目调试下一步并进入函数
+    Shift + F11         单目调试跳出函数
+    Ctrl + Shift + F5   重启调试
+
+
+    Ctrl + 1            切换到欢迎模式
+    Ctrl + 2            切换到编辑模式
+    Ctrl + 3            切换到调试模式
+    Ctrl + 4            切换到项目模式
+    Ctrl + 5            切换到帮助模式
+    Ctrl + 6            切换到输出模式
+    ESC                 返回代码编辑状态
+
+    Alt + 方向左或右    编辑页面之间切换
+
+    Ctrl + Space        自动完成(和切换输入法冲突，所以到按键设置把里CompleteThis修改快捷键)
+
+    Alt + 0             隐藏或显示边栏
+    Alt + 1             切换到生成窗口
+    Alt + 2             切换到搜索结果窗口
+    Alt + 3             切换到应用输出窗口
+    Alt + 4             切换到编译输出窗口
+
+    Ctrl + F            查找当前文档
+    F3                  查找下一个关键词
+    Shift + F3          查找上一个关键词
+    Ctrl + Shift + F    弹出查找对话框
+    
+    Ctrl + .            下一个书签
+    ctrl + ,            上一个书签
+    Ctrl + m            创建/取消书签
+
+移动到类名上按F2 获取类的实现
+            按F1 获取类的帮助
+
+ctrl + R        运行测试
+F5              进行调试
+
+
+
+
+手动编译Qt项目的步骤
+    a. 生成项目配置文件 .pro
+    [root@deng 1hello]# qmake -project
+    b. 生成Makefile文件 
+    [root@deng 1hello]# qmake 1hello.pro 
+    c. 生成可执行文件
+    [root@deng 1hello]# make 
+    d. 执行可执行文件
+    [root@deng 1hello]# ./1hello 
+
+
+

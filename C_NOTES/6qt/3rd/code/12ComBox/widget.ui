@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Widget</class>
+ <widget class="QWidget" name="Widget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Widget</string>
+  </property>
+  <widget class="QComboBox" name="comboBox">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>60</y>
+     <width>78</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>北京</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>上海</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>广州</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>深圳</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>20</y>
+     <width>171</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>请选择你喜欢的城市: </string>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="textEdit">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>100</y>
+     <width>331</width>
+     <height>181</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>60</y>
+     <width>88</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>清空</string>
+   </property>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

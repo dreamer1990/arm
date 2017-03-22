@@ -1,0 +1,1 @@
+cmd_/share/kernel/12/lcd/03/test.ko := arm-linux-ld -EL -r  -T /share/data/linux-3.5-qt/scripts/module-common.lds --build-id  -o /share/kernel/12/lcd/03/test.ko /share/kernel/12/lcd/03/test.o /share/kernel/12/lcd/03/test.mod.o

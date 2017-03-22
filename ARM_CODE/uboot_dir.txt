@@ -1,0 +1,20 @@
+
+cd /disk/A9/uboot_tiny4412-master/
+
+
+arch/arm/cpu/armv7/exynos/      核心目录
+arch/arm/cpu/armv7/start.S      u-boot的入口函数  查看   u-boot.lds
+arch/arm/lib/                   arm库文件
+arch/arm/include/asm/arch-exynos/      arm头文件
+
+board/samsung/tiny4412/         核心目录
+boards.cfg                      支持的所用板子的表
+common/main.c					上层的入口函数
+drivers							驱动目录
+fs								文件系统目录
+include							通用头文件
+lib								通用库
+sd_fuse							烧写SD卡目录 
+include/configs/tiny4412.h      板子环境变量头文件
+
+

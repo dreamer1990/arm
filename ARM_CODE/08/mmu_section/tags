@@ -1,0 +1,71 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ADCCON	include/adc.h	5;"	d	language:C++
+ADCDAT	include/adc.h	6;"	d	language:C++
+ADCMUX	include/adc.h	7;"	d	language:C++
+ADC_CFG	include/adc.h	4;"	d	language:C++
+CC	Makefile	/^CC = $(CROSS_COMPILE)gcc$/;"	m	language:Make
+CC_FLAGS	Makefile	/^CC_FLAGS = -c -I .\/include$/;"	m	language:Make
+CROSS_COMPILE	Makefile	/^CROSS_COMPILE = arm-linux-$/;"	m	language:Make
+GPD0CON	include/gpio.h	6;"	d	language:C++
+GPD0DAT	include/gpio.h	7;"	d	language:C++
+GPM4CON	include/gpio.h	4;"	d	language:C++
+GPM4DAT	include/gpio.h	5;"	d	language:C++
+GPX3CON	include/gpio.h	8;"	d	language:C++
+GPX3DAT	include/gpio.h	9;"	d	language:C++
+LD	Makefile	/^LD = $(CROSS_COMPILE)ld$/;"	m	language:Make
+LD_FLAGS	Makefile	/^LD_FLAGS = -T start.lds$/;"	m	language:Make
+LIBC	Makefile	/^LIBC = libc.a$/;"	m	language:Make
+LIBS	Makefile	/^LIBS = lib.o main.o led.o buzzer.o key.o$/;"	m	language:Make
+OBJCOPY	Makefile	/^OBJCOPY = $(CROSS_COMPILE)objcopy$/;"	m	language:Make
+OBJCOPY_FLAGS	Makefile	/^OBJCOPY_FLAGS = -O binary$/;"	m	language:Make
+OBJDUMP	Makefile	/^OBJDUMP = $(CROSS_COMPILE)objdump$/;"	m	language:Make
+OBJDUMP_FLAGS	Makefile	/^OBJDUMP_FLAGS = -D$/;"	m	language:Make
+OBJS	Makefile	/^OBJS = start.o$/;"	m	language:Make
+TAG	Makefile	/^TAG = start$/;"	m	language:Make
+__ADC_H__	include/adc.h	2;"	d	language:C++
+__CONFIG_H__	include/config.h	2;"	d	language:C++
+__GPIO_H__	include/gpio.h	2;"	d	language:C++
+__TYPE_H__	include/type.h	2;"	d	language:C++
+_start	start.s	/^_start:$/;"	l	language:Asm
+adc_data	adc.c	/^int adc_data(void)$/;"	f	language:C	signature:(void)
+adc_end_flag	adc.c	/^int adc_end_flag(void)$/;"	f	language:C	signature:(void)
+adc_init	adc.c	/^void adc_init(void)$/;"	f	language:C	signature:(void)
+adc_start	adc.c	/^void adc_start(void)$/;"	f	language:C	signature:(void)
+buzzer_init	buzzer.c	/^void buzzer_init(void)$/;"	f	language:C	signature:(void)
+buzzer_off	buzzer.c	/^void buzzer_off(void)$/;"	f	language:C	signature:(void)
+buzzer_on	buzzer.c	/^void buzzer_on(void)$/;"	f	language:C	signature:(void)
+delay	lib.c	/^void delay(volatile unsigned int val)$/;"	f	language:C	signature:(volatile unsigned int val)
+get_2bit	include/config.h	21;"	d	language:C++
+get_bit	include/config.h	19;"	d	language:C++
+get_nbit	include/config.h	23;"	d	language:C++
+get_val	include/config.h	25;"	d	language:C++
+key_get	key.c	/^unsigned int key_get(void)$/;"	f	language:C	signature:(void)
+key_init	key.c	/^void key_init(void)$/;"	f	language:C	signature:(void)
+led_alloff	led.c	/^void led_alloff(void)$/;"	f	language:C	signature:(void)
+led_allon	led.c	/^void led_allon(void)$/;"	f	language:C	signature:(void)
+led_get	led.c	/^v32 led_get(void)$/;"	f	language:C	signature:(void)
+led_init	led.c	/^void led_init(void)$/;"	f	language:C	signature:(void)
+led_off	led.c	/^void led_off(v32 val)$/;"	f	language:C	signature:(v32 val)
+led_on	led.c	/^void led_on(v32 val)$/;"	f	language:C	signature:(v32 val)
+led_set	led.c	/^void led_set(v32 val)$/;"	f	language:C	signature:(v32 val)
+main	main.c	/^int main(void)$/;"	f	language:C	signature:(void)
+printf	include/config.h	30;"	d	language:C++
+set_2bit	include/config.h	12;"	d	language:C++
+set_bit	include/config.h	10;"	d	language:C++
+set_nbit	include/config.h	14;"	d	language:C++
+set_one	include/config.h	6;"	d	language:C++
+set_val	include/config.h	16;"	d	language:C++
+set_zero	include/config.h	8;"	d	language:C++
+ttb	main.c	/^u32 *ttb = (void *)0x70000000;  \/\/16K地址对齐; $/;"	v	language:C
+u16	include/type.h	/^typedef unsigned short u16;$/;"	t	language:C++
+u32	include/type.h	/^typedef unsigned int u32;$/;"	t	language:C++
+u8	include/type.h	/^typedef unsigned char u8;$/;"	t	language:C++
+udelay	include/config.h	29;"	d	language:C++
+v16	include/type.h	/^typedef volatile unsigned short v16;$/;"	t	language:C++
+v32	include/type.h	/^typedef volatile unsigned int v32;$/;"	t	language:C++
+v8	include/type.h	/^typedef volatile unsigned char v8;$/;"	t	language:C++

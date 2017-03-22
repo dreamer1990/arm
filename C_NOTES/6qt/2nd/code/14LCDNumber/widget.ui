@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Widget</class>
+ <widget class="QWidget" name="Widget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>786</width>
+    <height>453</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Widget</string>
+  </property>
+  <widget class="QLCDNumber" name="lcdNumber">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>50</y>
+     <width>531</width>
+     <height>81</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QDial" name="dial">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>200</y>
+     <width>191</width>
+     <height>171</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QScrollBar" name="horizontalScrollBar">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>220</y>
+     <width>261</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>dial</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>lcdNumber</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>225</x>
+     <y>285</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>385</x>
+     <y>90</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dial</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>horizontalScrollBar</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>225</x>
+     <y>285</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>580</x>
+     <y>235</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalScrollBar</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>lcdNumber</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>580</x>
+     <y>235</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>385</x>
+     <y>90</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalScrollBar</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>dial</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>580</x>
+     <y>235</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>225</x>
+     <y>285</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -1,0 +1,68 @@
+########## Makefile ##########
+
+obj-m	:= modname.o 
+
+编译完会有modname.ko
+
+当前目录下必须有modname.[c/s/S]文件
+
+obj-m的值有多少个*.o就会有多少个*.ko
+
+++++++++++++++++++++++++++++++
+
+多文件：
+
+obj-m	:= modname.o
+
+modname-objs := 1.o 2.o ...
+
+编译完的modname.o由modname-objs的所有*.o产生
+
+***不会编译当前目录下的modname.[c/s/S]文件
+
+########## 模块命令 ##########
+
+insmod modname.ko or modprobe modname 用modprobe命令需要把模块安装到文件系统
+
+lsmod [modname]  or cat /proc/modules
+
+rmmod module_name  or modprobe -r modname
+
+modinfo modname.ko
+
+########## 模块基本结构 ##########
+
+include <linux/init.h>
+include <linux/module.h>
+
+static int __init test_init(void)
+{
+        printk("hello test init!!!\n");
+        return 0;
+}
+
+static void __exit test_exit(void)
+{
+        printk("hello test exit!!!\n");
+}
+
+module_init(test_init);
+module_exit(test_exit);
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("...");
+MODULE_DESCRIPTION("...");
+
+
+########## 符号导出 ##########
+
+EXPORT_SYMBOL(symbol_name);
+
+内核---->内核 or 模块A---->模块A	不需要导出符号
+
+模块---->内核 or 模块A---->模块B	只能使用对方已导出的符号
+
+内核---->模块				不管模块符号是否导出都不能使用
+
+
+

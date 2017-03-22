@@ -1,0 +1,77 @@
+#include <linux/module.h>
+#include <linux/fs.h>
+#include <linux/cdev.h>
+#include <linux/sched.h>
+#include <linux/delay.h>
+#include <linux/preempt.h>
+#include <linux/interrupt.h>
+#include <linux/slab.h>
+#include <linux/vmalloc.h>
+#include <linux/pagemap.h>
+#include <linux/io.h>
+#include <linux/device.h>
+#include <linux/gpio.h>
+
+#include "mini_device.h"
+
+#define DEV_NAME    "test-dev0"
+
+struct resource res[] = {
+    {
+        .start = EXYNOS4X12_GPM4(0),
+        .end = EXYNOS4X12_GPM4(3),
+        .flags = IORESOURCE_IO,
+    },
+    {
+        .start = IRQ_EINT(26),
+        .end = IRQ_EINT(29),
+        .flags = IORESOURCE_IRQ,
+    },
+    {
+        .start = 0x40000000,
+        .end = 0x80000000,
+        .flags = IORESOURCE_MEM,
+    }
+};
+
+
+struct mini_test_info info = {
+    .w = 480,
+    .h = 800,
+    .ch = 0,
+};
+
+struct mini_device dev = {
+    .name = DEV_NAME,
+    .resources = res,
+    .resource_num = ARRAY_SIZE(res),
+    .dev.platform_data = &info,
+};
+
+int test_init(void)
+{
+    int ret;
+    printk("test init\n");
+    ret = mini_device_register(&dev);
+    if(IS_ERR_VALUE(ret))
+    {
+        return ret;
+    }
+    return 0;
+}
+
+void test_exit(void)    //模块拔出时的函数;
+{
+    printk("test exit\n");
+    mini_device_unregister(&dev);
+}
+
+module_init(test_init);
+module_exit(test_exit);
+
+MODULE_LICENSE("GPL");
+MODULE_VERSION("V1.0");
+MODULE_AUTHOR("xuwei www.uplooking.com");
+
+
+

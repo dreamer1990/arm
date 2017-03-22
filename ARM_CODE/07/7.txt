@@ -1,0 +1,163 @@
+
+. 编译器
+    -O0
+    -O1
+    -O2
+    -O3 最高级别优化; 循环展开; 删除代码;
+
+. .s和.S和.c
+    .s -> arm-linux-gcc -c -> -c       : .s -> .o
+    .S -> arm-linux-gcc -c -> -E -c    : .s -> .o
+    .c -> arm-linux-gcc -c -> -E -S -c : .s -> .o
+
+    .S : #define 
+         #ifdef
+         #ifndef
+         #if
+         #elif
+         #else
+         #endif
+         //
+         @
+
+. Makefile变形:
+    makefile1
+        all:
+            arm-linux-gcc ...
+
+    makefile2
+        all:
+            $(LD)
+            ...
+
+    makefile3
+        all:
+            for dir in $(dir $(OBJS) $(LIBS)) ; do\
+                make -C $$dir all; done
+
+. 链接地址:
+    链接阶段由连接器指定的地址;
+    .text       0x8094  
+    .rodata     0x8228
+    .data       ....
+    .bss        ....
+
+. 运行地址:
+    下载到内存中的实际运行地址;
+    dnw 0x50000000      0x50000000
+    go 0x50000000
+
+    操作系统环境: 链接地址和运行地址一定一致;
+    ./a.out -> fork -> execve -> 
+
+. 与地址相关指令(链接地址和运行地址一致才能执行)
+    ldr r0, =.LC0   (跨段访问的指令)
+             ^
+             链接器指定的绝对地址;
+
+. 与地址无关指令(不需要链接地址和运行地址一致)
+    b   loop            pc +=?? pc -=??
+    bl  printf
+
+. 指定链接地址:
+    arm-linux-ld -Ttext=0x50000000
+                 ^ 指定链接地址为0x50000000
+                 -Tdata
+                 -Tbss
+
+    .text
+    .rodata     4K
+
+    .data       0x8000  32K
+    .bss
+
+. 链接脚本:
+    1)文件中的位置; (.text .rodata .data .bss) 在输出start.bin中的位置;
+        文件偏移;
+    2)内存中的位置; (.text .rodata .data .bss) ./a.out在内存中布局;
+        链接地址;
+
+. 清bss 段;
+
+. 裸板代码调用libc库:
+    与环境无关函数可以调用静态库;
+    memset
+    memcpy
+    memcmp
+    strlen
+    strcpy
+    strcmp
+    strncmp
+    cp /usr/local/arm/4.5.1/arm-none-linux-gnueabi/sys-root/usr/lib/libc.a .
+
+    与环境有关函数不能在裸板调用;
+    printf
+    scanf
+    getc
+    fopen..
+    getenv
+    system
+    chdir
+
+. ADC
+    模数转换
+    模拟信号 -> 数字的转换
+
+    传感器: 物理特性 -> 模拟信号
+    
+    XadcAIN0 -> XadcAIN0
+
+    10bit/12bit     精度;
+
+    0 ~ 1.8V    -> 0 ~ 1023
+                -> 0 ~ 4095
+
+    1MSPS           转换数率
+    5MHz/5 = 1MSPS
+
+    ADC_CFG         0x1001_0118
+        [16]            0
+
+    ADCCON          0x126C_0000
+        [16]        10bit/12bit
+        [15]        转换结束标志位
+        [14]        转换预分频使能
+        [13:6]      100MHZ/(N+1)
+                            19
+                            5MHZ
+        [2]         0   普通转换模式
+        [1]         
+        [0]         1/0 手动使能开始转换
+
+    ADCDAT          0x126C_000C
+        [11:0]      转换的结果
+
+    ADCMUX          0x126C_001C
+        [3:0]       0   AIN0
+
+    PCLK = 100MHZ
+
+. 电阻触摸屏:
+    l1  l2
+    |   |    
+    |   |
+    \   |
+     \  |
+      \ |
+      / |
+     /  |
+    /   |
+    |   |
+    
+    ||
+    ------------------
+    ||
+    ------------------
+    ||
+    -X----------------
+    ||
+    ------------------
+    ||
+    ------------------
+    ||
+

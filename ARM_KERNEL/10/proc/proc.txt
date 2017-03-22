@@ -1,0 +1,14 @@
+
+
+proc文件:
+    struct proc_dir_entry 
+        ...
+        read_proc_t *read_proc;
+        write_proc_t *write_proc;
+        char name[];
+        ...
+
+    create_proc_entry();
+    remove_proc_entry();
+
+

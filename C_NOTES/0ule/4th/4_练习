@@ -1,0 +1,16 @@
+
+1. 安装chm目录中的软件，看看缺少依赖包报什么错误.
+
+    步骤：  
+        rpm -ivh chmlib-0.39-1.el5.rf.i386.rpm
+        rpm -ivh chmlib-0.39-1.el5.rf.i386.rpm
+        rpm -ivh chmsee-1.0.1-6.fc9.i386.rpm
+
+    安装顺序不能更改
+
+        chmsee
+
+2. 源码包安装
+    安装ntfs
+
+3. 分区

@@ -1,0 +1,308 @@
+
+1. C++简介
+	C++是在C语言的基础上开发的一种面向对象编程语言，属于编译型语言，应用广泛；C++支持多种编程范式 －－面向对象编程、泛型编程和过程化编程。最新正式标准C++于2014年8月18日公布。[1]  其编程领域众广，常用于系统开发，引擎开发等应用领 域，支持类、封装、继承、多态等特性!
+
+2. C++发展历程
+	计算机诞生初期，人们要使用计算机必须用机器语言或汇编语言编写程序。世界上第一种计算机高级语言是诞生于1954年的FORTRAN语言。之后出现了多种计算机高级语言，其中使用最广泛、影响最大的当推BASIC语言和C语言。BASIC语言是1964年由 Dartmouth 学院 John G. Kemeny 与 Thomas E. Kurtz 两位教授在FORTRAN语言的基础上简化而成的， 适用于初学者设计的小型高级语言；C语言是1972年由美国贝尔实验室的D.M.Ritchie所开发，采用结构化编程方法，遵从自顶向下的原则。[2]  在操作系统和系统使用程序以及需要对硬件进行操作的场合，用C语言明显优于其它高级语言，但在编写大型程序时，C语言仍面临着挑战。
+
+	1983年，贝尔实验室的Bjarne Stroustrup在C语言基础上推出了C++[1]  。 C++进一步扩充和完善了C语言，是一种面向对象的程序设计语言。
+	
+	2.1 名称由来
+	C++这个名字是Rick Mascitti于1983年中所建议的，并于1983年12月首次使用。更早以前，尚在研究阶段的发展中语言曾被称为“new C”，之后是“C with Class”[3]  。在计算机科学中，C++仍被称为C语言的上层结构。它最后得名于C语言中的“++”操作符（其对变量的值进行递增）。而且在共同的命名约定中，使用“+”以表示增强的程序。Stroustrup说：“这个名字象征着源自于C语言变化的自然演进”。Rick Mascitti在1992年被非正式地问起名字的由来，他表示这是在半开玩笑中说出的。他从没想过C++会成为这门语言的正式名字。有一个关于C++名字的笑话，当你使用后缀++时，赋值发生在加运算之前（因此，它应该是++C，而不是C++，这个笑话是说时下某些程序员还在以使用C的方式使用C++，这通常被一些权威著作认为是不正确的）。
+
+	2.2 发展历史
+	在“C with Class”阶段，研制者在C语言的基础上加进去的特征主要有：类及派生类、共有和私有成员的区分、类的构造函数和析构函数、友元、内联函数、赋值运算符的重载等。
+	1985年公布的C++语言1.0版的内容中又添加了一些重要特征：虚函数的概念、函数和运算符的重载、引用、常量（constant）等。
+	1989年推出的2.0版形成了更加完善的支持面向对象程序设计的C++语言，新增加的内容包括：类的保护成员、多重继承、对象的初始化与赋值的递归机制、抽象类、静态成员函数、const成员函数等。
+	1993年的C++语言3.0版本是C++语言的进一步完善，其中最重要的新特征是模板（template）,此外解决了多重继承产生的二义性问题和相应的构造函数与析构函数的处理等。
+	1998年C++标准（ISO/IEC14882 Standard for the C++ Programming Language）得到了国际标准化组织（ISO）和美国标准化协会（ANSI）的批准，标准C++语言及其标准库更体现了C++语言设计的初衷。名字空间的概念、标准模板库（STL）中增加的标准容器类、通用算法类和字符串类型等使得C++语言更为实用。此后C++是具有国际标准的编程语言，该标准通常简称ANSI C++或ISO C++ 98标准，以后每5年视实际需要更新一次标准。
+	后来又在2003年通过了C++标准第二版（ISO/IEC 14882:2003）：这个新版本是一次技术性修订，对第一版进行了整理——修订错误、减少多义性等，但没有改变语言特性。这个版本常被称为C++03。[2] 
+	此后，新的标准草案叫做C++ 0x。对于C++ 0x标准草案的最终国际投票已于2011年8月10日结束，并且所有国家都投出了赞成票，C++0x已经毫无异议地成为正式国际标准。先前被临时命名为C++0x的新标准正式定名为ISO/IEC 14882:2011，简称ISO C++ 11标准。C++ 11标准将取代现行的C++标准C++98和C++03。国际标准化组织于2011年9月1日出版发布《ISO/IEC 14882:2011》，名称是：Information technology -- Programming languages -- C++ Edition: 3。[4-6] 
+
+3. C++与C的关系
+	C语言是C++的基础，C++和C语言在很多方面是兼容的。
+	C语言是一个结构化语言，它的重点在于算法与数据结构。C程序的设计首要考虑的是如何通过一个过程，对输入（或环境条件）进行运算处理得到输出（或实现过程（事物）控制）。C++，首要考虑的是如何构造一个对象模型，让这个模型能够契合与之对应的问题域，这样就可以通过获取对象的状态信息得到输出或实现过程（事物）控制。所以C语言和C++的最大区别在于它们解决问题的思想方法不一样。
+
+	C++对C的“增强”，表现在六个方面：
+	(1) 类型检查更为严格。
+	(2) 增加了面向对象的机制。
+	(3) 增加了泛型编程的机制（Template）。
+	(4) 增加了异常处理。
+	(5) 增加了运算符重载。
+	(6) 增加了标准模板库（STL）。
+
+
+4. C++与C不兼容之处
+	C++一般被认为是C的超集合（Superset），但这并不严谨。大部分的C代码可以很轻易的在C++中正确编译，但仍有少数差异，导致某些有效的C代码在C++中失效，或者在C++中有不同的行为。
+	最常见的差异之一是，C允许从void*隐式转换到其它的指针类型，但C++不允许。下列是有效的C代码：
+	//从void*
+	类型隐式转换为int*
+	类型
+	int*i=malloc(sizeof(int)*5);
+	　
+	但要使其在C和C++两者皆能运作，就需要使用显式转换：
+	int*i=(int*)malloc(sizeof(int)*5);
+	另一个常见的可移植问题是，C++定义了新关键字，例如如new，class，它们在C程序中可以作为识别字（例：变量名）的。
+	在C标准（C99）中去除了一些不兼容之处，也支持了一些C++的特性，如//注解，以及在代码中混合声明。不过C99也纳入几个和C++冲突的新特性（如：可变长度数组、原生复数类型和复合逐字常数）。
+	若要混用C和C++的代码，则所有在C++中调用的C代码，必须放在 extern "C" { /* C代码 */ } 内。
+
+
+6. 语言特点编辑
+
+	6.1 优点
+	C++设计成静态类型、和C同样高效且可移植的多用途程序设计语言。
+	C++设计直接的和广泛的支持多种程序设计风格（程序化程序设计、资料抽象化、面向对象程序设计、泛型程序设计）。
+	C++设计无需复杂的程序设计环境。
+
+	C++语言灵活，运算符的数据结构丰富、具有结构化控制语句、程序执行效率高，而且同时具有高级语言与汇编语言的优点，与其它语言相比 ，可以直接访问物理地址，与汇编语言相比又具有良好的可读性和可移植性。
+
+	总得来说，C++语言的主要特点表现在两个方面，一是尽量兼容C,二是支持面向对象的方法。它操持了C的简洁、高效的接近汇编语言等特点，对C的类型系统进行了改革的扩充，因此C++比C更安全，C++的编译系统能检查出更多的类型错误。另外，由于C语言的广泛使用，因而极大的促进了C++的普及和推广。
+	
+	C++语言最有意义的方面是支持面向对象的特征。虽然与C的兼容使得C++具有双重特点，但他在概念上完全与C不同，更具面向对象的特征。
+	出于保证语言的简洁和运行高效等方面的考虑，C++的很多特性都是以库（如STL）或其他的形式提供的，而没有直接添加到语言本身里。关于此类话题，Bjarne Stroustrup的《C++语言的设计和演化》（1994）里做了详尽的陈述。
+	
+	C++引入了面向对象的概念，使得开发人机交互类型的应用程序更为简单、快捷。很多优秀的程序框架包括Boost、Qt、MFC、OWL、wxWidgets、WTL就是使用的C++。
+	
+	6.2 缺点
+
+	C++由于语言本身复杂。C++的编译系统受到C++的复杂性的影响，非常难于编写，即使能够使用的编译器如果存在问题，可能难于被发现。由于本身的复杂性，复杂的C++程序的正确性相当难以保证。
+	C++对于安全性也无法保证，所以，很容易依靠C++编译出病毒来。
+
+7. 数据类型
+	7.1 数据定义
+	
+	数据是程序处理的对象，数据可以依其本身的特点进行分类。我们知道在数学中有整数、实数的概念，在日常生活中需要用字符串来表示人的姓名和地址，有些问题的回答只能是“是”或“否”（即逻辑“真”或“假”）。不同类型的数据有不同的处理方法，例如：整数和实数可以参加算术运算，但实数的表示又不同于整数，要保留一定的小数位；字符串可以拼接；逻辑数据可以参加“与”、“或”、“非”等逻辑运算。
+
+	我们编写计算机程序，目的就是为了解决客观世界中的现实问题。所以，高级语言中也为我们提供了丰富的数据类型和运算。C++中的数据类型分为基本类型和自定义类型。基本类型是C++编译系统内置的。
+
+	7.2 基本类型
+	C++的基本数据类型如下表所示（下表中列出的各类型的长度和取值范围，是指以面向80x86处理器的 Viusal C++ 2012 和 gcc 4.8.1 的长度，其它的编译器并不一定是这个长度）。
+	bool所支持的字节数是1b，取值范围是false、true;
+	char、signed char所支持的字节数是1b，取值范围是-128~127;
+	unsign char所支持的字节数是1b，取值范围是0~255;
+	short (signed short)所支持的字节数是2byte，取值范围是-32768~32767;
+	unsigned short所支持的字节数是2byte，取值范围是0~65535;
+	int (signed int)所支持的字节数是4b，取值范围是-2147483648~2147483647;
+	unsigned int所支持的字节数是4b，取值范围是0~4294967295;
+	long (signed long)所支持的字节数是4b，取值范围是-2147483648~2147483647
+	unsigned long所支持的字节数是4b，取值范围是0~4294967295
+	unsigned long long所支持的字节数是8b，取值范围是0~18446744073709551615
+	float所支持的字节数是4b，取值范围是 
+	double所支持的字节数是8b，取值范围是 
+	long double所支持的字节数是8b，取值范围是 
+	
+	7.3 类型转换
+	C++丰富的数据类型允许根据需要选择不同的类型，这也使得计算机的操作更复杂。
+	自动类型转换（隐式类型转换）
+
+	在下列四种情况中计算机自动进行类型转换：
+	在混合类型的算术表达式中
+	int ival=3;　double dval=3.1415　ival+dval;//ival被提升为double类型:3.0
+	
+	用另外一种类型的表达式赋值
+	int*pi=NULL;//NULL(0)被转换成了int*类型的空指针值
+
+	用一个表达式传递给一个函数调用
+	extern double sqrt(double);　sqrt(2);//2被提升为double类型:2.0
+
+	从一个函数返回一个表达式
+	double difference(int ival1,int ival2)　{　returnival1-ival2;//返回值被提升为double类型.　}
+	
+	强制类型转换（显示类型转换）
+	C++显式转换包含四种转换：
+	static_cast:
+	用法：static_cast < type-id > ( expression )
+	说明：该运算符把expression转换为type-id类型，但没有运行时类型检查来保证转换的安全性。
+
+	dynamic_cast :
+	用法：dynamic_cast < type-id > (expression)
+	说明：该运算符把expression转换成type-id类型的对象。Type-id必须是类的指针、类的引用或者void*；
+
+	const_cast:
+	用法：const_cast<type_id> (expression)
+	说明：该运算符用来修改类型的const或volatile属性。除了const 或volatile修饰之外， type_id和expression的类型是一样的。
+
+	reinterpret_cast :
+	用法：reinterpret_cast<type-id> (expression)
+	说明：type-id 必须是一个指针、引用、算术类型、函数指针或者成员指针。它可以把一个指针转换成一个整数，也可以把一个整数转换成一个指针（先把一个指针转换成一个整数，在把该整数转换成原类型的指针，还可以得到原先的指针值）。
+
+8. 编程技巧 
+
+new和delete
+
+	运算符new和delete提供了存储的动态内存分配和释放功能，它的作用相当于C语言的函数malloc()和free()，但性能更为优越。使用new较之使用malloc()有以下的几个优点：
+	（1）new自动计算要分配类型的大小，不使用sizeof运算符，比较省事，可以避免错误。
+	（2）自动地返回正确的指针类型，不用进行强制指针类型转换。
+	（3）可以用new对分配的对象进行初始化。[8] 
+
+inline
+	对于频繁使用的函数，C语言建议使用宏调用代替函数调用以加快代码执行，减少调用开销。但是宏调用有许多的弊端，可能引起不期望的副作用。例如宏：#define abs(a)(a)<0?(-a):(a))，当使用abs(i++)时，这个宏就会出错。
+	所以在C++中应该使用inline内联函数替代宏调用，这样既可达到宏调用的目的，又避免了宏调用的弊端。
+	使用内联函数只须把inline关键字放在函数返回类型的前面。[8] 
+
+函数重载
+
+	在C语言中，两个函数的名称不能相同，否则会导致编译错误。而在C++中，函数名相同而参数数据类型不同或参数个数不同或二者皆不同的两个函数被解释为重载。
+	使用函数重载可以帮助程序员处理更多的复杂问题，避免了使用诸如intabs()、fabs()、dabs()等繁杂的函数名称；同时在大型程序中，使函数名易于管理和使用，而不必绞尽脑汁地去处理函数名。同时必须注意，参数数据类型相同，但是函数返回类型不同的两个函数不能重载。[8] 
+
+参数传递
+	在C语言中，如果一个函数需要修改用作参数的变量值的时候 ，参数应该声明为指针类型；当参数的大小超过一个机器字长时，通过传值方式来传递参数的效率较低，也需要用指针。由于C语言的指针可以进行p++,--p,p+=1等算术运算，所以编译器无法在编译的时候确定指针引用的变量。对于复杂的程序，使用指针容易出错，程序也难以读懂。在C++中，对于上述情况 可以使用引用来代替指针，使程序更加清晰易懂。引用就是对变量取的一个别名，对引用进行操作，这就相当于对原有变量进行操作。[8] 
+
+缺省参数
+	在C++中函数可以使用缺省参数。
+
+	通常的情况下，一个函数应该具有尽可能大的灵活性。使用缺省参数为程序员处理更大的复杂性和灵活性问题提供了有效的方法，所以在C++的代码中都大量地使用了缺省参数。
+
+	需要说明的是，所有的缺省参数必须出现在不缺省参数的右边。亦即，一旦开始定义缺省参数，就不可再声明非缺省的参数。否则当你省略其中一个参数的时候，编译器无法知道你是自定义了这个参数还是利用了缺省参数而定义了非缺省的参数。[8] 
+
+使用STL
+	STL（Standard Template Library，标准模板库），STL的代码从广义上讲分为三类：algorithm（算法）、container（容器）和iterator（迭代器），并包括一些工具类如auto_ptr。几乎所有的代码都采用了模板类和模板函数的方式，这相比于传统的由函数和类组成的库来说提供了更好的代码重用机会。
+	作用符被重载，使得我们可以像访问数组一样访问vector中的元素。[8] 
+
+使用模板
+	模板的概念
+
+	模板是C++的一个特性，是函数和类可以作用于不同的类型上而不需要针对每一个具体类型重复相同的代码。与模板相反，我们已经学过的重载(Overloading)，对重载函数而言,C++的检查机制能通过函数参数的不同及所属类的不同。正确的调用重载函数。例如，为求两个数的最大值，我们定义MAX()函数需要对不同的数据类型分别定义不同重载(Overload)版本。如果使用模板就可以只写一个通用的MAX模板，而不需要针对每个类型重复相同的逻辑。
+
+指针与引用的区别
+	指针与引用看上去完全不同（指针用操作符“*”和“->”，引用使用操作符“&”），但是它们似乎有相同的功能。指针与引用都是让你间接引用其他对象。你如何决定在什么时候使用指针，在什么时候使用引用呢？
+
+	首先，要认识到在任何情况下都不能使用指向空值的引用。一个引用必须总是指向某些对象。因此如果你使用一个变量并让它指向一个对象，但是该变量在某些时候也可能不指向任何对象，这时你应该把变量声明为指针，因为这样你可以赋空值给该变量。相反，如果变量肯定指向一个对象，例如你的设计不允许变量为空，这时你就可以把变量声明为引用。
+
+
+9. 常用错误
+
+英文
+参考译文
+Ambiguous operators need parentheses 模棱两可的操作符需要括号
+Ambiguous symbol ''xxx'' 不明确的符号
+Argument list syntax error 参数表语法错误
+Array bounds missing 数组界限符丢失
+Array size too large 数组尺寸太大
+Bad character in paramenters 参数中有不适当的字符
+Bad file name format in include directive 包含命令中文件名格式不正确
+Bad ifdef directive synatax 编译预处理ifdef有语法错
+Bad undef directive syntax 编译预处理undef有语法错
+Bit field too large 位字段太长
+Call of non-function 调用未定义的函数
+Call to function with no prototype 调用函数时没有函数的说明
+Cannot modify a const object 不允许修改常量对象
+Case outside of switch 漏掉了case 语句
+Case syntax error Case 语法错误
+Code has no effect 代码不可能被执行到
+Compound statement missing{ 分程序漏掉"{"
+Conflicting type modifiers 互相冲突的类型说明符设置
+Constant expression required 需要常量表达式
+Constant out of range in comparison 在比较中常量超出范围
+Conversion may lose significant digits 转换时会丢失数值的精度
+Conversion of near pointer not allowed 不允许转换近指针
+Could not find file ''xxx'' 找不到XXX文件
+Declaration missing ; 声明中缺少"；"
+Declaration syntax error 声明中出现语法错误
+Default outside of switch Default 出现在switch语句之外
+Define directive needs an identifier 定义编译预处理需要标识符
+Division by zero 用零作除数
+Do statement must have while Do-while语句中缺少while部分
+Enum syntax error 枚举类型语法错误
+Enumeration constant syntax error 枚举常数语法错误
+Error directive :xxx 错误的编译预处理命令
+Error writing output file 写输出文件错误
+Expression syntax error 表达式语法错误
+Extra parameter in call 调用时出现多余错误
+File name too long 文件名太长
+Function call missing 函数调用缺少右括号
+Fuction definition out of place 函数定义位置错误
+Fuction should return a value 函数必需返回一个值
+Goto statement missing label Goto语句没有标号
+Hexadecimal or octal constant too large 16进制或8进制常数太大
+Illegal character ''x'' 非法字符x
+Illegal initialization 非法的初始化
+Illegal octal digit 非法的8进制数字
+Illegal pointer subtraction 非法的指针相减
+Illegal structure operation 非法的结构体操作
+Illegal use of floating point 非法的浮点运算
+Illegal use of pointer 指针使用非法
+Improper use of a typedefsymbol 类型定义符号使用不恰当
+In-line assembly not allowed 不允许使用行间汇编
+Incompatible storage class 存储类别不相容
+Incompatible type conversion 不相容的类型转换
+Incorrect number format 错误的数据格式
+Incorrect use of default Default使用不当
+Invalid indirection 无效的间接运算
+Invalid pointer addition 指针相加无效
+Irreducible expression tree 无法执行的表达式运算
+Lvalue required 需要逻辑值0或非0值
+Macro argument syntax error 宏参数语法错误
+Macro expansion too long    宏的扩展以后太长
+Mismatched number of parameters in definition   定义中参数个数不匹配
+Misplaced break 此处不应出现break语句
+Misplaced continue  此处不应出现continue语句
+Misplaced decimal point 此处不应出现小数点
+Misplaced elif directive    不应编译预处理elif
+Misplaced else  此处不应出现else
+Misplaced else directive    此处不应出现编译预处理else
+Misplaced endif directive   此处不应出现编译预处理endif
+Must be addressable 必须是可以编址的
+Must take address of memory location 必须存储定位的地址
+No declaration for function ''xxx'' 没有函数xxx的说明
+No stack 缺少堆栈
+No type information/没有类型信息 缺少堆栈
+Non-portable pointer assignment
+不可移动的指针（地址常数）赋值
+Non-portable pointer comparison
+不可移动的指针（地址常数）比较
+Non-portable pointer conversion
+不可移动的指针（地址常数）转换
+Not a valid expression format type 不合法的表达式格式
+Not an allowed type 不允许使用的类型
+Numeric constant too large 数值常太大
+Out of memory 内存不够用
+Parameter ''xxx'' is never used 能数xxx没有用到
+Pointer required on left side of -> 符号->的左边必须是指针
+Possible use of ''xxx'' before definition 在定义之前就使用了xxx（警告）
+Possibly incorrect assignment 赋值可能不正确
+Redeclaration of ''xxx'' 重复定义了xxx
+Redefinition of ''xxx'' is not identical xxx的两次定义不一致
+Register allocation failure 寄存器定址失败
+Repeat count needs an lvalue 重复计数需要逻辑值
+Size of structure or array not known 结构体或数给大小不确定
+Statement missing ; 语句后缺少"；"
+Structure or union syntax error 结构体或联合体语法错误
+Structure size too large 结构体尺寸太大
+Sub scripting missing ] 下标缺少右方括号
+Superfluous & with function or array 函数或数组中有多余的"&"
+Suspicious pointer conversion 可疑的指针转换
+Symbol limit exceeded 符号超限
+Too few parameters in call 函数调用时的实参少于函数的参数不
+Too many default cases Default太多(switch语句中一个)
+Too many error or warning messages 错误或警告信息太多[13] 
+Too many type in declaration 说明中类型太多
+Too much auto memory in function 函数用到的局部存储太多
+Too much global data defined in file 文件中全局数据太多
+Two consecutive dots 两个连续的句点
+Type mismatch in parameter xxx 参数xxx类型不匹配
+Type mismatch in redeclaration of ''xxx'' xxx重定义的类型不匹配
+Unable to create output file ''xxx'' 无法建立输出文件xxx
+Unable to open include file ''xxx'' 无法打开被包含的文件xxx
+Unable to open input file ''xxx'' 无法打开输入文件xxx
+Undefined label ''xxx'' 没有定义的标号xxx
+Undefined structure ''xxx'' 没有定义的结构xxx
+Undefined symbol ''xxx'' 没有定义的符号xxx
+Unexpected end of file in comment started on line xxx 从xxx行开始的注解尚未结束文件不能结束
+Unexpected end of file in conditional started on line xxx 从xxx 开始的条件语句 尚未结束文件不能结束
+Unknown assemble instruction 未知的汇编结构
+Unknown option 未知的操作
+Unknown preprocessor directive: ''xxx'' 不认识的预处理命令xxx
+Unreachable code 无路可达的代码
+Unterminated string or character constant 字符串缺少引号
+User break 用户强行中断了程序
+Void functions may not return a value Void类型的函数不应有返回值
+Wrong number of arguments 调用函数的参数数目错
+''xxx'' not an argument xxx不是参数
+''xxx'' not part of structure xxx不是结构体的一部分
+xxx statement missing ( xxx语句缺少左括号
+xxx statement missing ) xxx语句缺少右括号
+xxx statement missing ; xxx缺少分号
+xxx'' declared but never used 说明了xxx但没有使用
+xxx'' is assigned a value which is never used 给xxx赋了值但未用过
+Zero length structure 结构体的长度为零[1

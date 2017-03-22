@@ -1,0 +1,22 @@
+
+1. 怎么vncviewer查看老师的桌面，连接失败
+
+	第一步： 检查网卡是否连接网线ok
+
+	[root@localhost test]# mii-tool 
+	eth1: negotiated 100baseTx-FD flow-control, link ok (link ok表示网线已经接好)
+
+	如果没有link ok
+	
+	ifconfig eth0 up (可能也是网卡eth1)
+
+	配置IP地址和子网掩码
+	ifconfig eth0 2.2.2.xx netmask 255.255.255.0 (x 代表主机的编号)
+
+	测试是否能够ping通教师机
+	ping 2.2.2.66 
+
+	网络通的话:
+	vncviewer 2.2.2.66
+	
+	

@@ -1,0 +1,154 @@
+
+. 中断:
+    gic
+        SGI
+        PPI
+        SPI
+
+    Interrupt Source
+        SPI:
+            32-159
+
+    CPU Interface
+        0x10480000
+
+        ICCICR_CPUn     0x0
+            [0]         1(enable)
+            
+        ICCPMR_CPUn     0x4
+            [7:0]       0-255       0: 最高优先级别;
+
+        ICCIAR_CPUn     0xc
+            [12:10]     cpuid       哪个核发送的中断;
+                        SGI中有效;
+            [9:0]       IRQID       发送的中断号;
+
+        ICCEOIR_CPUn    0x10
+            [12:10]
+            [9:0]                   清除ICCIAR中的内容的;
+
+    Distributor
+        0x10490000
+
+        ICDDCR          0x0
+            [0]         enable Distributor
+
+        ICDISERn_CPUn   0x100
+            [31:0]      1   使能中断号;
+
+        ICDICERn_CPUn   0x180
+            [31:0]      1   无效中断号;
+
+        ICDIPRn_CPUn    0x400
+            [31:24]
+            [23:16]
+            [15:8]
+            [7:0]       中断的优先级别;
+
+        ICDIPTRn_CPUn   0x800
+            [31:24]
+            [23:16]
+            [15:8]
+            [7:0]       中断的目标cpu;      00000011 : cpu0和cpu1
+
+        ICDSGIR         0xF00
+            [25:24]     00  : 按照23:16位描述发送目标cpu;
+            [23:16]     中断的目标cpu;      00000011 : cpu0和cpu1
+            ...
+            [3:0]       SGIID
+            
+
+SGI: 软件中断;
+        cpsr.i
+
+        给 CPU0 发送 SGI (5)
+
+. 中断延迟:
+    外设 -> gic -> cpu -> vector 
+
+. WDT中断
+    16bit定时器;
+    3052    1s
+    65535   21s
+
+    WTCON    
+
+    WTDAT       递减值buffer(中断来了, 再装载)
+
+    WTCNT       递减值(需要喂狗)
+
+    WTCLRINT 
+
+
+. PWM定时器中断
+    five 32-bit Pulse Width Modulation (PWM) timers.
+
+    32bit定时器:
+        43亿;
+
+    TCNTBn      计数buffer寄存器(down counter)
+        TCNT
+
+    TCONn
+
+    TCMPBn      比较buffer寄存器;
+        TCMP
+
+    0x139D0000
+
+    TCFG0       0x0
+        [15:8]  255     PCLK/256
+    
+    TCFG1       0x4
+        [19:16] 0000 = 1/1 
+                0001 = 1/2 
+                0010 = 1/4 
+                0011 = 1/8 
+                0100 = 1/16 
+    
+    TCON        0x8
+        [22]    1 = Interval mode (auto-reload) 
+        [21]    1 = Updates TCNTB4 
+        [20]    1 = Starts Timer 4 
+
+        
+    TCNTB4      0x3c
+        [31:0]  Timer 4 Count Buffer register
+
+    TCNTO4      0x40
+        [31:0]  Timer 4 Count Observation register 
+
+    TINT_CSTAT  0x44
+        [9]     read: 1(来中断)
+                write:1(清中断)
+        [4]     Enables timer 4 interrupt 
+
+. PWM控制外部io的输出:
+    xPWMTOUT0 -> GPD0_0 -> BUZZER
+    
+    
+. homework:
+1)
+    pwm0
+    pwm1
+    pwm2
+    pwm3 
+    pwm4
+
+    pwm_timer_irq_init(u32 n, u32 s);
+    pwm_tout_init(u32 n, u32 cnt, u32 cmp);
+
+2)
+    27章;
+        RTC
+        自己实现:
+            1)读当前时间;
+            2)改当前时间;
+            3)设置闹钟;
+            4)设置定时器中断;
+        参考u-boot代码:
+            drivers/rtc/s3c24x0_rtc.c
+
+
+
+
